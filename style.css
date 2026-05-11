@@ -1637,17 +1637,18 @@ section:not(.hero).fade-in {
 }
 
 .gallery-item {
-    position: relative;
-    aspect-ratio: 16/9;
-    background: var(--color-bg-secondary);
-    border: 2px solid var(--color-border);
-    border-radius: var(--radius-md);
-    overflow: hidden;
-    cursor: pointer;
-    transition: var(--transition-normal);
-    transform-style: preserve-3d;
-    perspective: 1000px;
-    transform-origin: center center;
+ position: relative;
+ aspect-ratio: 16/9;
+ background: var(--color-bg-secondary);
+ border: 2px solid var(--color-border);
+ border-radius: var(--radius-md);
+ overflow: hidden;
+ cursor: pointer;
+ transition: var(--transition-normal);
+ transform-style: preserve-3d;
+ perspective: 1000px;
+ transform-origin: center center;
+ opacity: 0; /* Start invisible for fade-in animation */
 }
 
 .gallery-item:hover {
