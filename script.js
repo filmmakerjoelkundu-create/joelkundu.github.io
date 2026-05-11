@@ -997,22 +997,24 @@ function initGallery(filter = 'all') {
   // Shuffle and take first 12 (for 4x3 grid)
   const shuffled = filteredImages.sort(() => 0.5 - Math.random()).slice(0, 12);
   
-  // Fade out existing items first, then replace
-  const existingItems = galleryGrid.querySelectorAll('.gallery-item');
-  
-  if (existingItems.length > 0) {
-    // Add fade-out class to all existing items
-    existingItems.forEach((item) => {
-      item.classList.remove('fade-in');
-      item.classList.add('fade-out');
-    });
-    
-    // Wait for fade-out to complete, then rebuild
-    setTimeout(() => {
-      galleryGrid.innerHTML = '';
-      addGalleryItems(shuffled);
-    }, 500); // Wait 500ms for fade-out
-  } else {
+// Fade out existing items first, then replace
+const existingItems = galleryGrid.querySelectorAll('.gallery-item');
+
+if (existingItems.length > 0) {
+console.log('Fading out', existingItems.length, 'items');
+// Add fade-out class to all existing items
+existingItems.forEach((item) => {
+item.classList.remove('fade-in');
+item.classList.add('fade-out');
+});
+
+// Wait for fade-out to complete, then rebuild
+setTimeout(() => {
+console.log('Clearing grid and adding new items');
+galleryGrid.innerHTML = '';
+addGalleryItems(shuffled);
+}, 500); // Wait 500ms for fade-out
+} else {
     // No existing items, just add new ones
     addGalleryItems(shuffled);
   }
