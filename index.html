@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="thriller">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Joel Kundu | Cinematographer & Director</title>
+    <link rel="icon" type="image/jpeg" href="assets/logos/Logo.jpg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Creepster&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&family=Orbitron:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Rajdhani:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="protected">
+    <!-- Password Protection -->
+    <div class="password-overlay" id="passwordOverlay">
+        <div class="password-container">
+            <h2>🎬 Portfolio Access</h2>
+            <p>Please enter the password to view Joel Kundu's portfolio</p>
+            <input type="password" class="password-input" id="passwordInput" placeholder="Enter password">
+            <button class="password-submit" id="passwordSubmit">Enter</button>
+            <div class="password-error" id="passwordError">Incorrect password. Please try again.</div>
+        </div>
+    </div>
+
+    <!-- Theme Toggle -->
+    <div class="theme-toggle">
+        <button class="theme-btn active" data-theme="thriller" title="Thriller Theme">🎭</button>
+        <button class="theme-btn" data-theme="drama" title="Drama Theme">🎬</button>
+        <button class="theme-btn" data-theme="horror" title="Horror Theme">👻</button>
+        <button class="theme-btn" data-theme="scifi" title="Sci-Fi Theme">🚀</button>
+        <button class="theme-btn" data-theme="action" title="Action Theme">💥</button>
+    </div>
+
+    <!-- Retro Design Overlays -->
+    <div class="retro-scanlines"></div>
+    <div class="retro-vignette"></div>
+    <div class="retro-corners"></div>
+
+    <!-- Pattern Overlay -->
+    <div class="pattern-overlay">
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+            <defs>
+                <pattern id="fractal-chevron" patternUnits="userSpaceOnUse" width="20" height="20" patternTransform="rotate(45)">
+                    <path d="M0,10 L5,5 L10,10 L5,15 Z" fill="currentColor" opacity="0.1"/>
+                    <path d="M10,0 L15,5 L20,0 L15,-5 Z" fill="currentColor" opacity="0.08"/>
+                    <circle cx="5" cy="5" r="1" fill="currentColor" opacity="0.15"/>
+                    <circle cx="15" cy="15" r="1" fill="currentColor" opacity="0.12"/>
+                </pattern>
+                <pattern id="fractal-chevron-lg" patternUnits="userSpaceOnUse" width="40" height="40" patternTransform="rotate(45)">
+                    <path d="M0,20 L10,10 L20,20 L10,30 Z" fill="currentColor" opacity="0.06"/>
+                    <path d="M20,0 L30,10 L40,0 L30,-10 Z" fill="currentColor" opacity="0.05"/>
+                    <circle cx="10" cy="10" r="2" fill="currentColor" opacity="0.1"/>
+                    <circle cx="30" cy="30" r="2" fill="currentColor" opacity="0.08"/>
+                </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#fractal-chevron)"/>
+            <rect width="100%" height="100%" fill="url(#fractal-chevron-lg)"/>
+        </svg>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-background">
+            <div class="hero-parallax-bg">
+                <div class="hero-slideshow-container" id="heroSlideshow">
+                    <!-- Slides will be dynamically populated by JavaScript -->
+                </div>
+            </div>
+            <div class="video-overlay"></div>
+        </div>
+
+        <!-- Viewfinder Overlay - Alexa Mini LF Style -->
+        <div class="viewfinder">
+            <div class="viewfinder-frame"></div>
+            <div class="viewfinder-corner top-left"></div>
+            <div class="viewfinder-corner top-right"></div>
+            <div class="viewfinder-corner bottom-left"></div>
+            <div class="viewfinder-corner bottom-right"></div>
+            <div class="viewfinder-center"></div>
+            
+            <div class="viewfinder-info top-left">
+                <span class="label">ISO</span>
+                <span>800</span>
+            </div>
+            <div class="viewfinder-info top-right">
+                <span class="label">FPS</span>
+                <span id="fpsDisplay">24</span>
+            </div>
+            <div class="viewfinder-info bottom-left">
+                <span class="label">WB</span>
+                <span>5600K</span>
+            </div>
+            <div class="viewfinder-info bottom-right">
+                <span class="label">F-STOP</span>
+                <span>T2.8</span>
+            </div>
+            
+            <!-- Additional camera info -->
+            <div class="viewfinder-info-extra top-center">
+                <span class="label">VOLTAGE</span>
+                <span>14.4V</span>
+                <span style="margin-left: 1rem;" class="label">CLIP</span>
+                <span>A001 C002</span>
+                <span style="margin-left: 1rem;" class="label">SHUTTER</span>
+                <span>180°</span>
+            </div>
+            <div class="viewfinder-info-extra bottom-center">
+                <span class="label">LUT</span>
+                <span>LOG C</span>
+                <span style="margin-left: 1rem;" class="label">REC</span>
+                <span id="recTime">01:23:45</span>
+                <span style="margin-left: 1rem;" class="label">RES</span>
+                <span>4K UHD</span>
+            </div>
+            
+            <!-- Extra camera details -->
+            <div class="viewfinder-info" style="top: 60px; left: 90px;">
+                <span class="label">CODEC</span>
+                <span>ProRes 422</span>
+            </div>
+            <div class="viewfinder-info" style="top: 60px; right: 90px;">
+                <span class="label">BIT</span>
+                <span>10-bit</span>
+            </div>
+            <div class="viewfinder-info" style="bottom: 60px; left: 90px;">
+                <span class="label">AUDIO</span>
+                <span>48kHz</span>
+            </div>
+            <div class="viewfinder-info" style="bottom: 60px; right: 90px;">
+                <span class="label">ZOOM</span>
+                <span>1.0x</span>
+            </div>
+        </div>
+
+        <!-- Timecode -->
+        <div class="timecode" id="timecode">00:00:00:00</div>
+
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1>
+                        <span class="first-name">Joel</span>
+                        <span class="last-name">Kundu</span>
+                    </h1>
+                    <p class="tagline">Cinematographer & Director</p>
+                    <div class="hero-actions">
+                        <a href="#work" class="btn btn-primary retro-btn">View Work</a>
+                        <a href="#contact" class="btn btn-secondary retro-btn">Get in Touch</a>
+                    </div>
+                </div>
+
+                <!-- Logo with floating animation -->
+                <div class="hero-logo">
+                    <img src="assets/logos/Logo.jpg" alt="Joel Kundu Logo">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about" id="about">
+        <div class="section-pattern">
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+                <defs>
+                    <pattern id="chevron-gold" patternUnits="userSpaceOnUse" width="20" height="20" patternTransform="rotate(45)">
+                        <path d="M0,10 L5,5 L10,10 L5,15 Z" fill="#C4A35A" opacity="0.3"/>
+                        <path d="M10,0 L15,5 L20,0 L15,-5 Z" fill="#C4A35A" opacity="0.25"/>
+                    </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#chevron-gold)"/>
+            </svg>
+        </div>
+        <div class="container">
+            <div class="section-header">
+                <h2>About Me</h2>
+                <p>Cinematographer, Director, and Storyteller</p>
+            </div>
+
+            <div class="about-body">
+                <div class="about-content">
+                    <div class="about-text">
+                        <p>I'm a cinematographer and director based in London, Ontario, with a passion for visual storytelling that blends technical precision with emotional depth. My work explores themes of identity, memory, and human connection through a cinematic lens.</p>
+                        <p>With a background in Occupational Health and Safety Management, I bring a unique perspective to filmmaking—understanding that the safest sets are often the most creative ones. I believe in preparation, precision, and the magic that happens when everything comes together perfectly.</p>
+                        <p>From intimate character studies to sweeping visual narratives, I approach every project with the same commitment to craft and collaboration. My film philosophy is simple: every frame should serve the story, every light should reveal character, and every cut should propel the narrative forward.</p>
+                    </div>
+
+                    <div class="about-stats">
+                        <div class="stat stat-card retro-card">
+                            <h3>5+</h3>
+                            <p>Years Experience</p>
+                        </div>
+                        <div class="stat stat-card retro-card">
+                            <h3>15+</h3>
+                            <p>Projects Completed</p>
+                        </div>
+                        <div class="stat stat-card retro-card">
+                            <h3>3</h3>
+                            <p>Festival Selections</p>
+                        </div>
+                        <div class="stat stat-card retro-card" id="coffeeStat">
+                            <h3 style="font-size: 3rem;">∞</h3>
+                            <p>Coffee Consumed</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="about-portrait">
+                    <img src="assets/portrait.jpg" alt="Joel Kundu" class="portrait-img">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Selected Works Section -->
+    <section class="work" id="work">
+        <div class="section-pattern">
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+                <defs>
+                    <pattern id="chevron-gold-2" patternUnits="userSpaceOnUse" width="20" height="20" patternTransform="rotate(45)">
+                        <path d="M0,10 L5,5 L10,10 L5,15 Z" fill="#C4A35A" opacity="0.3"/>
+                        <path d="M10,0 L15,5 L20,0 L15,-5 Z" fill="#C4A35A" opacity="0.25"/>
+                    </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#chevron-gold-2)"/>
+            </svg>
+        </div>
+        <div class="container">
+            <div class="section-header">
+                <h2>Selected Works</h2>
+                <p>A collection of films and projects</p>
+            </div>
+
+            <div class="work-grid">
+                <div class="work-card retro-card" data-category="narrative" data-project="e13m">
+                    <div class="work-image">
+                        <img src="assets/images/Screenshot (15).png" alt="E13M">
+                        <div class="work-overlay">
+                            <h3>E13M</h3>
+                            <p>Director of Photography</p>
+                            <button class="btn-view-stills retro-btn">Know More</button>
+                        </div>
+                    </div>
+                    <div class="work-info">
+                        <h3>E13M</h3>
+                        <p>A father's self-erasure as an act of love</p>
+                    </div>
+                </div>
+
+                <div class="work-card retro-card" data-category="narrative" data-project="short2">
+                    <div class="work-image">
+                        <img src="assets/images/Screenshot (16).png" alt="Untitled Short">
+                        <div class="work-overlay">
+                            <h3>Untitled Short</h3>
+                            <p>Director</p>
+                            <button class="btn-view-stills retro-btn">Know More</button>
+                        </div>
+                    </div>
+                    <div class="work-info">
+                        <h3>Untitled Short</h3>
+                        <p>Coming soon</p>
+                    </div>
+                </div>
+
+                <div class="work-card retro-card" data-category="documentary" data-project="doc1">
+                    <div class="work-image">
+                        <img src="assets/images/Screenshot (17).png" alt="Documentary Project">
+                        <div class="work-overlay">
+                            <h3>Documentary Project</h3>
+                            <p>Cinematographer</p>
+                            <button class="btn-view-stills retro-btn">Know More</button>
+                        </div>
+                    </div>
+                    <div class="work-info">
+                        <h3>Documentary Project</h3>
+                        <p>In development</p>
+                    </div>
+                </div>
+
+                <div class="work-card retro-card" data-category="commercial" data-project="commercial1">
+                    <div class="work-image">
+                        <img src="assets/images/Screenshot (18).png" alt="Commercial Work">
+                        <div class="work-overlay">
+                            <h3>Commercial</h3>
+                            <p>DP/Director</p>
+                            <button class="btn-view-stills retro-btn">Know More</button>
+                        </div>
+                    </div>
+                    <div class="work-info">
+                        <h3>Commercial</h3>
+                        <p>Brand storytelling</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Showreel Section -->
+    <section class="reel" id="reel">
+        <div class="container">
+            <div class="section-header">
+                <h2>Showreel</h2>
+                <p>A selection of my best work</p>
+            </div>
+
+            <div class="reel-container">
+                <div class="reel-frame">
+                    <iframe 
+                        src="https://player.vimeo.com/video/1132983429?h=2a3b4c5d6e&title=0&byline=0&portrait=0" 
+                        frameborder="0" 
+                        allow="autoplay; fullscreen; picture-in-picture" 
+                        allowfullscreen>
+                    </iframe>
+                </div>
+                <p class="reel-note">Full-resolution reel available upon request. Contact for password-protected access.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section class="gallery" id="gallery">
+        <div class="section-pattern">
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+                <defs>
+                    <pattern id="chevron-gold-3" patternUnits="userSpaceOnUse" width="20" height="20" patternTransform="rotate(45)">
+                        <path d="M0,10 L5,5 L10,10 L5,15 Z" fill="#C4A35A" opacity="0.3"/>
+                        <path d="M10,0 L15,5 L20,0 L15,-5 Z" fill="#C4A35A" opacity="0.25"/>
+                    </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#chevron-gold-3)"/>
+            </svg>
+        </div>
+        <div class="container">
+            <div class="section-header">
+                <h2>Gallery</h2>
+                <p>Stills from across all projects</p>
+            </div>
+
+            <div class="gallery-filters">
+                <button class="filter-btn active" data-filter="all">All Projects</button>
+                <button class="filter-btn" data-filter="e13m">E13M</button>
+                <button class="filter-btn" data-filter="short2">Untitled Short</button>
+                <button class="filter-btn" data-filter="doc1">Documentary</button>
+                <button class="filter-btn" data-filter="commercial1">Commercial</button>
+                <button class="filter-btn" data-filter="untagged">Untagged</button>
+            </div>
+
+            <div class="gallery-grid" id="galleryGrid">
+                <!-- Gallery items will be loaded dynamically -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services" id="services">
+        <div class="section-pattern">
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+                <defs>
+                    <pattern id="chevron-gold-4" patternUnits="userSpaceOnUse" width="20" height="20" patternTransform="rotate(45)">
+                        <path d="M0,10 L5,5 L10,10 L5,15 Z" fill="#C4A35A" opacity="0.3"/>
+                        <path d="M10,0 L15,5 L20,0 L15,-5 Z" fill="#C4A35A" opacity="0.25"/>
+                    </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#chevron-gold-4)"/>
+            </svg>
+        </div>
+        <div class="container">
+            <div class="section-header">
+                <h2>Services</h2>
+                <p>What I can do for you</p>
+            </div>
+
+            <div class="services-grid">
+                <div class="service-card retro-card">
+                    <div class="service-icon">📷</div>
+                    <h3>Cinematography</h3>
+                    <p>Visual storytelling through lighting, composition, and camera movement. From narrative features to commercials.</p>
+                </div>
+
+                <div class="service-card retro-card">
+                    <div class="service-icon">🎥</div>
+                    <h3>Directing</h3>
+                    <p>Bringing scripts to life with vision, collaboration, and attention to every detail of the filmmaking process.</p>
+                </div>
+
+                <div class="service-card retro-card">
+                    <div class="service-icon">🎨</div>
+                    <h3>Color Grading</h3>
+                    <p>Enhancing mood and atmosphere through professional color correction and grading for any project.</p>
+                </div>
+
+                <div class="service-card retro-card">
+                    <div class="service-icon">✂️</div>
+                    <h3>Editing</h3>
+                    <p>Crafting the narrative rhythm and pacing through precise editing and storytelling techniques.</p>
+                </div>
+
+                <div class="service-card retro-card">
+                    <div class="service-icon">✍️</div>
+                    <h3>Screenwriting</h3>
+                    <p>Crafting compelling narratives with strong characters, meaningful themes, and cinematic potential.</p>
+                </div>
+
+                <div class="service-card retro-card">
+                    <div class="service-icon">✨</div>
+                    <h3>VFX</h3>
+                    <p>Creating stunning visual effects that seamlessly integrate with live-action footage.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact" id="contact">
+        <div class="container">
+            <div class="section-header">
+                <h2>Get in Touch</h2>
+                <p>Let's create something together</p>
+            </div>
+
+            <div class="contact-content">
+                <div class="contact-info">
+                    <h3>Contact Information</h3>
+                    <p>Available for freelance projects worldwide</p>
+                    
+                    <div class="client-statement">
+                        <p>"Every project begins with a conversation. Whether you have a fully developed script or just a spark of an idea, I'm here to help bring your vision to life. Let's discuss how we can collaborate to create something truly exceptional."</p>
+                    </div>
+                    
+                    <div class="contact-details">
+                        <div class="contact-item">
+                            <span class="contact-icon">📧</span>
+                            <a href="mailto:joel@joelkundu.com">joel@joelkundu.com</a>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">📍</span>
+                            <span>London, Ontario, Canada</span>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">🌐</span>
+                            <a href="https://joelkundu.com" target="_blank">joelkundu.com</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-form">
+                    <div class="form-toggle">
+                        <button class="toggle-btn active" data-form="general">General Enquiry</button>
+                        <button class="toggle-btn" data-form="quote">Request Quote</button>
+                    </div>
+
+                    <form id="generalForm" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+                        <div class="form-group">
+                            <label for="g-name">Name</label>
+                            <input type="text" id="g-name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="g-email">Email</label>
+                            <input type="email" id="g-email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="g-subject">Subject</label>
+                            <input type="text" id="g-subject" name="subject" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="g-message">Message</label>
+                            <textarea id="g-message" name="message" rows="5" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary retro-btn">Send Message</button>
+                    </form>
+
+                    <form id="quoteForm" class="hidden" action="https://formspree.io/f/YOUR_QUOTE_FORM_ID" method="POST">
+                        <div class="form-group">
+                            <label for="q-name">Name</label>
+                            <input type="text" id="q-name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="q-email">Email</label>
+                            <input type="email" id="q-email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="q-project-type">Project Type</label>
+                            <select id="q-project-type" name="project_type" required>
+                                <option value="">Select project type</option>
+                                <option value="narrative">Narrative Film</option>
+                                <option value="documentary">Documentary</option>
+                                <option value="commercial">Commercial</option>
+                                <option value="music-video">Music Video</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="q-scope">Project Scope</label>
+                            <textarea id="q-scope" name="scope" rows="3" placeholder="Describe the project scope, duration, deliverables..." required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Services Needed</label>
+                            <div class="form-options">
+                                <span class="form-option" data-value="cinematography">Cinematography</span>
+                                <span class="form-option" data-value="directing">Directing</span>
+                                <span class="form-option" data-value="color-grading">Color Grading</span>
+                                <span class="form-option" data-value="editing">Editing</span>
+                                <span class="form-option" data-value="screenwriting">Screenwriting</span>
+                                <span class="form-option" data-value="vfx">VFX</span>
+                                <button type="button" class="add-option-btn">+ Add Custom</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="q-budget">Budget Range</label>
+                            <select id="q-budget" name="budget">
+                                <option value="">Select budget range</option>
+                                <option value="under-5k">Under $5,000</option>
+                                <option value="5k-10k">$5,000 - $10,000</option>
+                                <option value="10k-25k">$10,000 - $25,000</option>
+                                <option value="25k-50k">$25,000 - $50,000</option>
+                                <option value="50k+">$50,000+</option>
+                                <option value="flexible">Flexible / TBD</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="q-timeline">Timeline</label>
+                            <input type="text" id="q-timeline" name="timeline" placeholder="e.g., Shooting in Q3 2025">
+                        </div>
+                        <div class="form-group">
+                            <label for="q-message">Additional Details</label>
+                            <textarea id="q-message" name="message" rows="3"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary retro-btn">Request Quote</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <img src="assets/logos/Logo.jpg" alt="Joel Kundu" class="footer-logo">
+                    <h3>Joel Kundu</h3>
+                    <p>Cinematographer & Director</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#about">About</a></li>
+                        <li><a href="#work">Work</a></li>
+                        <li><a href="#services">Services</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Social</h4>
+                    <div class="social-links">
+                        <a href="https://vimeo.com/joelkundu" target="_blank" class="social-link">
+                            <span>🎬</span>
+                            <small>Vimeo</small>
+                        </a>
+                        <a href="https://instagram.com/joelkundu" target="_blank" class="social-link">
+                            <span>📸</span>
+                            <small>Instagram</small>
+                        </a>
+                        <a href="https://linkedin.com/in/joelkundu" target="_blank" class="social-link">
+                            <span>💼</span>
+                            <small>LinkedIn</small>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; <span id="year"></span> Joel Kundu. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Project Details Modal -->
+    <div class="stills-modal" id="stillsModal">
+        <div class="modal-content">
+            <button class="modal-close">&times;</button>
+            <div class="modal-header">
+                <h2 id="modalTitle">Project Details</h2>
+                <div class="project-meta" id="modalMeta">
+                    <!-- Meta info will be loaded dynamically -->
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="modal-section">
+                    <h3>Laurels & Awards</h3>
+                    <div class="laurels-grid" id="modalLaurels">
+                        <!-- Laurels will be loaded dynamically -->
+                    </div>
+                </div>
+                
+                <div class="modal-section">
+                    <h3>Stills Gallery</h3>
+                    <div class="stills-grid" id="stillsGrid">
+                        <!-- Stills will be loaded dynamically -->
+                    </div>
+                </div>
+                
+                <div class="modal-section">
+                    <h3>Behind the Scenes</h3>
+                    <div class="stills-grid" id="btsGrid">
+                        <!-- BTS images will be loaded dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Coffee Rain Container -->
+    <div class="coffee-rain" id="coffeeRain"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>

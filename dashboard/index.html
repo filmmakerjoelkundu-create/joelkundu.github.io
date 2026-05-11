@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Dashboard | Joel Kundu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=SF+Pro+Display:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
+            background: #f5f5f7;
+            color: #1d1d1f;
+            line-height: 1.5;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: #ffffff;
+            border-right: 1px solid #d2d2d7;
+            padding: 2rem 1.5rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1d1d1f;
+        }
+
+        .sidebar-header p {
+            font-size: 0.875rem;
+            color: #86868b;
+            margin-top: 0.25rem;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #1d1d1f;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link:hover {
+            background: #f5f5f7;
+        }
+
+        .nav-link.active {
+            background: #0071e3;
+            color: #ffffff;
+        }
+
+        .nav-link svg {
+            width: 20px;
+            height: 20px;
+            margin-right: 0.75rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 2rem 3rem;
+        }
+
+        .content-header {
+            margin-bottom: 2rem;
+        }
+
+        .content-header h2 {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 0.5rem;
+        }
+
+        .content-header p {
+            font-size: 1rem;
+            color: #86868b;
+        }
+
+        /* Cards */
+        .card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .card-header h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1d1d1f;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #1d1d1f;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #d2d2d7;
+            border-radius: 8px;
+            font-size: 0.9375rem;
+            font-family: inherit;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #0071e3;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: #0071e3;
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background: #0077ed;
+        }
+
+        .btn-secondary {
+            background: #f5f5f7;
+            color: #1d1d1f;
+        }
+
+        .btn-secondary:hover {
+            background: #e8e8ed;
+        }
+
+        .btn-danger {
+            background: #ff3b30;
+            color: #ffffff;
+        }
+
+        .btn-danger:hover {
+            background: #ff453a;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #d2d2d7;
+        }
+
+        th {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #86868b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            font-size: 0.9375rem;
+            color: #1d1d1f;
+        }
+
+        /* Status badges */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .badge-success {
+            background: #34c759;
+            color: #ffffff;
+        }
+
+        .badge-warning {
+            background: #ff9500;
+            color: #ffffff;
+        }
+
+        .badge-danger {
+            background: #ff3b30;
+            color: #ffffff;
+        }
+
+        /* Grid layouts */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+
+        /* Stats */
+        .stat-card {
+            background: linear-gradient(135deg, #0071e3 0%, #0077ed 100%);
+            color: #ffffff;
+            padding: 1.5rem;
+            border-radius: 12px;
+        }
+
+        .stat-card h3 {
+            font-size: 0.875rem;
+            font-weight: 500;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #d2d2d7;
+            margin-bottom: 1.5rem;
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            color: #86868b;
+            background: none;
+            border: none;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .tab:hover {
+            color: #1d1d1f;
+        }
+
+        .tab.active {
+            color: #0071e3;
+            border-bottom-color: #0071e3;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #86868b;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 240px;
+            }
+
+            .main-content {
+                margin-left: 240px;
+                padding: 1.5rem 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1.5rem;
+            }
+
+            .grid-2,
+            .grid-3 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>Portfolio Dashboard</h1>
+                <p>Content Management System</p>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active" data-section="overview">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                        Overview
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-section="movies">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+                            <line x1="7" y1="2" x2="7" y2="22"></line>
+                            <line x1="17" y1="2" x2="17" y2="22"></line>
+                            <line x1="2" y1="12" x2="22" y2="12"></line>
+                            <line x1="2" y1="7" x2="7" y2="7"></line>
+                            <line x1="2" y1="17" x2="7" y2="17"></line>
+                            <line x1="17" y1="17" x2="22" y2="17"></line>
+                            <line x1="17" y1="7" x2="22" y2="7"></line>
+                        </svg>
+                        Movies
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-section="stills">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                            <polyline points="21 15 16 10 5 21"></polyline>
+                        </svg>
+                        Stills
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-section="settings">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        </svg>
+                        Settings
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Overview Section -->
+            <section id="overview" class="content-section">
+                <div class="content-header">
+                    <h2>Overview</h2>
+                    <p>Welcome back! Here's what's happening with your portfolio.</p>
+                </div>
+
+                <div class="grid-3">
+                    <div class="stat-card">
+                        <h3>Total Movies</h3>
+                        <div class="value">5</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Stills</h3>
+                        <div class="value">24</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Profile Views</h3>
+                        <div class="value">1,234</div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 1.5rem;">
+                    <div class="card-header">
+                        <h3>Recent Activity</h3>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Action</th>
+                                    <th>Item</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Added new still</td>
+                                    <td>E13M</td>
+                                    <td>2 hours ago</td>
+                                    <td><span class="badge badge-success">Published</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Updated movie details</td>
+                                    <td>SEASONS</td>
+                                    <td>1 day ago</td>
+                                    <td><span class="badge badge-success">Published</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Added new movie</td>
+                                    <td>UNTITLED</td>
+                                    <td>3 days ago</td>
+                                    <td><span class="badge badge-warning">Draft</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Movies Section -->
+            <section id="movies" class="content-section" style="display: none;">
+                <div class="content-header">
+                    <h2>Movies</h2>
+                    <p>Manage your film projects and details.</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3>All Movies</h3>
+                        <button class="btn btn-primary btn-sm" onclick="openAddMovieModal()">+ Add Movie</button>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Year</th>
+                                    <th>Duration</th>
+                                    <th>Category</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>E13M</td>
+                                    <td>2024</td>
+                                    <td>18 min</td>
+                                    <td>Drama</td>
+                                    <td><span class="badge badge-success">Published</span></td>
+                                    <td>
+                                        <button class="btn btn-secondary btn-sm">Edit</button>
+                                        <button class="btn btn-danger btn-sm">Delete</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>LIGHT LEAKS</td>
+                                    <td>2023</td>
+                                    <td>8 min</td>
+                                    <td>Experimental</td>
+                                    <td><span class="badge badge-success">Published</span></td>
+                                    <td>
+                                        <button class="btn btn-secondary btn-sm">Edit</button>
+                                        <button class="btn btn-danger btn-sm">Delete</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>SEASONS</td>
+                                    <td>2024</td>
+                                    <td>12 min</td>
+                                    <td>Drama</td>
+                                    <td><span class="badge badge-success">Published</span></td>
+                                    <td>
+                                        <button class="btn btn-secondary btn-sm">Edit</button>
+                                        <button class="btn btn-danger btn-sm">Delete</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>BRANDED CONTENT</td>
+                                    <td>2024</td>
+                                    <td>90 sec</td>
+                                    <td>Commercial</td>
+                                    <td><span class="badge badge-success">Published</span></td>
+                                    <td>
+                                        <button class="btn btn-secondary btn-sm">Edit</button>
+                                        <button class="btn btn-danger btn-sm">Delete</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>UNTITLED</td>
+                                    <td>TBD</td>
+                                    <td>TBD</td>
+                                    <td>Drama</td>
+                                    <td><span class="badge badge-warning">Draft</span></td>
+                                    <td>
+                                        <button class="btn btn-secondary btn-sm">Edit</button>
+                                        <button class="btn btn-danger btn-sm">Delete</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stills Section -->
+            <section id="stills" class="content-section" style="display: none;">
+                <div class="content-header">
+                    <h2>Stills</h2>
+                    <p>Manage movie stills and images.</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3>All Stills</h3>
+                        <button class="btn btn-primary btn-sm">+ Upload Still</button>
+                    </div>
+                    <div class="grid-3">
+                        <div class="card" style="padding: 0; overflow: hidden;">
+                            <img src="https://via.placeholder.com/300x200/1a1a1a/ffffff?text=E13M+Still+1" alt="Still" style="width: 100%; height: 200px; object-fit: cover;">
+                            <div style="padding: 1rem;">
+                                <h4 style="font-size: 0.9375rem; margin-bottom: 0.5rem;">E13M Still 1</h4>
+                                <p style="font-size: 0.875rem; color: #86868b; margin-bottom: 0.5rem;">E13M</p>
+                                <button class="btn btn-secondary btn-sm">Edit</button>
+                                <button class="btn btn-danger btn-sm">Delete</button>
+                            </div>
+                        </div>
+                        <div class="card" style="padding: 0; overflow: hidden;">
+                            <img src="https://via.placeholder.com/300x200/1a1a1a/ffffff?text=E13M+Still+2" alt="Still" style="width: 100%; height: 200px; object-fit: cover;">
+                            <div style="padding: 1rem;">
+                                <h4 style="font-size: 0.9375rem; margin-bottom: 0.5rem;">E13M Still 2</h4>
+                                <p style="font-size: 0.875rem; color: #86868b; margin-bottom: 0.5rem;">E13M</p>
+                                <button class="btn btn-secondary btn-sm">Edit</button>
+                                <button class="btn btn-danger btn-sm">Delete</button>
+                            </div>
+                        </div>
+                        <div class="card" style="padding: 0; overflow: hidden;">
+                            <img src="https://via.placeholder.com/300x200/1a1a1a/ffffff?text=SEASONS+Still+1" alt="Still" style="width: 100%; height: 200px; object-fit: cover;">
+                            <div style="padding: 1rem;">
+                                <h4 style="font-size: 0.9375rem; margin-bottom: 0.5rem;">SEASONS Still 1</h4>
+                                <p style="font-size: 0.875rem; color: #86868b; margin-bottom: 0.5rem;">SEASONS</p>
+                                <button class="btn btn-secondary btn-sm">Edit</button>
+                                <button class="btn btn-danger btn-sm">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section id="settings" class="content-section" style="display: none;">
+                <div class="content-header">
+                    <h2>Settings</h2>
+                    <p>Configure your portfolio settings and preferences.</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3>General Settings</h3>
+                    </div>
+                    <form>
+                        <div class="form-group">
+                            <label for="siteTitle">Site Title</label>
+                            <input type="text" id="siteTitle" value="Joel Kundu | Cinematographer & Director">
+                        </div>
+                        <div class="form-group">
+                            <label for="siteTagline">Site Tagline</label>
+                            <input type="text" id="siteTagline" value="Cinematographer • Director • Sculpting Light & Shadow">
+                        </div>
+                        <div class="form-group">
+                            <label for="contactEmail">Contact Email</label>
+                            <input type="email" id="contactEmail" value="hello@joelkundu.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="defaultTheme">Default Theme</label>
+                            <select id="defaultTheme">
+                                <option value="drama">Drama</option>
+                                <option value="horror">Horror</option>
+                                <option value="thriller">Thriller</option>
+                                <option value="experimental">Experimental</option>
+                                <option value="scifi">Sci-Fi</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Settings</button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Security Settings</h3>
+                    </div>
+                    <form>
+                        <div class="form-group">
+                            <label for="sitePassword">Site Password</label>
+                            <input type="password" id="sitePassword" value="JOELKUNDU">
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" checked> Enable Content Protection
+                            </label>
+                            <p style="font-size: 0.875rem; color: #86868b; margin-top: 0.5rem;">Prevent right-click, drag, and keyboard shortcuts for copy/save.</p>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Security Settings</button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Theme Customization</h3>
+                    </div>
+                    <div class="tabs">
+                        <button class="tab active" data-theme="drama">Drama</button>
+                        <button class="tab" data-theme="horror">Horror</button>
+                        <button class="tab" data-theme="thriller">Thriller</button>
+                        <button class="tab" data-theme="experimental">Experimental</button>
+                        <button class="tab" data-theme="scifi">Sci-Fi</button>
+                    </div>
+                    <form>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label for="primaryColor">Primary Color</label>
+                                <input type="color" id="primaryColor" value="#c41e3a">
+                            </div>
+                            <div class="form-group">
+                                <label for="secondaryColor">Secondary Color</label>
+                                <input type="color" id="secondaryColor" value="#1a0a0a">
+                            </div>
+                            <div class="form-group">
+                                <label for="textColor">Text Color</label>
+                                <input type="color" id="textColor" value="#f5f5f5">
+                            </div>
+                            <div class="form-group">
+                                <label for="accentColor">Accent Color</label>
+                                <input type="color" id="accentColor" value="#c41e3a">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Theme</button>
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Add Movie Modal -->
+    <div class="modal" id="addMovieModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Movie</h3>
+                <button class="modal-close" onclick="closeAddMovieModal()">&times;</button>
+            </div>
+            <form>
+                <div class="form-group">
+                    <label for="movieTitle">Title</label>
+                    <input type="text" id="movieTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="movieYear">Year</label>
+                    <input type="text" id="movieYear" required>
+                </div>
+                <div class="form-group">
+                    <label for="movieDuration">Duration</label>
+                    <input type="text" id="movieDuration" required>
+                </div>
+                <div class="form-group">
+                    <label for="movieCategory">Category</label>
+                    <select id="movieCategory" required>
+                        <option value="drama">Drama</option>
+                        <option value="experimental">Experimental</option>
+                        <option value="commercial">Commercial</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="movieSynopsis">Synopsis</label>
+                    <textarea id="movieSynopsis" rows="4" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="moviePoster">Poster Image</label>
+                    <input type="file" id="moviePoster" accept="image/*">
+                </div>
+                <button type="submit" class="btn btn-primary">Add Movie</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Navigation
+        const navLinks = document.querySelectorAll('.nav-link');
+        const contentSections = document.querySelectorAll('.content-section');
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const section = link.getAttribute('data-section');
+                
+                // Update active nav
+                navLinks.forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+                
+                // Show corresponding section
+                contentSections.forEach(s => s.style.display = 'none');
+                document.getElementById(section).style.display = 'block';
+            });
+        });
+
+        // Theme tabs
+        const themeTabs = document.querySelectorAll('.tab');
+        themeTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                themeTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+            });
+        });
+
+        // Modal functions
+        function openAddMovieModal() {
+            document.getElementById('addMovieModal').classList.add('active');
+        }
+
+        function closeAddMovieModal() {
+            document.getElementById('addMovieModal').classList.remove('active');
+        }
+
+        // Close modal on outside click
+        document.getElementById('addMovieModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('addMovieModal')) {
+                closeAddMovieModal();
+            }
+        });
+    </script>
+</body>
+</html>

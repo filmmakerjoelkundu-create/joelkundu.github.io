@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Details | Joel Kundu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Base variables - will be overridden by themes */
+            --color-bg-primary: #000000;
+            --color-bg-secondary: #111111;
+            --color-bg-tertiary: #1a1a1a;
+            --color-text-primary: #ffffff;
+            --color-text-secondary: #cccccc;
+            --color-accent: #d4af37;
+            --color-accent-hover: #f4cf57;
+            --color-border: #333333;
+            --color-gold: #d4af37;
+            
+            /* Typography */
+            --font-serif: 'Cormorant Garamond', serif;
+            --font-sans: 'Inter', sans-serif;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            
+            /* Radii */
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 16px;
+            --radius-pill: 50px;
+            
+            /* Transitions */
+            --transition-fast: 0.15s ease;
+            --transition-normal: 0.3s ease;
+            --transition-slow: 0.5s ease;
+            
+            /* Shadows */
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.2);
+            --shadow-xl: 0 16px 32px rgba(0,0,0,0.25);
+            
+            /* 3D Transform Perspectives */
+            --perspective: 1000px;
+        }
+        
+        /* DRAMA THEME */
+        [data-theme="drama"] {
+            --color-bg-primary: #0a0a0a;
+            --color-bg-secondary: #1a0a0a;
+            --color-bg-tertiary: #2a1a1a;
+            --color-text-primary: #f5e6d3;
+            --color-text-secondary: #d4c4b0;
+            --color-accent: #d4af37;
+            --color-accent-hover: #f4cf57;
+            --color-border: #4a3a2a;
+            --color-gold: #d4af37;
+        }
+        
+        /* HORROR THEME */
+        [data-theme="horror"] {
+            --color-bg-primary: #050000;
+            --color-bg-secondary: #1a0505;
+            --color-bg-tertiary: #2a0a0a;
+            --color-text-primary: #e8d5d5;
+            --color-text-secondary: #c8b5b5;
+            --color-accent: #8b0000;
+            --color-accent-hover: #b22222;
+            --color-border: #3a0a0a;
+            --color-gold: #8b0000;
+        }
+        
+        /* THRILLER THEME */
+        [data-theme="thriller"] {
+            --color-bg-primary: #000510;
+            --color-bg-secondary: #051020;
+            --color-bg-tertiary: #0a1a30;
+            --color-text-primary: #e0f0ff;
+            --color-text-secondary: #b0c8e0;
+            --color-accent: #00bcd4;
+            --color-accent-hover: #26c6da;
+            --color-border: #0a2a4a;
+            --color-gold: #00bcd4;
+        }
+        
+        /* EXPERIMENTAL THEME */
+        [data-theme="experimental"] {
+            --color-bg-primary: #0a0015;
+            --color-bg-secondary: #150025;
+            --color-bg-tertiary: #200035;
+            --color-text-primary: #f0e0ff;
+            --color-text-secondary: #d0b0e0;
+            --color-accent: #e040fb;
+            --color-accent-hover: #f062f7;
+            --color-border: #3a0050;
+            --color-gold: #e040fb;
+        }
+        
+        /* SCIFI THEME */
+        [data-theme="scifi"] {
+            --color-bg-primary: #00001a;
+            --color-bg-secondary: #001122;
+            --color-bg-tertiary: #002244;
+            --color-text-primary: #00ffff;
+            --color-text-secondary: #88ccff;
+            --color-accent: #ff00ff;
+            --color-accent-hover: #ff66ff;
+            --color-border: #00ffff;
+            --color-gold: #ff00ff;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            font-size: 16px;
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--color-bg-primary);
+            color: var(--color-text-primary);
+            line-height: 1.7;
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+            perspective: var(--perspective);
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+        
+        body.protected {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        
+        body.protected img {
+            -webkit-user-drag: none;
+            -khtml-user-drag: none;
+            -moz-user-drag: none;
+            -o-user-drag: none;
+            user-drag: none;
+            pointer-events: none;
+        }
+        
+        body.protected::selection {
+            background: transparent;
+        }
+        
+        body.protected ::selection {
+            background: transparent;
+        }
+        
+        a {
+            text-decoration: none;
+            color: inherit;
+            transition: var(--transition-fast);
+        }
+        
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            object-fit: cover;
+            border-radius: var(--radius-sm);
+            transition: var(--transition-normal);
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .section {
+            padding: 4rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Back Button */
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--color-bg-secondary);
+            color: var(--color-text-primary);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-pill);
+            font-family: var(--font-display);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: var(--transition-normal);
+            margin-bottom: 2rem;
+        }
+        
+        .back-button:hover {
+            background: var(--color-accent);
+            color: var(--color-bg-primary);
+            border-color: var(--color-accent);
+            transform: translateX(-5px);
+        }
+        
+        /* Work Detail Header */
+        .work-detail-header {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            margin-bottom: 4rem;
+        }
+        
+        .work-poster {
+            position: relative;
+            aspect-ratio: 2/3;
+            background: var(--color-bg-secondary);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-xl);
+        }
+        
+        .work-poster img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .work-info {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .work-info h1 {
+            font-family: var(--font-serif);
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--color-text-primary);
+        }
+        
+        .work-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--color-text-secondary);
+        }
+        
+        .meta-label {
+            font-weight: 600;
+            color: var(--color-accent);
+        }
+        
+        .work-synopsis {
+            font-size: 1.125rem;
+            line-height: 1.8;
+            color: var(--color-text-secondary);
+            margin-bottom: 2rem;
+        }
+        
+        .work-credits {
+            margin-bottom: 2rem;
+        }
+        
+        .work-credits h3 {
+            font-family: var(--font-display);
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+            color: var(--color-text-primary);
+        }
+        
+        .credit-list {
+            list-style: none;
+        }
+        
+        .credit-list li {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--color-border);
+            font-size: 0.875rem;
+        }
+        
+        .credit-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .credit-role {
+            color: var(--color-text-secondary);
+        }
+        
+        .credit-name {
+            color: var(--color-text-primary);
+            font-weight: 500;
+        }
+        
+        /* Stills Gallery */
+        .stills-gallery {
+            margin-top: 4rem;
+        }
+        
+        .stills-gallery h2 {
+            font-family: var(--font-serif);
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: var(--color-text-primary);
+        }
+        
+        .stills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .still-item {
+            position: relative;
+            aspect-ratio: 16/9;
+            background: var(--color-bg-secondary);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            cursor: pointer;
+            transition: var(--transition-normal);
+        }
+        
+        .still-item:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .still-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .still-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: var(--transition-normal);
+        }
+        
+        .still-item:hover .still-overlay {
+            opacity: 1;
+        }
+        
+        .still-overlay span {
+            font-size: 2rem;
+            color: var(--color-text-primary);
+        }
+        
+        /* Fullscreen Slideshow */
+        .slideshow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .slideshow.active {
+            display: flex;
+        }
+        
+        .slideshow-image {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+        
+        .slideshow-close {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            width: 50px;
+            height: 50px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+        
+        .slideshow-close:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .slideshow-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+        
+        .slideshow-nav:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .slideshow-nav.prev {
+            left: 2rem;
+        }
+        
+        .slideshow-nav.next {
+            right: 2rem;
+        }
+        
+        .slideshow-counter {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            color: var(--color-text-secondary);
+        }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .work-detail-header {
+                grid-template-columns: 1fr;
+            }
+            
+            .work-poster {
+                max-width: 500px;
+                margin: 0 auto;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+                padding: 0 0.75rem;
+            }
+            
+            .section {
+                padding: 3rem 0;
+            }
+            
+            .work-info h1 {
+                font-size: 2rem;
+            }
+            
+            .stills-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Utility */
+        .hidden { display: none; }
+    </style>
+</head>
+<body data-theme="drama" class="protected">
+    <div class="container">
+        <section class="section">
+            <a href="index.html#work" class="back-button">
+                <span>←</span>
+                <span>Back to Work</span>
+            </a>
+            
+            <div class="work-detail-header">
+                <div class="work-poster">
+                    <img id="workPoster" src="" alt="Work Poster">
+                </div>
+                <div class="work-info">
+                    <h1 id="workTitle">Loading...</h1>
+                    <div class="work-meta">
+                        <div class="meta-item">
+                            <span class="meta-label">Year:</span>
+                            <span id="workYear">-</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Duration:</span>
+                            <span id="workDuration">-</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Genre:</span>
+                            <span id="workGenre">-</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Role:</span>
+                            <span id="workRole">-</span>
+                        </div>
+                    </div>
+                    <p class="work-synopsis" id="workSynopsis">Loading...</p>
+                    <div class="work-credits">
+                        <h3>Credits</h3>
+                        <ul class="credit-list" id="creditList">
+                            <!-- Credits will be loaded here -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stills-gallery">
+                <h2>Stills Gallery</h2>
+                <div class="stills-grid" id="stillsGrid">
+                    <!-- Stills will be loaded here -->
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    <!-- Fullscreen Slideshow -->
+    <div class="slideshow" id="slideshow">
+        <button class="slideshow-close" id="slideshowClose">×</button>
+        <button class="slideshow-nav prev" id="slideshowPrev">❮</button>
+        <img class="slideshow-image" id="slideshowImage" src="" alt="Fullscreen Still">
+        <button class="slideshow-nav next" id="slideshowNext">❯</button>
+        <div class="slideshow-counter" id="slideshowCounter">1 / 1</div>
+    </div>
+    
+    <script>
+        // Work data (will be replaced with dashboard data)
+        const workData = {
+            'e13m': {
+                title: 'E13M',
+                year: '2024',
+                duration: '18 min',
+                genre: 'Drama',
+                role: 'DP • Director',
+                synopsis: 'A father\'s silent sacrifice unravels in reverse chronology, exploring how love can manifest as self-erasure. Through nonlinear storytelling and rich symbolism, the film examines the weight of unspoken devotion and the legacy we leave behind.',
+                poster: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=600&h=900&fit=crop',
+                credits: [
+                    { role: 'Director', name: 'Joel Kundu' },
+                    { role: 'Cinematographer', name: 'Joel Kundu' },
+                    { role: 'Writer', name: 'Joel Kundu' },
+                    { role: 'Producer', name: 'Jane Smith' },
+                    { role: 'Editor', name: 'John Doe' }
+                ],
+                stills: [
+                    'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=1200&h=675&fit=crop',
+                    'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=1200&h=675&fit=crop',
+                    'https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=1200&h=675&fit=crop',
+                    'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1200&h=675&fit=crop',
+                    'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=1200&h=675&fit=crop'
+                ]
+            },
+            'light-leaks': {
+                title: 'LIGHT LEAKS',
+                year: '2023',
+                duration: '8 min',
+                genre: 'Experimental',
+                role: 'DP',
+                synopsis: 'An experimental exploration of memory fragmentation through practical in-camera effects and practical lighting. The film uses light leaks and double exposures to visualize the ephemeral nature of human memory.',
+                poster: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=600&h=900&fit=crop',
+                credits: [
+                    { role: 'Director', name: 'Jane Smith' },
+                    { role: 'Cinematographer', name: 'Joel Kundu' },
+                    { role: 'Editor', name: 'John Doe' }
+                ],
+                stills: [
+                    'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=1200&h=675&fit=crop',
+                    'https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=1200&h=675&fit=crop',
+                    'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1200&h=675&fit=crop'
+                ]
+            },
+            'seasons': {
+                title: 'SEASONS',
+                year: '2023',
+                duration: '12 min',
+                genre: 'Drama',
+                role: 'Director',
+                synopsis: 'A nonlinear narrative examining redemption through the lens of a single recurring location across seasons. The film explores how time and place shape our understanding of forgiveness and growth.',
+                poster: 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=600&h=900&fit=crop',
+                credits: [
+                    { role: 'Director', name: 'Joel Kundu' },
+                    { role: 'Cinematographer', name: 'Jane Smith' },
+                    { role: 'Writer', name: 'John Doe' }
+                ],
+                stills: [
+                    'https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=1200&h=675&fit=crop',
+                    'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1200&h=675&fit=crop',
+                    'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=1200&h=675&fit=crop'
+                ]
+            },
+            'branded': {
+                title: 'BRANDED CONTENT',
+                year: '2024',
+                duration: '90 sec',
+                genre: 'Commercial',
+                role: 'DP',
+                synopsis: 'Branded content that balances product storytelling with authentic human moments, shot on ARRI Alexa Mini. The project demonstrates how commercial work can maintain artistic integrity while meeting client objectives.',
+                poster: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=600&h=900&fit=crop',
+                credits: [
+                    { role: 'Director', name: 'Jane Smith' },
+                    { role: 'Cinematographer', name: 'Joel Kundu' },
+                    { role: 'Client', name: 'Brand X' }
+                ],
+                stills: [
+                    'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1200&h=675&fit=crop',
+                    'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=1200&h=675&fit=crop'
+                ]
+            },
+            'untitled': {
+                title: 'UNTITLED',
+                year: '2025',
+                duration: 'TBD',
+                genre: 'Drama',
+                role: 'DP • Director',
+                synopsis: 'In development. A meditation on absence and presence through intergenerational storytelling. The film will explore how family histories shape our identities and the stories we tell ourselves.',
+                poster: 'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=600&h=900&fit=crop',
+                credits: [
+                    { role: 'Director', name: 'Joel Kundu' },
+                    { role: 'Cinematographer', name: 'Joel Kundu' },
+                    { role: 'Writer', name: 'Joel Kundu' }
+                ],
+                stills: [
+                    'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=1200&h=675&fit=crop'
+                ]
+            }
+        };
+        
+        // Get work ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const workId = urlParams.get('id');
+        
+        // Load work data
+        function loadWorkData() {
+            const work = workData[workId];
+            if (!work) {
+                document.getElementById('workTitle').textContent = 'Work not found';
+                return;
+            }
+            
+            document.getElementById('workTitle').textContent = work.title;
+            document.getElementById('workYear').textContent = work.year;
+            document.getElementById('workDuration').textContent = work.duration;
+            document.getElementById('workGenre').textContent = work.genre;
+            document.getElementById('workRole').textContent = work.role;
+            document.getElementById('workSynopsis').textContent = work.synopsis;
+            document.getElementById('workPoster').src = work.poster;
+            
+            // Load credits
+            const creditList = document.getElementById('creditList');
+            creditList.innerHTML = '';
+            work.credits.forEach(credit => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <span class="credit-role">${credit.role}</span>
+                    <span class="credit-name">${credit.name}</span>
+                `;
+                creditList.appendChild(li);
+            });
+            
+            // Load stills
+            const stillsGrid = document.getElementById('stillsGrid');
+            stillsGrid.innerHTML = '';
+            work.stills.forEach((still, index) => {
+                const div = document.createElement('div');
+                div.className = 'still-item';
+                div.innerHTML = `
+                    <img src="${still}" alt="${work.title} Still ${index + 1}">
+                    <div class="still-overlay">
+                        <span>🔍</span>
+                    </div>
+                `;
+                div.addEventListener('click', () => openSlideshow(index));
+                stillsGrid.appendChild(div);
+            });
+        }
+        
+        // Slideshow functionality
+        let currentStillIndex = 0;
+        const slideshow = document.getElementById('slideshow');
+        const slideshowImage = document.getElementById('slideshowImage');
+        const slideshowCounter = document.getElementById('slideshowCounter');
+        
+        function openSlideshow(index) {
+            currentStillIndex = index;
+            const work = workData[workId];
+            if (!work || !work.stills[index]) return;
+            
+            slideshowImage.src = work.stills[index];
+            slideshowCounter.textContent = `${index + 1} / ${work.stills.length}`;
+            slideshow.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeSlideshow() {
+            slideshow.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
+        function navigateSlideshow(direction) {
+            const work = workData[workId];
+            if (!work) return;
+            
+            currentStillIndex += direction;
+            if (currentStillIndex < 0) currentStillIndex = work.stills.length - 1;
+            if (currentStillIndex >= work.stills.length) currentStillIndex = 0;
+            
+            slideshowImage.src = work.stills[currentStillIndex];
+            slideshowCounter.textContent = `${currentStillIndex + 1} / ${work.stills.length}`;
+        }
+        
+        // Event listeners
+        document.getElementById('slideshowClose').addEventListener('click', closeSlideshow);
+        document.getElementById('slideshowPrev').addEventListener('click', () => navigateSlideshow(-1));
+        document.getElementById('slideshowNext').addEventListener('click', () => navigateSlideshow(1));
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (!slideshow.classList.contains('active')) return;
+            
+            if (e.key === 'Escape') closeSlideshow();
+            if (e.key === 'ArrowLeft') navigateSlideshow(-1);
+            if (e.key === 'ArrowRight') navigateSlideshow(1);
+        });
+        
+        // Click outside to close
+        slideshow.addEventListener('click', (e) => {
+            if (e.target === slideshow) closeSlideshow();
+        });
+        
+        // Load theme from localStorage
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            document.body.setAttribute('data-theme', savedTheme);
+        }
+        
+        // Load work data on page load
+        loadWorkData();
+        
+        // Content protection
+        document.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            return false;
+        });
+        
+        document.addEventListener('dragstart', (e) => {
+            if (e.target.tagName === 'IMG') {
+                e.preventDefault();
+                return false;
+            }
+        });
+    </script>
+</body>
+</html>
