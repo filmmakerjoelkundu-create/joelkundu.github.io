@@ -339,36 +339,28 @@ function init3DEffects() {
         }
     });
     
-    // About section - each tile tracks individually
-    const aboutTiles = document.querySelectorAll('.about-stats .stat-card');
-    
-    aboutTiles.forEach(tile => {
-        // Skip mouse tracking on tiles that contain the portrait
-        const containsPortrait = tile.querySelector('.portrait-img');
-        
-        tile.addEventListener('mousemove', (e) => {
-            // Don't track if mouse is over the portrait image
-            if (containsPortrait && e.target === containsPortrait) {
-                return;
-            }
-            
-            const rect = tile.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-            
-            const rotateX = (centerY - y) / 30;
-            const rotateY = (x - centerX) / 30;
-            
-            tile.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(20px)`;
-        });
-        
-        tile.addEventListener('mouseleave', () => {
-            tile.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(0px)';
-        });
-    });
+  // About section - each tile tracks individually
+  const aboutTiles = document.querySelectorAll('.about-stats .stat-card');
+  
+  aboutTiles.forEach(tile => {
+  tile.addEventListener('mousemove', (e) => {
+  const rect = tile.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  
+  const centerX = rect.width / 2;
+  const centerY = rect.height / 2;
+  
+  const rotateX = (centerY - y) / 30;
+  const rotateY = (x - centerX) / 30;
+  
+  tile.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(20px)`;
+  });
+  
+  tile.addEventListener('mouseleave', () => {
+  tile.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(0px)';
+  });
+  });
 
   // Work section - each card tracks individually on hover
     const workCards = document.querySelectorAll('.work-card');
@@ -462,44 +454,9 @@ function init3DEffects() {
     });
     
   reelSection.addEventListener('mouseleave', () => {
-    reelFrame.style.transform = `rotateX(0deg) rotateY(0deg) translateZ(30px)`;
-  });
-
-// About section - portrait image tracks individually (only on desktop)
-const portraitImg = document.querySelector('.portrait-img');
-const portraitWrapper = document.querySelector('.portrait-img-wrapper');
-if (portraitImg && portraitWrapper && !isMobile) {
-console.log('Setting up portrait tracking...');
-
-portraitWrapper.addEventListener('mouseenter', (e) => {
-e.stopPropagation(); // Prevent parent tracking
-console.log('Portrait hover started');
+reelFrame.style.transform = `rotateX(0deg) rotateY(0deg) translateZ(30px)`;
 });
 
-portraitWrapper.addEventListener('mousemove', (e) => {
-e.stopPropagation(); // Prevent parent tracking
-
-const rect = portraitWrapper.getBoundingClientRect();
-const x = e.clientX - rect.left;
-const y = e.clientY - rect.top;
-
-const centerX = rect.width / 2;
-const centerY = rect.height / 2;
-
-const rotateX = (centerY - y) / 30;
-const rotateY = (x - centerX) / 30;
-
-// Apply transform to wrapper (which has the float animation)
-portraitWrapper.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(20px)`;
-});
-
-portraitWrapper.addEventListener('mouseleave', () => {
-console.log('Portrait hover ended');
-portraitWrapper.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(0px)';
-});
-
-console.log('Portrait tracking setup complete');
-}
 }
 
 // Initialize 3D effects when DOM is ready

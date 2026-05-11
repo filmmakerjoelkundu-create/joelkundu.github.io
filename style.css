@@ -1306,10 +1306,6 @@ img {
   border: 3px solid var(--color-accent);
   box-shadow: var(--shadow-xl);
   transition: var(--transition-normal);
-  /* Float animation moved to wrapper to allow transform tracking */
-}
-
-.portrait-img-wrapper {
   animation: float 3s ease-in-out infinite;
 }
 
