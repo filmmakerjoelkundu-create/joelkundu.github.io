@@ -79,8 +79,18 @@ const themeToggle = document.querySelector('.theme-toggle');
 const themeButtons = document.querySelectorAll('.theme-btn');
 const htmlElement = document.documentElement;
 
-// Check for saved theme preference
-const savedTheme = localStorage.getItem('portfolio-theme') || 'thriller';
+// Available themes
+const availableThemes = ['thriller', 'drama', 'horror', 'scifi', 'action'];
+
+// Get random theme
+function getRandomTheme() {
+    const randomIndex = Math.floor(Math.random() * availableThemes.length);
+    return availableThemes[randomIndex];
+}
+
+// Check for saved theme preference or get random
+const savedTheme = localStorage.getItem('portfolio-theme');
+const themeToUse = savedTheme || getRandomTheme();
 
 // Set initial theme
 function setTheme(theme) {
@@ -100,12 +110,14 @@ function setTheme(theme) {
         }
     });
     
-    // Save preference
+    // Save preference (so manual changes persist)
     localStorage.setItem('portfolio-theme', theme);
+    
+    console.log(`🎭 Theme: ${theme}`);
 }
 
-// Initialize theme
-setTheme(savedTheme);
+// Initialize with random theme on each load
+setTheme(themeToUse);
 
 // Theme button click handlers
 themeButtons.forEach(btn => {
@@ -331,7 +343,15 @@ function init3DEffects() {
     const aboutTiles = document.querySelectorAll('.about-stats .stat-card');
     
     aboutTiles.forEach(tile => {
+        // Skip mouse tracking on tiles that contain the portrait
+        const containsPortrait = tile.querySelector('.portrait-img');
+        
         tile.addEventListener('mousemove', (e) => {
+            // Don't track if mouse is over the portrait image
+            if (containsPortrait && e.target === containsPortrait) {
+                return;
+            }
+            
             const rect = tile.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
@@ -342,13 +362,13 @@ function init3DEffects() {
             const rotateX = (centerY - y) / 30;
             const rotateY = (x - centerX) / 30;
             
-  tile.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(20px)`;
-  });
-  
-  tile.addEventListener('mouseleave', () => {
-  tile.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(0px)';
-  });
-  });
+            tile.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(20px)`;
+        });
+        
+        tile.addEventListener('mouseleave', () => {
+            tile.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(0px)';
+        });
+    });
 
   // Work section - each card tracks individually on hover
     const workCards = document.querySelectorAll('.work-card');
@@ -448,27 +468,34 @@ function init3DEffects() {
     // About section - portrait image tracks individually (only on desktop)
     const portraitImg = document.querySelector('.portrait-img');
     if (portraitImg && !isMobile) {
-    // Remove any existing listeners to prevent duplicates
-    portraitImg.onmousemove = null;
-    portraitImg.onmouseleave = null;
-    
-    portraitImg.addEventListener('mousemove', (e) => {
-        const rect = portraitImg.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+        console.log('Setting up portrait tracking...');
         
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
+        portraitImg.addEventListener('mouseenter', () => {
+            console.log('Portrait hover started');
+        });
         
-        const rotateX = (centerY - y) / 30;
-        const rotateY = (x - centerX) / 30;
+        portraitImg.addEventListener('mousemove', (e) => {
+            e.stopPropagation(); // Prevent parent tracking
+            
+            const rect = portraitImg.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const rotateX = (centerY - y) / 30;
+            const rotateY = (x - centerX) / 30;
+            
+            portraitImg.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(20px)`;
+        });
         
-        portraitImg.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(20px)`;
-    });
-    
-    portraitImg.addEventListener('mouseleave', () => {
-        portraitImg.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(0px)';
-    });
+        portraitImg.addEventListener('mouseleave', () => {
+            console.log('Portrait hover ended');
+            portraitImg.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(0px)';
+        });
+        
+        console.log('Portrait tracking setup complete');
     }
 }
 
