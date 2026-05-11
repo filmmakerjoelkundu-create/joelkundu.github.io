@@ -1205,23 +1205,43 @@ img {
     transform: translateZ(30px);
 }
 
-/* Responsive breakpoints for about stats - keep 1x4 on all screens */
+/* Responsive breakpoints for about stats */
+@media (max-width: 1024px) {
+    .about-stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+}
+
 @media (max-width: 768px) {
     .about-stats {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(2, 1fr);
         gap: 0.75rem;
     }
-
+    
     .stat-card {
-        padding: 1rem;
+        padding: 1rem 0.5rem;
     }
-
+    
     .stat-card h3 {
-        font-size: 1.5rem;
+        font-size: clamp(1.25rem, 4vw, 1.5rem);
+        margin-bottom: 0.25rem;
     }
-
+    
     .stat-card p {
-        font-size: 0.7rem;
+        font-size: clamp(0.6rem, 2vw, 0.7rem);
+        line-height: 1.2;
+    }
+}
+
+@media (max-width: 480px) {
+    .about-stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+    }
+    
+    .stat-card {
+        padding: 0.75rem 0.25rem;
     }
 }
 
@@ -1246,19 +1266,29 @@ img {
 
 .stat-card h3 {
     font-family: var(--font-display);
-    font-size: 2.5rem;
+    font-size: clamp(2rem, 5vw, 2.5rem);
     font-weight: 700;
     color: var(--color-accent);
     margin-bottom: 0.5rem;
     transform: translateZ(40px);
+    /* Prevent text clipping */
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    text-align: center;
+    line-height: 1.2;
 }
 
 .stat-card p {
     font-family: var(--font-sans);
-    font-size: 0.875rem;
+    font-size: clamp(0.75rem, 2vw, 0.875rem);
     color: var(--color-text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    text-align: center;
+    /* Prevent text clipping */
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    line-height: 1.4;
+    margin: 0;
+}
     transform: translateZ(20px);
 }
 
