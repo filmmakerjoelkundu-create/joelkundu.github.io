@@ -1002,12 +1002,9 @@ function initGallery(filter = 'all') {
   
   if (existingItems.length > 0) {
     // Add fade-out class to all existing items
-    existingItems.forEach((item, index) => {
+    existingItems.forEach((item) => {
       item.classList.remove('fade-in');
       item.classList.add('fade-out');
-      // Remove inline styles that might interfere
-      item.style.opacity = '0';
-      item.style.transform = 'scale(0.9)';
     });
     
     // Wait for fade-out to complete, then rebuild
