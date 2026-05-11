@@ -2380,6 +2380,21 @@ font-size: clamp(1rem, 2.5vw, 1.5rem);
 .viewfinder-info.bottom-center {
     display: none;
 }
+
+/* Hide crosshair circle on mobile */
+.viewfinder-center {
+    display: none;
+}
+
+/* Hide all viewfinder info text on mobile, keep only corners */
+.viewfinder-info {
+    display: none;
+}
+
+/* Keep corner markers visible */
+.viewfinder-corner {
+    display: block !important;
+}
 }
 
 /* Portrait image - ensure it can track properly */
