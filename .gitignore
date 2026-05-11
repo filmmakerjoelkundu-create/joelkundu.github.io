@@ -1,0 +1,13 @@
+# Large video files
+assets/video/*.mov
+assets/video/*.mp4
+assets/video/*.avi
+
+# Keep the folder structure but ignore large files
+!assets/video/.gitkeep
+
+# Other common ignores
+.DS_Store
+Thumbs.db
+*.log
+node_modules/
