@@ -990,36 +990,60 @@ const allGalleryImages = [
 
 // Initialize gallery
 function initGallery(filter = 'all') {
-    galleryGrid.innerHTML = '';
-    
-    const filteredImages = filter === 'all' 
-        ? allGalleryImages 
-        : allGalleryImages.filter(img => img.project === filter);
-    
-    // Shuffle and take first 12 (for 4x3 grid)
-    const shuffled = filteredImages.sort(() => 0.5 - Math.random()).slice(0, 12);
-    
-    shuffled.forEach((imgData, index) => {
-        const item = document.createElement('div');
-        item.className = 'gallery-item fade-in retro-card';
-        // Random offset for smooth transition
-        const randomDelay = Math.random() * 0.5;
-        item.style.animationDelay = `${randomDelay}s`;
-        item.style.transition = 'opacity 1.5s ease-in-out, transform 1.5s ease-in-out';
-        
-        const img = document.createElement('img');
-        img.src = imgData.src;
-        img.alt = 'Gallery image';
-        img.draggable = false;
-        
-        // Click to view fullscreen
-        item.addEventListener('click', () => {
-            viewFullscreenImage(imgData.src);
-        });
-        
-        item.appendChild(img);
-        galleryGrid.appendChild(item);
+  const filteredImages = filter === 'all' 
+    ? allGalleryImages 
+    : allGalleryImages.filter(img => img.project === filter);
+  
+  // Shuffle and take first 12 (for 4x3 grid)
+  const shuffled = filteredImages.sort(() => 0.5 - Math.random()).slice(0, 12);
+  
+  // Fade out existing items first, then replace
+  const existingItems = galleryGrid.querySelectorAll('.gallery-item');
+  
+  if (existingItems.length > 0) {
+    // Add fade-out class to all existing items
+    existingItems.forEach((item, index) => {
+      item.classList.remove('fade-in');
+      item.classList.add('fade-out');
+      // Remove inline styles that might interfere
+      item.style.opacity = '0';
+      item.style.transform = 'scale(0.9)';
     });
+    
+    // Wait for fade-out to complete, then rebuild
+    setTimeout(() => {
+      galleryGrid.innerHTML = '';
+      addGalleryItems(shuffled);
+    }, 500); // Wait 500ms for fade-out
+  } else {
+    // No existing items, just add new ones
+    addGalleryItems(shuffled);
+  }
+}
+
+// Helper function to add gallery items with fade-in
+function addGalleryItems(items) {
+  items.forEach((imgData, index) => {
+    const item = document.createElement('div');
+    item.className = 'gallery-item fade-in retro-card';
+    // Random offset for smooth transition
+    const randomDelay = Math.random() * 0.5;
+    item.style.animationDelay = `${randomDelay}s`;
+    item.style.transition = 'opacity 1.5s ease-in-out, transform 1.5s ease-in-out';
+    
+    const img = document.createElement('img');
+    img.src = imgData.src;
+    img.alt = 'Gallery image';
+    img.draggable = false;
+    
+    // Click to view fullscreen
+    item.addEventListener('click', () => {
+      viewFullscreenImage(imgData.src);
+    });
+    
+    item.appendChild(img);
+    galleryGrid.appendChild(item);
+  });
 }
 
 // View fullscreen image
