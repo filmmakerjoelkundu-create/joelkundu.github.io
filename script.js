@@ -1002,9 +1002,18 @@ const existingItems = galleryGrid.querySelectorAll('.gallery-item');
 
 if (existingItems.length > 0) {
 console.log('Fading out', existingItems.length, 'items');
-// Add fade-out class to all existing items
+// Ensure items are at full opacity before fading out
 existingItems.forEach((item) => {
+item.style.opacity = '1';
+item.style.transform = 'scale(1)';
 item.classList.remove('fade-in');
+});
+
+// Force reflow to ensure the browser recognizes the initial state
+galleryGrid.offsetHeight;
+
+// Now add fade-out class to trigger animation
+existingItems.forEach((item) => {
 item.classList.add('fade-out');
 });
 
@@ -1013,7 +1022,7 @@ setTimeout(() => {
 console.log('Clearing grid and adding new items');
 galleryGrid.innerHTML = '';
 addGalleryItems(shuffled);
-}, 500); // Wait 500ms for fade-out
+}, 600); // Wait 600ms for fade-out (slightly more than 500ms animation)
 } else {
     // No existing items, just add new ones
     addGalleryItems(shuffled);
