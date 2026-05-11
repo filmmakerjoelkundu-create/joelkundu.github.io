@@ -1293,10 +1293,11 @@ img {
 }
 
 .about-portrait {
-    position: relative;
-    transform: translateZ(40px);
-    display: flex;
-    justify-content: center;
+  position: relative;
+  transform: translateZ(40px);
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 10%;
 }
 
 .portrait-img {
