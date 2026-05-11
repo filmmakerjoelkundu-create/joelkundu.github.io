@@ -2,6 +2,15 @@
 // CINEMATOGRAPHER PORTFOLIO - JOEL KUNDU
 // ============================================
 
+// Mobile detection - disable mouse tracking on mobile devices
+function isMobileDevice() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+           (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); // iPad on Safari
+}
+
+const isMobile = isMobileDevice();
+console.log('Mobile device detected:', isMobile);
+
 // Update year in footer
 document.getElementById('year').textContent = new Date().getFullYear();
 
@@ -264,11 +273,21 @@ setInterval(cycleHeroSlide, 8000);
 // 3D MOUSE EFFECTS - PER-ELEMENT TRACKING
 // ============================================
 function init3DEffects() {
-    // Hero section - all elements react when mouse is in hero (EXCEPT logo - it's draggable)
+    // Skip all 3D effects on mobile devices
+    if (isMobile) {
+        console.log('Mobile device detected - skipping 3D mouse effects');
+        return;
+    }
+
+    // Hero section - all elements react when mouse is in hero
     const heroSection = document.querySelector('.hero');
-    const heroElements = document.querySelectorAll('.hero-text'); // Removed .hero-logo from here
+    const heroElements = document.querySelectorAll('.hero-text');
+    
+    // Hero logo tracking (separate from hero-text)
+    const heroLogo = document.querySelector('.hero-logo img');
     
     heroSection.addEventListener('mousemove', (e) => {
+        // Track hero text elements
         heroElements.forEach(el => {
             const rect = el.getBoundingClientRect();
             const x = e.clientX - rect.left;
@@ -277,17 +296,35 @@ function init3DEffects() {
             const centerX = rect.width / 2;
             const centerY = rect.height / 2;
             
-            const rotateX = (centerY - y) / 30; // Turn TOWARDS mouse
-            const rotateY = (x - centerX) / 30; // Turn TOWARDS mouse
+            const rotateX = (centerY - y) / 30;
+            const rotateY = (x - centerX) / 30;
             
             el.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(20px)`;
         });
+        
+        // Track logo separately
+        if (heroLogo) {
+            const rect = heroLogo.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const rotateX = (centerY - y) / 30;
+            const rotateY = (x - centerX) / 30;
+            
+            heroLogo.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(20px)`;
+        }
     });
     
     heroSection.addEventListener('mouseleave', () => {
         heroElements.forEach(el => {
             el.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(0px)';
         });
+        if (heroLogo) {
+            heroLogo.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(0px)';
+        }
     });
     
     // About section - each tile tracks individually
@@ -408,34 +445,38 @@ function init3DEffects() {
     reelFrame.style.transform = `rotateX(0deg) rotateY(0deg) translateZ(30px)`;
   });
 
-  // About section - portrait image tracks individually on hover
-  const portraitImg = document.querySelector('.portrait-img');
-  if (portraitImg) {
+    // About section - portrait image tracks individually (only on desktop)
+    const portraitImg = document.querySelector('.portrait-img');
+    if (portraitImg && !isMobile) {
+    // Remove any existing listeners to prevent duplicates
+    portraitImg.onmousemove = null;
+    portraitImg.onmouseleave = null;
+    
     portraitImg.addEventListener('mousemove', (e) => {
-      const rect = portraitImg.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-      
-      const rotateX = (centerY - y) / 30;
-      const rotateY = (x - centerX) / 30;
-      
-      portraitImg.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(20px)`;
+        const rect = portraitImg.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        
+        const rotateX = (centerY - y) / 30;
+        const rotateY = (x - centerX) / 30;
+        
+        portraitImg.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(20px)`;
     });
     
     portraitImg.addEventListener('mouseleave', () => {
-      portraitImg.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(0px)';
+        portraitImg.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(0px)';
     });
-  }
+    }
 }
 
 // Initialize 3D effects when DOM is ready
 document.addEventListener('DOMContentLoaded', init3DEffects);
 
 // ============================================
-// DRAGGABLE LOGO WITH SPRING-BACK EFFECT
+// DRAGGABLE LOGO - SMOOTH SPRING ANIMATION
 // ============================================
 function initDraggableLogo() {
     const logoImg = document.querySelector('.hero-logo img');
@@ -449,7 +490,7 @@ function initDraggableLogo() {
     let isDragging = false;
     let startX, startY;
     let currentX = 0, currentY = 0;
-    let animationFrame = null;
+    let velocityX = 0, velocityY = 0;
     let springAnimation = null;
 
     // Mouse events
@@ -474,24 +515,30 @@ function initDraggableLogo() {
         isDragging = true;
         startX = e.clientX - currentX;
         startY = e.clientY - currentY;
+        velocityX = 0;
+        velocityY = 0;
 
-        console.log('Started dragging at:', startX, startY);
+        console.log('Started dragging');
 
         // Cancel any ongoing spring animation
         if (springAnimation) {
             cancelAnimationFrame(springAnimation);
             springAnimation = null;
         }
-
-        // Pause the floating animation while dragging
-        logoImg.style.animationPlayState = 'paused';
     }
 
     function drag(e) {
         if (!isDragging) return;
 
-        currentX = e.clientX - startX;
-        currentY = e.clientY - startY;
+        const newX = e.clientX - startX;
+        const newY = e.clientY - startY;
+        
+        // Calculate velocity for smooth throw
+        velocityX = newX - currentX;
+        velocityY = newY - currentY;
+
+        currentX = newX;
+        currentY = newY;
 
         // Apply the transform
         logoImg.style.transform = `translate(${currentX}px, ${currentY}px)`;
@@ -503,40 +550,45 @@ function initDraggableLogo() {
 
         console.log('Ended dragging, springing back...');
 
-        // Resume floating animation
-        logoImg.style.animationPlayState = 'running';
-
         // Spring back to original position
         springBack();
     }
 
     function springBack() {
-        const springStrength = 0.15; // How fast it springs back
-        const damping = 0.85; // How much it slows down
+        const springStrength = 0.1; // Softer spring
+        const damping = 0.92; // Less damping for smoother decay
 
         function animate() {
-            // Calculate spring force (proportional to distance from origin)
+            // Apply spring force
             const forceX = -currentX * springStrength;
             const forceY = -currentY * springStrength;
 
-            // Apply velocity
-            currentX += forceX;
-            currentY += forceY;
+            // Add velocity from spring force
+            velocityX += forceX;
+            velocityY += forceY;
 
             // Apply damping
-            currentX *= damping;
-            currentY *= damping;
+            velocityX *= damping;
+            velocityY *= damping;
 
-            // Apply transform
+            // Update position
+            currentX += velocityX;
+            currentY += velocityY;
+
             logoImg.style.transform = `translate(${currentX}px, ${currentY}px)`;
 
             // Check if we're close enough to stop
-            if (Math.abs(currentX) < 0.5 && Math.abs(currentY) < 0.5) {
+            const isClose = Math.abs(currentX) < 0.5 && Math.abs(currentY) < 0.5;
+            const isSlow = Math.abs(velocityX) < 0.5 && Math.abs(velocityY) < 0.5;
+
+            if (isClose && isSlow) {
                 currentX = 0;
                 currentY = 0;
+                velocityX = 0;
+                velocityY = 0;
                 logoImg.style.transform = 'translate(0px, 0px)';
                 springAnimation = null;
-                console.log('Logo returned to original position');
+                console.log('Logo returned to position');
             } else {
                 springAnimation = requestAnimationFrame(animate);
             }
@@ -545,19 +597,19 @@ function initDraggableLogo() {
         springAnimation = requestAnimationFrame(animate);
     }
 
-    console.log('Draggable logo initialized successfully');
+    console.log('Draggable logo initialized');
 }
 
 // Initialize draggable logo when DOM is ready
 document.addEventListener('DOMContentLoaded', initDraggableLogo);
 
 // ============================================
-// PARALLAX EFFECT
+// PARALLAX EFFECT - DISABLED ON MOBILE
 // ============================================
 const parallaxBg = document.querySelector('.hero-parallax-bg');
 const parallaxImages = document.querySelectorAll('.parallax-image');
 
-if (parallaxBg && parallaxImages.length > 0) {
+if (parallaxBg && parallaxImages.length > 0 && !isMobile) {
     window.addEventListener('scroll', () => {
         const scrolled = window.pageYOffset;
         const rate = scrolled * 0.5;

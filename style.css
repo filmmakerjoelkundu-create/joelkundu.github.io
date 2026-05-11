@@ -188,6 +188,11 @@ body.protected img {
     pointer-events: none;
 }
 
+/* Override pointer-events for draggable logo */
+.hero-logo img {
+    pointer-events: auto !important;
+}
+
 body.protected::selection {
     background: transparent;
 }
@@ -997,7 +1002,7 @@ img {
     transform: translateZ(40px);
 }
 
-/* Hero Logo with Floating Animation */
+/* Hero Logo */
 .hero-logo {
     position: relative;
     width: 100%;
@@ -1005,17 +1010,12 @@ img {
     display: flex;
     align-items: center;
     justify-content: center;
-    transform-style: preserve-3d;
 }
 
 .hero-logo img {
     width: 100%;
-    max-width: 300px;
+    max-width: 375px;
     border-radius: var(--radius-lg);
-    border: 3px solid var(--color-accent);
-    box-shadow: var(--shadow-xl);
-    transition: var(--transition-normal);
-    animation: float 3s ease-in-out infinite;
     cursor: grab;
     position: relative;
     z-index: 100;
@@ -2288,24 +2288,128 @@ img {
 }
 
 /* ============================================
-   UTILITY CLASSES
-   ============================================ */
+UTILITY CLASSES
+============================================ */
 
 .hidden {
-    display: none !important;
+display: none !important;
 }
 
 .fade-in {
-    animation: fadeIn 0.5s ease-out;
+animation: fadeIn 0.5s ease-out;
 }
 
 .text-center {
-    text-align: center;
+text-align: center;
 }
 
 .mt-1 { margin-top: 1rem; }
 .mt-2 { margin-top: 2rem; }
 .mt-3 { margin-top: 3rem; }
 .mb-1 { margin-bottom: 1rem; }
+
+/* ============================================
+MOBILE RESPONSIVENESS FIXES
+============================================ */
+
+/* Responsive font sizing using clamp() */
+.hero-text h1 {
+/* Fluid font size: min 2.5rem, preferred 6.25vw, max 6.25rem */
+font-size: clamp(2.5rem, 8vw, 6.25rem);
+line-height: 1.1;
+}
+
+.tagline {
+font-size: clamp(1rem, 2.5vw, 1.5rem);
+}
+
+/* Theme toggle - move down on mobile */
+@media (max-width: 768px) {
+.theme-toggle {
+    top: 1rem;
+    padding: 0.3rem;
+    gap: 0.3rem;
+}
+
+.theme-btn {
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
+}
+}
+
+/* Timecode - adjust position on mobile */
+@media (max-width: 768px) {
+.timecode {
+    bottom: 1rem;
+    font-size: 0.75rem;
+    padding: 0.3rem 0.6rem;
+}
+}
+
+/* Hero content - adjust grid on mobile */
+@media (max-width: 768px) {
+.hero-content {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    text-align: center;
+}
+
+.hero-logo {
+    order: -1; /* Logo on top on mobile */
+    height: 250px;
+}
+
+.hero-logo img {
+    max-width: 250px;
+}
+
+.hero-actions {
+    justify-content: center;
+}
+}
+
+/* Viewfinder info - hide some elements on mobile */
+@media (max-width: 768px) {
+.viewfinder-info-extra {
+    display: none;
+}
+
+/* Show only essential viewfinder info */
+.viewfinder-info.top-center,
+.viewfinder-info.bottom-center {
+    display: none;
+}
+}
+
+/* Portrait image - ensure it can track properly */
+.about-portrait {
+position: relative;
+overflow: visible;
+}
+
+.portrait-img {
+width: 100%;
+max-width: 400px;
+border-radius: var(--radius-lg);
+box-shadow: var(--shadow-xl);
+transition: transform 0.1s ease-out;
+transform-style: preserve-3d;
+/* Ensure pointer events work */
+pointer-events: auto;
+}
+
+/* Prevent text from overlapping */
+@media (max-width: 480px) {
+.hero-text h1 {
+    line-height: 1.1;
+    word-wrap: break-word;
+}
+
+.first-name,
+.last-name {
+    display: inline;
+}
+}
 .mb-2 { margin-bottom: 2rem; }
 .mb-3 { margin-bottom: 3rem; }
