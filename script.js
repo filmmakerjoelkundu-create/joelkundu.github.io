@@ -465,38 +465,41 @@ function init3DEffects() {
     reelFrame.style.transform = `rotateX(0deg) rotateY(0deg) translateZ(30px)`;
   });
 
-    // About section - portrait image tracks individually (only on desktop)
-    const portraitImg = document.querySelector('.portrait-img');
-    if (portraitImg && !isMobile) {
-        console.log('Setting up portrait tracking...');
-        
-        portraitImg.addEventListener('mouseenter', () => {
-            console.log('Portrait hover started');
-        });
-        
-        portraitImg.addEventListener('mousemove', (e) => {
-            e.stopPropagation(); // Prevent parent tracking
-            
-            const rect = portraitImg.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-            
-            const rotateX = (centerY - y) / 30;
-            const rotateY = (x - centerX) / 30;
-            
-            portraitImg.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(20px)`;
-        });
-        
-        portraitImg.addEventListener('mouseleave', () => {
-            console.log('Portrait hover ended');
-            portraitImg.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(0px)';
-        });
-        
-        console.log('Portrait tracking setup complete');
-    }
+// About section - portrait image tracks individually (only on desktop)
+const portraitImg = document.querySelector('.portrait-img');
+const portraitWrapper = document.querySelector('.portrait-img-wrapper');
+if (portraitImg && portraitWrapper && !isMobile) {
+console.log('Setting up portrait tracking...');
+
+portraitWrapper.addEventListener('mouseenter', (e) => {
+e.stopPropagation(); // Prevent parent tracking
+console.log('Portrait hover started');
+});
+
+portraitWrapper.addEventListener('mousemove', (e) => {
+e.stopPropagation(); // Prevent parent tracking
+
+const rect = portraitWrapper.getBoundingClientRect();
+const x = e.clientX - rect.left;
+const y = e.clientY - rect.top;
+
+const centerX = rect.width / 2;
+const centerY = rect.height / 2;
+
+const rotateX = (centerY - y) / 30;
+const rotateY = (x - centerX) / 30;
+
+// Apply transform to wrapper (which has the float animation)
+portraitWrapper.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(20px)`;
+});
+
+portraitWrapper.addEventListener('mouseleave', () => {
+console.log('Portrait hover ended');
+portraitWrapper.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(0px)';
+});
+
+console.log('Portrait tracking setup complete');
+}
 }
 
 // Initialize 3D effects when DOM is ready
