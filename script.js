@@ -1247,15 +1247,16 @@ function viewFullscreenImage(src, clickedItem) {
  if (!gallerySection) return;
  
  const galleryRect = gallerySection.getBoundingClientRect();
+ const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
  
  // Create modal overlay
  const modal = document.createElement('div');
  modal.style.cssText = `
  position: fixed;
- top: 0;
- left: 0;
- width: 100vw;
- height: 100vh;
+ top: ${galleryRect.top + scrollTop}px;
+ left: ${galleryRect.left}px;
+ width: ${galleryRect.width}px;
+ height: ${galleryRect.height}px;
  background: rgba(0, 0, 0, 0.85);
  backdrop-filter: blur(10px);
  z-index: 100000;
