@@ -186,10 +186,18 @@ app.post('/api/upload', authenticateToken, upload.single('file'), (req, res) => 
     return res.status(400).json({ error: 'No file uploaded' });
   }
   
+  const uploadPath = path.join(__dirname, '../uploads', req.file.filename);
+  const assetsPath = path.join(__dirname, '../assets/images', req.file.originalname);
+  
+  // Copy to assets folder for git
+  fs.copyFileSync(uploadPath, assetsPath);
+  
   res.json({
     success: true,
+    originalName: req.file.originalname,
     filename: req.file.filename,
-    path: `/uploads/${req.file.filename}`
+    path: `/assets/images/${req.file.originalname}`,
+    assetsPath: `assets/images/${req.file.originalname}`
   });
 });
 
