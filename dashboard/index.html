@@ -409,10 +409,183 @@
                 grid-template-columns: 1fr;
             }
         }
-    </style>
+/* ============================================
+   NETLIFY IDENTITY LOGIN GATE
+   ============================================ */
+ .auth-overlay {
+ position: fixed;
+ inset: 0;
+ z-index: 9999;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ background: #1d1d1f;
+ }
+
+ .auth-overlay.hidden {
+ display: none;
+ }
+
+ .auth-card {
+ background: #2c2c2e;
+ border: 1px solid #48484a;
+ border-radius: 16px;
+ padding: 3rem 2.5rem;
+ width: 100%;
+ max-width: 400px;
+ text-align: center;
+ box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+ }
+
+ .auth-card h2 {
+ color: #f5f5f7;
+ font-size: 1.5rem;
+ font-weight: 600;
+ margin-bottom: 0.5rem;
+ }
+
+ .auth-card p {
+ color: #86868b;
+ font-size: 0.875rem;
+ margin-bottom: 1.5rem;
+ }
+
+ .auth-card .auth-form {
+ display: flex;
+ flex-direction: column;
+ gap: 0.75rem;
+ }
+
+ .auth-card input[type="email"],
+ .auth-card input[type="password"] {
+ width: 100%;
+ padding: 0.75rem 1rem;
+ background: #3a3a3c;
+ border: 1px solid #48484a;
+ border-radius: 8px;
+ color: #f5f5f7;
+ font-size: 0.9rem;
+ outline: none;
+ transition: border-color 0.2s;
+ }
+
+ .auth-card input:focus {
+ border-color: #0071e3;
+ }
+
+ .auth-card .auth-btn {
+ width: 100%;
+ padding: 0.75rem;
+ background: #0071e3;
+ color: #fff;
+ border: none;
+ border-radius: 8px;
+ font-size: 0.9rem;
+ font-weight: 500;
+ cursor: pointer;
+ transition: background 0.2s;
+ }
+
+ .auth-card .auth-btn:hover {
+ background: #0077ed;
+ }
+
+ .auth-card .auth-btn:disabled {
+ opacity: 0.5;
+ cursor: not-allowed;
+ }
+
+ .auth-card .auth-divider {
+ color: #86868b;
+ font-size: 0.75rem;
+ margin: 0.5rem 0;
+ }
+
+ .auth-card .auth-toggle {
+ color: #0071e3;
+ background: none;
+ border: none;
+ cursor: pointer;
+ font-size: 0.85rem;
+ text-decoration: underline;
+ }
+
+ .auth-card .auth-toggle:hover {
+ color: #0077ed;
+ }
+
+ .auth-error {
+ color: #ff3b30;
+ font-size: 0.8rem;
+ margin-top: 0.5rem;
+ min-height: 1.2em;
+ }
+
+ .auth-card .auth-logo {
+ font-size: 2rem;
+ margin-bottom: 1rem;
+ }
+
+ .auth-card .auth-logout {
+ background: #48484a;
+ color: #f5f5f7;
+ }
+
+ .auth-card .auth-logout:hover {
+ background: #5a5a5c;
+ }
+
+ /* Dashboard hidden until auth */
+ .dashboard-container {
+ opacity: 0;
+ transition: opacity 0.4s ease;
+ }
+
+ .dashboard-container.authenticated {
+ opacity: 1;
+ }
+ </style>
+
+ <!-- Netlify Identity Widget -->
+ <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 </head>
 <body>
-    <div class="dashboard-container">
+ <!-- Auth Login Gate -->
+ <div class="auth-overlay" id="authOverlay">
+ <div class="auth-card">
+ <div class="auth-logo">🎬</div>
+ <h2>Dashboard Access</h2>
+ <p>Sign in with your Netlify Identity account</p>
+
+ <!-- Login Form -->
+ <div id="loginForm" class="auth-form">
+ <input type="email" id="authEmail" placeholder="Email" autocomplete="email">
+ <input type="password" id="authPassword" placeholder="Password" autocomplete="current-password">
+ <button class="auth-btn" id="loginBtn">Sign In</button>
+ <span class="auth-divider">or</span>
+ <button class="auth-toggle" id="showSignup">Create an account</button>
+ <p class="auth-error" id="authError"></p>
+ </div>
+
+ <!-- Signup Form (hidden by default) -->
+ <div id="signupForm" class="auth-form" style="display: none;">
+ <input type="email" id="signupEmail" placeholder="Email" autocomplete="email">
+ <input type="password" id="signupPassword" placeholder="Password (min 8 chars)" autocomplete="new-password">
+ <button class="auth-btn" id="signupBtn">Create Account</button>
+ <span class="auth-divider">or</span>
+ <button class="auth-toggle" id="showLogin">Already have an account? Sign in</button>
+ <p class="auth-error" id="signupError"></p>
+ </div>
+
+ <!-- Logged In State (hidden by default) -->
+ <div id="loggedInState" style="display: none;">
+ <p style="color: #34c759; margin-bottom: 1rem;">✓ Authenticated</p>
+ <button class="auth-btn auth-logout" id="logoutBtn">Sign Out</button>
+ </div>
+ </div>
+ </div>
+
+ <div class="dashboard-container" id="dashboardContainer">
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
@@ -704,10 +877,11 @@
                         <h3>Security Settings</h3>
                     </div>
                     <form>
-                        <div class="form-group">
-                            <label for="sitePassword">Site Password</label>
-                            <input type="password" id="sitePassword" value="JOELKUNDU">
-                        </div>
+<div class="form-group">
+<label for="sitePassword">Site Password</label>
+<input type="password" id="sitePassword" value="••••••••" disabled>
+<p style="font-size: 0.8rem; color: #86868b; margin-top: 0.5rem;">Authentication is now managed via Netlify Identity. Invite users from the Netlify dashboard under Site → Identity.</p>
+</div>
                         <div class="form-group">
                             <label>
                                 <input type="checkbox" checked> Enable Content Protection
@@ -839,7 +1013,160 @@
             if (e.target === document.getElementById('addMovieModal')) {
                 closeAddMovieModal();
             }
-        });
-    </script>
+ });
+
+ // ============================================
+ // NETLIFY IDENTITY AUTH
+ // ============================================
+ const authOverlay = document.getElementById('authOverlay');
+ const dashboardContainer = document.getElementById('dashboardContainer');
+ const loginForm = document.getElementById('loginForm');
+ const signupForm = document.getElementById('signupForm');
+ const loggedInState = document.getElementById('loggedInState');
+ const authError = document.getElementById('authError');
+ const signupError = document.getElementById('signupError');
+
+ // UI toggles
+ document.getElementById('showSignup').addEventListener('click', () => {
+ loginForm.style.display = 'none';
+ signupForm.style.display = 'flex';
+ authError.textContent = '';
+ });
+
+ document.getElementById('showLogin').addEventListener('click', () => {
+ signupForm.style.display = 'none';
+ loginForm.style.display = 'flex';
+ signupError.textContent = '';
+ });
+
+ // Show dashboard, hide overlay
+ function showDashboard() {
+ authOverlay.classList.add('hidden');
+ dashboardContainer.classList.add('authenticated');
+ }
+
+ // Hide dashboard, show overlay
+ function showLoginGate() {
+ authOverlay.classList.remove('hidden');
+ dashboardContainer.classList.remove('authenticated');
+ loginForm.style.display = 'flex';
+ signupForm.style.display = 'none';
+ loggedInState.style.display = 'none';
+ }
+
+ // Netlify Identity event listeners
+ if (window.netlifyIdentity) {
+ // Auto-login if already authenticated
+ window.netlifyIdentity.on('init', user => {
+ if (user) {
+ showDashboard();
+ loggedInState.style.display = 'block';
+ loginForm.style.display = 'none';
+ signupForm.style.display = 'none';
+ }
+ });
+
+ window.netlifyIdentity.on('login', user => {
+ showDashboard();
+ loggedInState.style.display = 'block';
+ loginForm.style.display = 'none';
+ signupForm.style.display = 'none';
+ });
+
+ window.netlifyIdentity.on('logout', () => {
+ showLoginGate();
+ });
+
+ window.netlifyIdentity.on('error', err => {
+ console.error('Identity error:', err);
+ authError.textContent = err.message || 'Authentication error';
+ });
+ }
+
+ // Login handler
+ document.getElementById('loginBtn').addEventListener('click', () => {
+ const email = document.getElementById('authEmail').value.trim();
+ const password = document.getElementById('authPassword').value;
+
+ if (!email || !password) {
+ authError.textContent = 'Please enter email and password';
+ return;
+ }
+
+ if (!window.netlifyIdentity) {
+ authError.textContent = 'Identity service not available — are you on Netlify?';
+ return;
+ }
+
+ authError.textContent = '';
+ document.getElementById('loginBtn').disabled = true;
+
+ window.netlifyIdentity.login(email, password, true)
+ .then(user => {
+ // on('login') handler above will show dashboard
+ })
+ .catch(err => {
+ authError.textContent = err.json?.error_description || err.message || 'Login failed';
+ document.getElementById('loginBtn').disabled = false;
+ });
+ });
+
+ // Signup handler
+ document.getElementById('signupBtn').addEventListener('click', () => {
+ const email = document.getElementById('signupEmail').value.trim();
+ const password = document.getElementById('signupPassword').value;
+
+ if (!email || !password) {
+ signupError.textContent = 'Please enter email and password';
+ return;
+ }
+
+ if (password.length < 8) {
+ signupError.textContent = 'Password must be at least 8 characters';
+ return;
+ }
+
+ if (!window.netlifyIdentity) {
+ signupError.textContent = 'Identity service not available — are you on Netlify?';
+ return;
+ }
+
+ signupError.textContent = '';
+ document.getElementById('signupBtn').disabled = true;
+
+ window.netlifyIdentity.signup(email, password)
+ .then(user => {
+ // User will need to confirm email if verification is enabled
+ if (user) {
+ signupError.style.color = '#34c759';
+ signupError.textContent = 'Account created! Check your email to confirm.';
+ } else {
+ signupError.style.color = '#ff9500';
+ signupError.textContent = 'Account created! Please confirm your email, then sign in.';
+ }
+ document.getElementById('signupBtn').disabled = false;
+ })
+ .catch(err => {
+ signupError.textContent = err.json?.error_description || err.message || 'Signup failed';
+ document.getElementById('signupBtn').disabled = false;
+ });
+ });
+
+ // Logout handler
+ document.getElementById('logoutBtn').addEventListener('click', () => {
+ if (window.netlifyIdentity) {
+ window.netlifyIdentity.logout();
+ }
+ showLoginGate();
+ });
+
+ // Enter key handlers
+ document.getElementById('authPassword').addEventListener('keydown', e => {
+ if (e.key === 'Enter') document.getElementById('loginBtn').click();
+ });
+ document.getElementById('signupPassword').addEventListener('keydown', e => {
+ if (e.key === 'Enter') document.getElementById('signupBtn').click();
+ });
+ </script>
 </body>
 </html>

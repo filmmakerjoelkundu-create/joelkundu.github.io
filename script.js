@@ -15,13 +15,25 @@ console.log('Mobile device detected:', isMobile);
 document.getElementById('year').textContent = new Date().getFullYear();
 
 // ============================================
-// PASSWORD PROTECTION
+// PASSWORD PROTECTION - SHA-256 HASH
 // ============================================
 const passwordOverlay = document.getElementById('passwordOverlay');
 const passwordInput = document.getElementById('passwordInput');
 const passwordSubmit = document.getElementById('passwordSubmit');
 const passwordError = document.getElementById('passwordError');
 const passwordContainer = document.querySelector('.password-container');
+
+// SHA-256 hash of the password (JOELKUNDU)
+const PASSWORD_HASH = '3eafffb953d3f55fb134b6854dea019bbb2f091f32faa7666c1871d5fc171fe7';
+
+// SHA-256 hashing function
+async function sha256(message) {
+    const msgBuffer = new TextEncoder().encode(message);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    return hashHex;
+}
 
 // Position password container on hero section
 function positionPasswordOnHero() {
@@ -38,8 +50,33 @@ function positionPasswordOnHero() {
     }
 }
 
-// Check if already authenticated
+// Auth storage keys and expiry
+const AUTH_KEY = 'portfolio-auth';
+const AUTH_TIMESTAMP_KEY = 'portfolio-auth-ts';
+const AUTH_MAX_AGE = 24 * 60 * 60 * 1000; // 24 hours in ms
+
+// Clear stale auth from old localStorage-based versions
 if (localStorage.getItem('portfolio-auth') === 'true') {
+    localStorage.removeItem('portfolio-auth');
+}
+
+// Validate stored auth: must match hash AND not be expired
+function isAuthValid() {
+    const storedHash = sessionStorage.getItem(AUTH_KEY);
+    const storedTs = sessionStorage.getItem(AUTH_TIMESTAMP_KEY);
+    if (storedHash !== PASSWORD_HASH) return false;
+    if (!storedTs) return false;
+    if (Date.now() - parseInt(storedTs, 10) > AUTH_MAX_AGE) {
+        // Expired — clear it
+        sessionStorage.removeItem(AUTH_KEY);
+        sessionStorage.removeItem(AUTH_TIMESTAMP_KEY);
+        return false;
+    }
+    return true;
+}
+
+// Check if already authenticated
+if (isAuthValid()) {
     passwordOverlay.classList.add('hidden');
     document.body.style.overflow = '';
 } else {
@@ -56,11 +93,13 @@ passwordInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') checkPassword();
 });
 
-function checkPassword() {
+async function checkPassword() {
     const password = passwordInput.value;
+    const inputHash = await sha256(password);
 
-    if (password === 'JOELKUNDU') {
-        localStorage.setItem('portfolio-auth', 'true');
+    if (inputHash === PASSWORD_HASH) {
+        sessionStorage.setItem(AUTH_KEY, inputHash);
+        sessionStorage.setItem(AUTH_TIMESTAMP_KEY, Date.now().toString());
         passwordOverlay.classList.add('hidden');
         document.body.style.overflow = ''; // Unlock scroll
     } else {
@@ -75,7 +114,6 @@ function checkPassword() {
 // ============================================
 // THEME SWITCHING
 // ============================================
-const themeToggle = document.querySelector('.theme-toggle');
 const themeButtons = document.querySelectorAll('.theme-btn');
 const htmlElement = document.documentElement;
 
@@ -454,7 +492,7 @@ function init3DEffects() {
     });
     
   reelSection.addEventListener('mouseleave', () => {
-reelFrame.style.transform = `rotateX(0deg) rotateY(0deg) translateZ(30px)`;
+reelFrame.style.transform = `rotateX(0deg) rotateY(0deg) translateZ(0px)`;
 });
 
 }
@@ -995,7 +1033,13 @@ function initGallery(filter = 'all') {
     : allGalleryImages.filter(img => img.project === filter);
   
   // Shuffle and take first 12 (for 4x3 grid)
-  const shuffled = filteredImages.sort(() => 0.5 - Math.random()).slice(0, 12);
+    // Fisher-Yates shuffle (unbiased)
+    const shuffled = [...filteredImages];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    const selected = shuffled.slice(0, 12);
   
 // Fade out existing items first, then replace
 const existingItems = galleryGrid.querySelectorAll('.gallery-item');
@@ -1021,12 +1065,12 @@ item.classList.add('fade-out');
 setTimeout(() => {
 console.log('Clearing grid and adding new items');
 galleryGrid.innerHTML = '';
-addGalleryItems(shuffled);
+    addGalleryItems(selected);
 }, 600); // Wait 600ms for fade-out (slightly more than 500ms animation)
 } else {
-    // No existing items, just add new ones
-    addGalleryItems(shuffled);
-  }
+ // No existing items, just add new ones
+ addGalleryItems(selected);
+ }
 }
 
 // Helper function to add gallery items with fade-in
@@ -1037,7 +1081,6 @@ function addGalleryItems(items) {
     // Random offset for smooth transition
     const randomDelay = Math.random() * 0.5;
     item.style.animationDelay = `${randomDelay}s`;
-    item.style.transition = 'opacity 1.5s ease-in-out, transform 1.5s ease-in-out';
     
     const img = document.createElement('img');
     img.src = imgData.src;
@@ -1065,8 +1108,8 @@ function addGalleryItems(items) {
       const moveX = deltaX * 0.3; // Move 30% of the distance
       const moveY = deltaY * 0.3;
       
-      item.style.transform = `translate(${moveX}px, ${moveY}px) scale(1.1)`;
-      img.style.transform = 'scale(1.2)';
+        item.style.transform = `translate(${moveX}px, ${moveY}px) scale(1.05)`;
+        img.style.transform = 'scale(1.1)';
     });
     
     item.addEventListener('mouseleave', () => {
@@ -1225,11 +1268,23 @@ galleryFilters.forEach(btn => {
     });
 });
 
-// Rotate gallery images every 15 seconds
-setInterval(() => {
+// Rotate gallery images every 15 seconds (paused when tab hidden)
+let galleryInterval = setInterval(rotateGallery, 15000);
+
+function rotateGallery() {
     const activeFilter = document.querySelector('.gallery-filters .filter-btn.active').dataset.filter;
     initGallery(activeFilter);
-}, 15000);
+}
+
+// Pause rotation when tab is hidden to save resources
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        clearInterval(galleryInterval);
+        galleryInterval = null;
+    } else if (!galleryInterval) {
+        galleryInterval = setInterval(rotateGallery, 15000);
+    }
+});
 
 // ============================================
 // CONTACT FORM TOGGLE
@@ -1263,23 +1318,73 @@ formOptions.forEach(option => {
     });
 });
 
-// Add custom option
+// Add custom option — inline input instead of prompt()
 const addOptionBtn = document.querySelector('.add-option-btn');
 if (addOptionBtn) {
     addOptionBtn.addEventListener('click', () => {
-        const customOption = prompt('Enter custom service:');
-        if (customOption) {
+        // If an inline input already exists, focus it instead of creating another
+        const existingInput = addOptionBtn.parentNode.querySelector('.custom-option-input');
+        if (existingInput) {
+            existingInput.focus();
+            return;
+        }
+        
+        // Create inline input field
+        const inputWrapper = document.createElement('span');
+        inputWrapper.style.cssText = 'display: inline-flex; align-items: center; gap: 0.25rem;';
+        
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.placeholder = 'Type service...';
+        input.className = 'custom-option-input';
+        input.style.cssText = 'padding: 0.4rem 0.75rem; background: var(--color-bg-tertiary); border: 1px solid var(--color-accent); border-radius: var(--radius-pill); font-size: 0.8rem; color: var(--color-text-primary); width: 140px; outline: none; font-family: var(--font-sans);';
+        
+        const confirmBtn = document.createElement('button');
+        confirmBtn.type = 'button';
+        confirmBtn.textContent = '+';
+        confirmBtn.style.cssText = 'padding: 0.3rem 0.6rem; background: var(--color-accent); color: var(--color-bg-primary); border: none; border-radius: var(--radius-pill); font-size: 0.85rem; cursor: pointer; font-weight: bold;';
+        
+        function addCustomService() {
+            const value = input.value.trim();
+            if (!value) {
+                inputWrapper.remove();
+                return;
+            }
+            // Sanitize: strip any HTML tags
+            const clean = value.replace(/<[^>]*>/g, '');
+            if (!clean) {
+                inputWrapper.remove();
+                return;
+            }
+            
             const newOption = document.createElement('span');
             newOption.className = 'form-option selected';
-            newOption.textContent = customOption;
-            newOption.dataset.value = customOption.toLowerCase().replace(/\s+/g, '-');
+            newOption.textContent = clean;
+            newOption.dataset.value = clean.toLowerCase().replace(/\s+/g, '-');
             
             addOptionBtn.parentNode.insertBefore(newOption, addOptionBtn);
             
             newOption.addEventListener('click', () => {
                 newOption.classList.toggle('selected');
             });
+            
+            inputWrapper.remove();
         }
+        
+        confirmBtn.addEventListener('click', addCustomService);
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addCustomService();
+            } else if (e.key === 'Escape') {
+                inputWrapper.remove();
+            }
+        });
+        
+        inputWrapper.appendChild(input);
+        inputWrapper.appendChild(confirmBtn);
+        addOptionBtn.parentNode.insertBefore(inputWrapper, addOptionBtn);
+        input.focus();
     });
 }
 
@@ -1296,11 +1401,27 @@ contactForms.forEach(form => {
         const formData = new FormData(form);
         const data = Object.fromEntries(formData);
         
-        // Log for now (replace with actual Formspree submission)
+        // Collect selected service options
+        const selectedOptions = form.querySelectorAll('.form-option.selected');
+        if (selectedOptions.length > 0) {
+            data.services = Array.from(selectedOptions).map(opt => opt.dataset.value);
+        }
+        
+        // Log submission (replace with actual Formspree/backend endpoint)
         console.log('Form submitted:', data);
         
-        // Show success message
-        alert('Thank you for your message! I will get back to you soon.');
+        // Show inline success message instead of alert()
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = '✓ Sent!';
+        submitBtn.style.background = 'var(--color-success)';
+        submitBtn.disabled = true;
+        
+        setTimeout(() => {
+            submitBtn.textContent = originalText;
+            submitBtn.style.background = '';
+            submitBtn.disabled = false;
+        }, 3000);
         
         // Reset form
         form.reset();
@@ -1382,14 +1503,12 @@ document.addEventListener('dragstart', (e) => {
 // RESPONSIVE IMAGE HANDLING
 // ============================================
 function handleResponsiveImages() {
-    const parallaxImages = document.querySelectorAll('.parallax-image');
-    
-    if (window.innerWidth <= 768) {
-        parallaxImages.forEach(img => {
-            img.style.objectPosition = 'center center';
-            img.style.height = '100%';
-        });
-    }
+ if (window.innerWidth <= 768) {
+ parallaxImages.forEach(img => {
+ img.style.objectPosition = 'center center';
+ img.style.height = '100%';
+ });
+ }
 }
 
 window.addEventListener('resize', handleResponsiveImages);
@@ -1409,7 +1528,7 @@ window.addEventListener('load', () => {
 document.addEventListener('DOMContentLoaded', () => {
   console.log('Portfolio initialized successfully!');
   console.log('🎬 Joel Kundu - Cinematographer & Director');
-  console.log('🎭 Theme:', savedTheme);
+  console.log('🎭 Theme:', savedTheme || themeToUse);
   console.log('🖱️ 3D effects enabled');
   console.log('🔒 Image protection enabled');
   console.log('🔐 Password protection enabled');

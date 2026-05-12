@@ -1,0 +1,16 @@
+# Dashboard pages — require Netlify Identity login
+# The client-side Identity widget handles the actual auth gate.
+# These headers prevent direct access to dashboard assets without auth context.
+/dashboard/*
+  X-Robots-Tag: noindex
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer
+
+# Main portfolio — publicly accessible, but still secure headers
+/*
+  X-Frame-Options: SAMEORIGIN
+  X-Content-Type-Options: nosniff
+  X-XSS-Protection: 1; mode=block
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()

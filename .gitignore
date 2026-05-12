@@ -11,3 +11,7 @@ assets/video/*.avi
 Thumbs.db
 *.log
 node_modules/
+
+# Netlify
+.netlify/
+netlify.toml.bak

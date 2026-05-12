@@ -1,0 +1,13 @@
+[build]
+  publish = "."
+
+[identity]
+  # Enable Netlify Identity for dashboard authentication
+  # After deploying, go to Site settings > Identity > Enable
+  # Then invite yourself as a user under Identity > Invite users
+
+# Redirect dashboard root to index.html
+[[redirects]]
+  from = "/dashboard"
+  to = "/dashboard/index.html"
+  status = 200
