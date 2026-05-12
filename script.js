@@ -1242,76 +1242,85 @@ function addGalleryItems(items) {
 
 // View fullscreen image centered on gallery section
 function viewFullscreenImage(src, clickedItem) {
-  const gallerySection = document.querySelector('.gallery');
-  
-  if (!gallerySection) return;
-  
-  const galleryRect = gallerySection.getBoundingClientRect();
-  
-  // Create modal overlay
-  const modal = document.createElement('div');
-  modal.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(10px);
-    z-index: 100000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  `;
-  
-  // Create image container centered on gallery
-  const imgContainer = document.createElement('div');
-  imgContainer.style.cssText = `
-    position: relative;
-    max-width: 90%;
-    max-height: 90%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transform: scale(0.8);
-    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  `;
-  
-  const img = document.createElement('img');
-  img.src = src;
-  img.style.cssText = `
-    max-width: 100%;
-    max-height: 90vh;
-    object-fit: contain;
-    border-radius: var(--radius-md);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-  `;
-  
-  // Close button
-  const closeBtn = document.createElement('button');
-  closeBtn.innerHTML = '×';
-  closeBtn.style.cssText = `
-    position: absolute;
-    top: -40px;
-    right: -40px;
-    width: 40px;
-    height: 40px;
-    background: var(--color-accent);
-    border: none;
-    border-radius: 50%;
-    color: white;
-    font-size: 1.5rem;
-    font-weight: bold;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.3s ease, background 0.3s ease;
-  `;
-  
+ const gallerySection = document.querySelector('.gallery');
+ 
+ if (!gallerySection) return;
+ 
+ const galleryRect = gallerySection.getBoundingClientRect();
+ const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+ 
+ // Scroll to gallery section first
+ window.scrollTo({
+ top: galleryRect.top + scrollTop - (window.innerHeight / 2) + (galleryRect.height / 2),
+ behavior: 'smooth'
+ });
+ 
+ // Wait for scroll to complete, then show modal
+ setTimeout(() => {
+ // Create modal overlay
+ const modal = document.createElement('div');
+ modal.style.cssText = `
+ position: fixed;
+ top: 0;
+ left: 0;
+ width: 100vw;
+ height: 100vh;
+ background: rgba(0, 0, 0, 0.85);
+ backdrop-filter: blur(10px);
+ z-index: 100000;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ cursor: pointer;
+ opacity: 0;
+ transition: opacity 0.3s ease;
+ `;
+ 
+ // Create image container centered on gallery
+ const imgContainer = document.createElement('div');
+ imgContainer.style.cssText = `
+ position: relative;
+ max-width: 90%;
+ max-height: 90%;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ transform: scale(0.8);
+ transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+ `;
+ 
+ const img = document.createElement('img');
+ img.src = src;
+ img.style.cssText = `
+ max-width: 100%;
+ max-height: 90vh;
+ object-fit: contain;
+ border-radius: var(--radius-md);
+ box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+ `;
+ 
+ // Close button
+ const closeBtn = document.createElement('button');
+ closeBtn.innerHTML = '×';
+ closeBtn.style.cssText = `
+ position: absolute;
+ top: -40px;
+ right: -40px;
+ width: 40px;
+ height: 40px;
+ background: var(--color-accent);
+ border: none;
+ border-radius: 50%;
+ color: white;
+ font-size: 1.5rem;
+ font-weight: bold;
+ cursor: pointer;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ transition: transform 0.3s ease, background 0.3s ease;
+ `;
+ 
  const handleClose = () => {
  modal.style.opacity = '0';
  imgContainer.style.transform = 'scale(0.8)';
@@ -1321,55 +1330,51 @@ function viewFullscreenImage(src, clickedItem) {
  document.body.style.overflow = '';
  }, 300);
  };
-  
-  closeBtn.addEventListener('mouseenter', () => {
-    closeBtn.style.transform = 'rotate(90deg) scale(1.1)';
-    closeBtn.style.background = '#ff4444';
-  });
-  
-  closeBtn.addEventListener('mouseleave', () => {
-    closeBtn.style.transform = 'rotate(0deg) scale(1)';
-    closeBtn.style.background = 'var(--color-accent)';
-  });
-  
-  closeBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    handleClose();
-  });
-  
+ 
+ closeBtn.addEventListener('mouseenter', () => {
+ closeBtn.style.transform = 'rotate(90deg) scale(1.1)';
+ closeBtn.style.background = '#ff4444';
+ });
+ 
+ closeBtn.addEventListener('mouseleave', () => {
+ closeBtn.style.transform = 'rotate(0deg) scale(1)';
+ closeBtn.style.background = 'var(--color-accent)';
+ });
+ 
+ closeBtn.addEventListener('click', (e) => {
+ e.stopPropagation();
+ handleClose();
+ });
+ 
  imgContainer.appendChild(img);
  imgContainer.appendChild(closeBtn);
  modal.appendChild(imgContainer);
  document.body.appendChild(modal);
-
+ 
  // Don't lock scroll - let user scroll freely
- // Scroll to gallery section so modal appears in view
- const gallerySec = document.querySelector('.gallery');
- if (gallerySec) {
- gallerySec.scrollIntoView({ behavior: 'smooth', block: 'center' });
- }
  
  // Click outside to close
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) {
-      handleClose();
-    }
-  });
-  
-  // Close on escape key
-  const handleEscape = (e) => {
-    if (e.key === 'Escape') {
-      handleClose();
-      document.removeEventListener('keydown', handleEscape);
-    }
-  };
-  document.addEventListener('keydown', handleEscape);
-  
-  // Animate in
-  setTimeout(() => {
-    modal.style.opacity = '1';
-    imgContainer.style.transform = 'scale(1)';
-  }, 10);
+ modal.addEventListener('click', (e) => {
+ if (e.target === modal) {
+ handleClose();
+ }
+ });
+ 
+ // Close on escape key
+ const handleEscape = (e) => {
+ if (e.key === 'Escape') {
+ handleClose();
+ document.removeEventListener('keydown', handleEscape);
+ }
+ };
+ document.addEventListener('keydown', handleEscape);
+ 
+ // Animate in
+ setTimeout(() => {
+ modal.style.opacity = '1';
+ imgContainer.style.transform = 'scale(1)';
+ }, 10);
+ }, 500); // Wait for scroll animation
 }
 
 // Initialize gallery on load
