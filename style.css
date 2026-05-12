@@ -1838,11 +1838,11 @@ visibility: visible;
 }
 
 .client-statement p {
-    font-family: var(--font-serif);
-    font-size: 1rem;
-    color: var(--color-text-primary);
-    line-height: 1.8;
-    font-style: italic;
+ font-family: var(--font-serif);
+ font-size: 1.5rem;
+ color: var(--color-text-primary);
+ line-height: 1.8;
+ font-style: italic;
 }
 
 .contact-details {
