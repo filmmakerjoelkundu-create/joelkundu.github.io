@@ -473,27 +473,81 @@ function init3DEffects() {
         });
     });
     
-    // Showreel - frame reacts
-    const reelSection = document.querySelector('.reel');
-    const reelFrame = document.querySelector('.reel-frame');
-    
-    reelSection.addEventListener('mousemove', (e) => {
-        const rect = reelFrame.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
-        
-        const rotateX = (centerY - y) / 30;
-        const rotateY = (x - centerX) / 30;
-        
-        reelFrame.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(30px)`;
-    });
-    
-  reelSection.addEventListener('mouseleave', () => {
-reelFrame.style.transform = `rotateX(0deg) rotateY(0deg) translateZ(0px)`;
+// Showreel - frame reacts only on direct hover, disabled during video interaction
+const reelSection = document.querySelector('.reel');
+const reelFrame = document.querySelector('.reel-frame');
+let reelTiltEnabled = true;
+let iframeShield = null;
+
+// Listen on the frame itself (not the section) so hover area matches the card
+reelFrame.addEventListener('mouseenter', () => {
+    if (reelTiltEnabled) {
+        reelFrame.style.transition = 'none';
+    }
 });
+
+reelFrame.addEventListener('mousemove', (e) => {
+    if (!reelTiltEnabled) return;
+
+    const rect = reelFrame.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+
+    const rotateX = (centerY - y) / 30;
+    const rotateY = (x - centerX) / 30;
+
+    reelFrame.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(30px)`;
+});
+
+// Single consolidated mouseleave handler
+function handleReelMouseLeave() {
+    if (reelTiltEnabled) {
+        reelFrame.style.transition = 'var(--transition-normal)';
+        reelFrame.style.transform = `rotateX(0deg) rotateY(0deg) translateZ(0px)`;
+    } else {
+        // User left while video was active — re-enable tilt + shield
+        reelTiltEnabled = true;
+        if (iframeShield) iframeShield.style.display = '';
+        reelFrame.classList.remove('video-active');
+        reelFrame.style.transform = `rotateX(0deg) rotateY(0deg) translateZ(0px)`;
+    }
+}
+
+reelFrame.addEventListener('mouseleave', handleReelMouseLeave);
+
+// Shield overlay: iframe steals mouse events, so we use a transparent
+// div on top when tilt is active. Click removes it and disables tilt,
+// giving full access to Vimeo controls (play, fullscreen, etc.)
+const reelIframe = reelFrame.querySelector('iframe');
+if (reelIframe) {
+    iframeShield = document.createElement('div');
+    iframeShield.className = 'reel-iframe-shield';
+    iframeShield.style.cssText = `
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        cursor: pointer;
+        border-radius: inherit;
+    `;
+    reelFrame.style.position = 'relative';
+    reelFrame.appendChild(iframeShield);
+
+    // Click: disable tilt, reveal iframe for direct interaction
+    iframeShield.addEventListener('click', () => {
+        reelTiltEnabled = false;
+        iframeShield.style.display = 'none';
+        reelFrame.style.transition = 'var(--transition-normal)';
+        reelFrame.style.transform = `rotateX(0deg) rotateY(0deg) translateZ(30px)`;
+        reelFrame.style.borderColor = 'var(--color-accent)';
+        reelFrame.classList.add('video-active');
+
+        // Focus the iframe so Vimeo receives keyboard events
+        reelIframe.contentWindow?.focus();
+    });
+}
 
 }
 
