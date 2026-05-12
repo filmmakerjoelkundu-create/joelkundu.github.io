@@ -1312,14 +1312,15 @@ function viewFullscreenImage(src, clickedItem) {
     transition: transform 0.3s ease, background 0.3s ease;
   `;
   
-  const handleClose = () => {
-    modal.style.opacity = '0';
-    imgContainer.style.transform = 'scale(0.8)';
-    setTimeout(() => {
-      modal.remove();
-      document.body.style.overflow = '';
-    }, 300);
-  };
+ const handleClose = () => {
+ modal.style.opacity = '0';
+ imgContainer.style.transform = 'scale(0.8)';
+ setTimeout(() => {
+ modal.remove();
+ // Restore scroll - but don't lock it
+ document.body.style.overflow = '';
+ }, 300);
+ };
   
   closeBtn.addEventListener('mouseenter', () => {
     closeBtn.style.transform = 'rotate(90deg) scale(1.1)';
@@ -1336,15 +1337,14 @@ function viewFullscreenImage(src, clickedItem) {
     handleClose();
   });
   
-  imgContainer.appendChild(img);
-  imgContainer.appendChild(closeBtn);
-  modal.appendChild(imgContainer);
-  document.body.appendChild(modal);
-  
-  // Disable body scroll
-  document.body.style.overflow = 'hidden';
-  
-  // Click outside to close
+ imgContainer.appendChild(img);
+ imgContainer.appendChild(closeBtn);
+ modal.appendChild(imgContainer);
+ document.body.appendChild(modal);
+
+ // Don't lock scroll - let user scroll freely
+ 
+ // Click outside to close
   modal.addEventListener('click', (e) => {
     if (e.target === modal) {
       handleClose();
