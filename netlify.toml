@@ -1,4 +1,7 @@
 [build]
+  # No build command needed — this is a static site (HTML/CSS/JS only)
+  # Setting command = "echo skip" avoids unnecessary build processing
+  command = "echo skip"
   publish = "."
 
 [identity]
