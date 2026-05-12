@@ -549,6 +549,38 @@ if (reelIframe) {
     });
 }
 
+// Section headers - tilt with parallax depth layers
+// Each header tilts as a unit (max 10°), inner elements at different Z depths
+// create a parallax effect: title floats above tagline, tagline above bg box
+const sectionHeaders = document.querySelectorAll('.section-header');
+const SECTION_TILT_MAX = 10; // degrees
+
+sectionHeaders.forEach(header => {
+    header.addEventListener('mousemove', (e) => {
+        const rect = header.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+
+        // Calculate tilt, clamp to ±10°
+        let rotateX = (centerY - y) / centerY * SECTION_TILT_MAX;
+        let rotateY = (x - centerX) / centerX * SECTION_TILT_MAX;
+        rotateX = Math.max(-SECTION_TILT_MAX, Math.min(SECTION_TILT_MAX, rotateX));
+        rotateY = Math.max(-SECTION_TILT_MAX, Math.min(SECTION_TILT_MAX, rotateY));
+
+        // Apply tilt to the header container (children maintain their Z offsets)
+        header.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+        header.style.transition = 'none';
+    });
+
+    header.addEventListener('mouseleave', () => {
+        header.style.transition = 'transform 0.5s ease-out';
+        header.style.transform = 'rotateX(0deg) rotateY(0deg)';
+    });
+});
+
 }
 
 // Initialize 3D effects when DOM is ready

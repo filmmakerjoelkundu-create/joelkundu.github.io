@@ -1077,12 +1077,13 @@ section:not(.hero).fade-in {
    ============================================ */
 
 .section-header {
-    text-align: center;
-    margin-top: 30px;
-    margin-bottom: 4rem;
-    position: relative;
-    transform-style: preserve-3d;
-    padding: 2rem;
+text-align: center;
+margin-top: 30px;
+margin-bottom: 4rem;
+position: relative;
+transform-style: preserve-3d;
+padding: 2rem;
+will-change: transform;
 }
 
 .section-header h2 {
@@ -1109,18 +1110,18 @@ section:not(.hero).fade-in {
 
 /* Section Header Tile Background */
 .section-header::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 500px;
-    height: 150px;
-    background: var(--color-bg-tertiary);
-    border: 2px solid var(--color-border);
-    border-radius: var(--radius-md);
-    z-index: 1;
-    transition: var(--transition-normal);
+content: '';
+position: absolute;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%) translateZ(0px);
+width: 500px;
+height: 150px;
+background: var(--color-bg-tertiary);
+border: 2px solid var(--color-border);
+border-radius: var(--radius-md);
+z-index: 1;
+transition: var(--transition-normal);
 }
 
 .section-header:hover::before {
