@@ -25,7 +25,7 @@ fi
 
 # Start the server
 echo "🚀 Starting dashboard server..."
-echo "🌐 Dashboard will be available at: http://localhost:3000/dashboard/"
+echo "🌐 Dashboard will be available at: http://localhost:3001/dashboard/"
 echo "🔐 Default password: JOELKUNDU"
 echo ""
 echo "Press Ctrl+C to stop the server"
