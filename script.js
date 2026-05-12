@@ -1343,6 +1343,11 @@ function viewFullscreenImage(src, clickedItem) {
  document.body.appendChild(modal);
 
  // Don't lock scroll - let user scroll freely
+ // Scroll to gallery section so modal appears in view
+ const gallerySec = document.querySelector('.gallery');
+ if (gallerySec) {
+ gallerySec.scrollIntoView({ behavior: 'smooth', block: 'center' });
+ }
  
  // Click outside to close
   modal.addEventListener('click', (e) => {
