@@ -473,27 +473,54 @@ function init3DEffects() {
         });
     });
     
-// Showreel - frame reacts only on direct hover, disabled during video interaction
+// Showreel - tilt tracks from section, disables on hover/play
+// Tilt: active when mouse is in section but NOT over the frame
+// Hover: highlighted border when mouse is over the frame
+// Video active: tilt off, shield off, Vimeo gets full control
 const reelSection = document.querySelector('.reel');
 const reelFrame = document.querySelector('.reel-frame');
-let reelTiltEnabled = true;
+let reelVideoActive = false; // true once user clicks to play
 let iframeShield = null;
+let isHoveringFrame = false;
 
-// Track mouse from the section so tilt works across the whole area,
-// but only apply tilt when hovering directly over the frame
+// Detect when mouse enters/leaves the video card (entire frame area)
+reelFrame.addEventListener('mouseenter', () => {
+    isHoveringFrame = true;
+    if (!reelVideoActive) {
+        // Tilt off, border highlight on
+        reelFrame.style.transition = 'var(--transition-normal)';
+        reelFrame.style.transform = `rotateX(0deg) rotateY(0deg) translateZ(30px)`;
+    }
+    reelFrame.classList.add('frame-hovered');
+});
+
+reelFrame.addEventListener('mouseleave', () => {
+    isHoveringFrame = false;
+    reelFrame.classList.remove('frame-hovered');
+    // Tilt will resume on next section mousemove (no immediate tilt jump)
+});
+
+// Track mouse from the entire section — tilt the frame based on
+// mouse position relative to the frame center, but ONLY when
+// the mouse is NOT directly over the frame and video is not active
+//
+// Also handles the edge case where an active iframe swallows mouse events:
+// if the section mousemove detects the cursor is now outside the frame,
+// but isHoveringFrame is still true, correct that state.
 reelSection.addEventListener('mousemove', (e) => {
-    if (!reelTiltEnabled) return;
-
     const rect = reelFrame.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
+    const isInsideFrame = x >= 0 && x <= rect.width && y >= 0 && y <= rect.height;
 
-    // Only tilt if mouse is within the frame bounds
-    if (x < 0 || x > rect.width || y < 0 || y > rect.height) {
-        reelFrame.style.transition = 'var(--transition-normal)';
-        reelFrame.style.transform = `rotateX(0deg) rotateY(0deg) translateZ(30px)`;
-        return;
+    // If iframe is active and swallowed mouseleave, detect cursor leaving frame
+    if (isHoveringFrame && !isInsideFrame) {
+        isHoveringFrame = false;
+        reelFrame.classList.remove('frame-hovered');
     }
+
+    if (reelVideoActive) return;
+    if (isHoveringFrame) return;
 
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
@@ -505,26 +532,23 @@ reelSection.addEventListener('mousemove', (e) => {
     reelFrame.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(30px)`;
 });
 
-// Single consolidated mouseleave handler
-function handleReelMouseLeave() {
-    if (reelTiltEnabled) {
-        reelFrame.style.transition = 'var(--transition-normal)';
-        reelFrame.style.transform = `rotateX(0deg) rotateY(0deg) translateZ(30px)`;
-    } else {
-        // User left while video was active — re-enable tilt + shield
-        reelTiltEnabled = true;
+// When mouse leaves the section entirely, reset tilt
+reelSection.addEventListener('mouseleave', () => {
+    if (reelVideoActive) {
+        // Re-enable tilt + restore shield
+        reelVideoActive = false;
         if (iframeShield) iframeShield.style.display = '';
         reelFrame.classList.remove('video-active');
-        reelFrame.style.transition = 'var(--transition-normal)';
-        reelFrame.style.transform = `rotateX(0deg) rotateY(0deg) translateZ(30px)`;
     }
-}
-
-reelSection.addEventListener('mouseleave', handleReelMouseLeave);
+    isHoveringFrame = false;
+    reelFrame.classList.remove('frame-hovered');
+    reelFrame.style.transition = 'var(--transition-normal)';
+    reelFrame.style.transform = `rotateX(0deg) rotateY(0deg) translateZ(30px)`;
+});
 
 // Shield overlay: sits over the iframe so the first click activates
-// the video player (Vimeo needs focus). Once activated, tilt disables
-// so the user can freely interact with controls (play, fullscreen, etc.)
+// the video player. Once activated, tilt stays off and Vimeo gets
+// full control over the card area (play, pause, fullscreen, etc.)
 const reelIframe = reelFrame.querySelector('iframe');
 if (reelIframe) {
     iframeShield = document.createElement('div');
@@ -535,26 +559,20 @@ if (reelIframe) {
         z-index: 2;
         cursor: pointer;
         border-radius: inherit;
-        pointer-events: auto;
     `;
-    reelFrame.style.position = 'relative';
     reelFrame.appendChild(iframeShield);
 
-    // Click: disable tilt, hide shield, give Vimeo full control
+    // Click: activate video mode — tilt off, shield off, Vimeo gets control
     iframeShield.addEventListener('click', () => {
-        reelTiltEnabled = false;
+        reelVideoActive = true;
         iframeShield.style.display = 'none';
         reelFrame.style.transition = 'var(--transition-normal)';
         reelFrame.style.transform = `rotateX(0deg) rotateY(0deg) translateZ(30px)`;
         reelFrame.classList.add('video-active');
+        reelFrame.classList.remove('frame-hovered');
 
         // Focus the iframe so Vimeo receives keyboard events
         reelIframe.contentWindow?.focus();
-    });
-
-    // Prevent shield hover from interfering with reel-frame hover state
-    iframeShield.addEventListener('mouseenter', (e) => {
-        e.stopPropagation();
     });
 }
 

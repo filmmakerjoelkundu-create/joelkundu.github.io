@@ -1499,11 +1499,11 @@ transition: var(--transition-normal);
     transition: var(--transition-normal);
 }
 
-.reel-frame:hover {
+.reel-frame.frame-hovered {
 border-color: var(--color-accent);
 }
 
-/* Video active state — no tilt, elevated, accessible controls */
+/* Video active state — no tilt, border highlighted, Vimeo controls accessible */
 .reel-frame.video-active {
 border-color: var(--color-accent) !important;
 box-shadow: var(--shadow-xl), 0 0 30px rgba(196, 30, 58, 0.15);
@@ -1512,10 +1512,6 @@ box-shadow: var(--shadow-xl), 0 0 30px rgba(196, 30, 58, 0.15);
 /* Shield overlay for tilt-before-play interaction */
 .reel-iframe-shield {
 background: transparent;
-}
-
-.reel-iframe-shield:hover {
-background: rgba(255, 255, 255, 0.02);
 }
 
 .reel-frame iframe {
