@@ -1322,34 +1322,90 @@ transition: var(--transition-normal);
 }
 
 /* ============================================
-   SELECTED WORKS SECTION
-   ============================================ */
+SELECTED WORKS SECTION - INFINITE CAROUSEL
+============================================ */
 
 .work {
-  position: relative;
-  transform-style: preserve-3d;
-  padding-bottom: 40px;
+ position: relative;
+ transform-style: preserve-3d;
+ padding: 8rem 0 40px;
+ min-height: 100vh;
+ display: flex;
+ align-items: center;
+ overflow: hidden;
 }
 
-.work-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 2rem;
-    transform-style: preserve-3d;
+.work-carousel {
+ position: relative;
+ width: 100%;
+ max-width: 100%;
+ margin: 0 auto;
+ overflow: hidden;
+ white-space: nowrap;
+}
+
+.carousel-track,
+.carousel-track.duplicate {
+ display: inline-flex;
+ flex-wrap: nowrap;
+ gap: clamp(2rem, 4vw, 4rem);
+ padding: 0 5vw;
+ animation: scroll-left 80s linear infinite;
+ will-change: transform;
+}
+
+.carousel-track.duplicate {
+ /* No separate animation - inherits from base */
+}
+
+/* Fade effects on edges */
+.work-carousel::before,
+.work-carousel::after {
+ content: '';
+ position: absolute;
+ top: 0;
+ bottom: 0;
+ width: 15%;
+ z-index: 2;
+ pointer-events: none;
+}
+
+.work-carousel::before {
+ left: 0;
+ background: linear-gradient(to right, var(--color-bg-primary) 0%, transparent 100%);
+}
+
+.work-carousel::after {
+ right: 0;
+ background: linear-gradient(to left, var(--color-bg-primary) 0%, transparent 100%);
+}
+
+@keyframes scroll-left {
+ 0% {
+ transform: translateX(0);
+ }
+ 100% {
+ transform: translateX(-50%);
+ }
 }
 
 .work-card {
-    position: relative;
-    background: var(--color-bg-secondary);
-    border: 2px solid var(--color-border);
-    border-radius: var(--radius-md);
-    overflow: visible;
-    transition: var(--transition-normal);
-    transform-style: preserve-3d;
-    cursor: pointer;
-    aspect-ratio: 2/3;
-    perspective: 1000px;
-    transform-origin: center center;
+ position: relative;
+ background: var(--color-bg-secondary);
+ border: 2px solid var(--color-border);
+ border-radius: var(--radius-md);
+ overflow: visible;
+ transition: var(--transition-normal);
+ transform-style: preserve-3d;
+ cursor: pointer;
+ aspect-ratio: 2/3;
+ perspective: 1000px;
+ transform-origin: center center;
+ flex: 0 0 auto;
+ flex-shrink: 0;
+ width: clamp(280px, 30vw, 400px);
+ height: auto;
+ display: block;
 }
 
 .work-card:hover {
@@ -2311,18 +2367,32 @@ visibility: visible;
  }
 }
 
+@media (max-width: 768px) {
+ .work-grid {
+ grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+ gap: 1.5rem;
+ }
+}
+
 @media (max-width: 480px) {
-    .work-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .hero-actions {
-        flex-direction: column;
-    }
-    
-    .btn {
-        width: 100%;
-    }
+ .work-grid {
+ grid-template-columns: 1fr;
+ gap: 1rem;
+ }
+ 
+ .work {
+ padding: 6rem 0 30px;
+ }
+ 
+ .hero-actions {
+ flex-direction: row;
+ gap: 0.75rem;
+ }
+ 
+ .btn {
+ padding: 0.625rem 1.25rem;
+ font-size: 0.875rem;
+ }
 }
 
 /* ============================================

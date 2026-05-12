@@ -919,30 +919,30 @@ const viewStillsButtons = document.querySelectorAll('.btn-view-stills');
 
 // Open modal
 viewStillsButtons.forEach(button => {
-  button.addEventListener('click', (e) => {
-    e.preventDefault();
-    e.stopPropagation(); // Prevent card click
-    const card = button.closest('.work-card');
-    const projectId = card.dataset.project;
-    
-    loadProjectDetails(projectId);
-    
-    // Position modal over the work section
-    const workSection = document.querySelector('.work');
-    if (workSection) {
-      const rect = workSection.getBoundingClientRect();
-      stillsModal.style.position = 'fixed';
-      stillsModal.style.top = `${rect.top}px`;
-      stillsModal.style.left = `${rect.left}px`;
-      stillsModal.style.right = `${window.innerWidth - rect.right}px`;
-      stillsModal.style.bottom = `${window.innerHeight - rect.bottom}px`;
-      stillsModal.style.width = `${rect.width}px`;
-      stillsModal.style.height = `${rect.height}px`;
-    }
-    
-    stillsModal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-  });
+ button.addEventListener('click', (e) => {
+ e.preventDefault();
+ e.stopPropagation(); // Prevent card click
+ const card = button.closest('.work-card');
+ const projectId = card.dataset.project;
+ 
+ loadProjectDetails(projectId);
+ 
+ // Position modal relative to Selected Works section
+ const workSection = document.querySelector('.work');
+ if (workSection) {
+ const rect = workSection.getBoundingClientRect();
+ const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+ 
+ // Position modal to cover the work section area
+ stillsModal.style.position = 'fixed';
+ stillsModal.style.top = `${rect.top + scrollTop}px`;
+ stillsModal.style.left = `${rect.left}px`;
+ stillsModal.style.width = `${rect.width}px`;
+ stillsModal.style.height = `${rect.height}px`;
+ }
+ 
+ stillsModal.classList.add('active');
+ });
 });
 
 // Load project details
@@ -1012,39 +1012,36 @@ function loadProjectDetails(projectId) {
 
 // Close modal
 modalClose.addEventListener('click', () => {
-    stillsModal.classList.remove('active');
-    document.body.style.overflow = '';
+ stillsModal.classList.remove('active');
 });
 
 stillsModal.addEventListener('click', (e) => {
-    if (e.target === stillsModal) {
-        stillsModal.classList.remove('active');
-        document.body.style.overflow = '';
-    }
+ if (e.target === stillsModal) {
+ stillsModal.classList.remove('active');
+ }
 });
 
 // Close on escape key
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && stillsModal.classList.contains('active')) {
-        stillsModal.classList.remove('active');
-        document.body.style.overflow = '';
-    }
+ if (e.key === 'Escape' && stillsModal.classList.contains('active')) {
+ stillsModal.classList.remove('active');
+ }
 });
 
 // Reposition modal on window resize when modal is open
 window.addEventListener('resize', () => {
-  if (stillsModal.classList.contains('active')) {
-    const workSection = document.querySelector('.work');
-    if (workSection) {
-      const rect = workSection.getBoundingClientRect();
-      stillsModal.style.top = `${rect.top}px`;
-      stillsModal.style.left = `${rect.left}px`;
-      stillsModal.style.right = `${window.innerWidth - rect.right}px`;
-      stillsModal.style.bottom = `${window.innerHeight - rect.bottom}px`;
-      stillsModal.style.width = `${rect.width}px`;
-      stillsModal.style.height = `${rect.height}px`;
-    }
-  }
+ if (stillsModal.classList.contains('active')) {
+ const workSection = document.querySelector('.work');
+ if (workSection) {
+ const rect = workSection.getBoundingClientRect();
+ const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+ 
+ stillsModal.style.top = `${rect.top + scrollTop}px`;
+ stillsModal.style.left = `${rect.left}px`;
+ stillsModal.style.width = `${rect.width}px`;
+ stillsModal.style.height = `${rect.height}px`;
+ }
+ }
 });
 
 // ============================================
@@ -1616,6 +1613,143 @@ document.addEventListener('dragstart', (e) => {
 });
 
 // ============================================
+// INFINITE CAROUSEL - DUPLICATE CONTENT
+// ============================================
+function initInfiniteCarousel() {
+ const carouselTrack = document.getElementById('carouselTrack');
+ if (!carouselTrack) return;
+ 
+ // Get all work cards
+ const workCards = carouselTrack.querySelectorAll('.work-card');
+ if (workCards.length === 0) return;
+ 
+ // Duplicate the cards for seamless infinite scroll
+ const duplicateTrack = carouselTrack.cloneNode(true);
+ duplicateTrack.classList.add('duplicate');
+ 
+ // Position the duplicate right after the original
+ carouselTrack.parentNode.appendChild(duplicateTrack);
+ 
+ // Pause on hover
+ carouselTrack.addEventListener('mouseenter', () => {
+ carouselTrack.style.animationPlayState = 'paused';
+ });
+ 
+ carouselTrack.addEventListener('mouseleave', () => {
+ carouselTrack.style.animationPlayState = 'running';
+ });
+ 
+ // Also pause duplicate when hovering over it
+ duplicateTrack.addEventListener('mouseenter', () => {
+ duplicateTrack.style.animationPlayState = 'paused';
+ });
+ 
+ duplicateTrack.addEventListener('mouseleave', () => {
+ duplicateTrack.style.animationPlayState = 'running';
+ });
+ 
+// Enable mouse wheel scrolling - only when hovering over carousel
+let scrollTimeout;
+
+carouselTrack.addEventListener('wheel', (e) => {
+ // Only handle wheel events when actively hovering
+ const style = window.getComputedStyle(carouselTrack);
+ const matrix = new DOMMatrix(style.transform);
+ const currentX = matrix.m41;
+ 
+ // Calculate new position based on scroll
+ const scrollAmount = e.deltaY * 0.5;
+ const newX = currentX - scrollAmount;
+ 
+ // Apply transform
+ carouselTrack.style.transform = `translateX(${newX}px)`;
+ duplicateTrack.style.transform = `translateX(${newX}px)`;
+ 
+ // Pause animation during scroll
+ carouselTrack.style.animationPlayState = 'paused';
+ duplicateTrack.style.animationPlayState = 'paused';
+ 
+ // Reset scroll timeout
+ clearTimeout(scrollTimeout);
+ scrollTimeout = setTimeout(() => {
+ carouselTrack.style.animationPlayState = 'running';
+ duplicateTrack.style.animationPlayState = 'running';
+ }, 1000);
+}, { passive: true });
+ 
+ // Touch scrolling
+ let touchStartX = 0;
+ let touchStartTransform = 0;
+ 
+ carouselTrack.addEventListener('touchstart', (e) => {
+ touchStartX = e.touches[0].clientX;
+ const style = window.getComputedStyle(carouselTrack);
+ const matrix = new DOMMatrix(style.transform);
+ touchStartTransform = matrix.m41;
+ carouselTrack.style.animationPlayState = 'paused';
+ duplicateTrack.style.animationPlayState = 'paused';
+ }, { passive: true });
+ 
+ carouselTrack.addEventListener('touchmove', (e) => {
+ const touchEndX = e.touches[0].clientX;
+ const diff = touchEndX - touchStartX;
+ const newX = touchStartTransform + diff;
+ 
+ carouselTrack.style.transform = `translateX(${newX}px)`;
+ duplicateTrack.style.transform = `translateX(${newX}px)`;
+ }, { passive: true });
+ 
+ carouselTrack.addEventListener('touchend', () => {
+ carouselTrack.style.animationPlayState = 'running';
+ duplicateTrack.style.animationPlayState = 'running';
+ });
+}
+
+// ============================================
+// MOUSE TRACKING FOR CAROUSEL CARDS
+// ============================================
+function initCarouselMouseTracking() {
+ const workSection = document.querySelector('.work');
+ const workCards = document.querySelectorAll('.work-card');
+ 
+ if (!workSection || workCards.length === 0) return;
+ 
+ // Use section header tracking approach (limited tilt)
+ const SECTION_TILT_MAX = 10; // degrees - same as section headers
+ 
+ workCards.forEach(card => {
+ card.addEventListener('mousemove', (e) => {
+ const rect = card.getBoundingClientRect();
+ const x = e.clientX - rect.left;
+ const y = e.clientY - rect.top;
+ 
+ const centerX = rect.width / 2;
+ const centerY = rect.height / 2;
+ 
+ // Calculate tilt, clamp to ±10° (same as section headers)
+ let rotateX = (centerY - y) / centerY * SECTION_TILT_MAX;
+ let rotateY = (x - centerX) / centerX * SECTION_TILT_MAX;
+ rotateX = Math.max(-SECTION_TILT_MAX, Math.min(SECTION_TILT_MAX, rotateX));
+ rotateY = Math.max(-SECTION_TILT_MAX, Math.min(SECTION_TILT_MAX, rotateY));
+ 
+ card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(20px)`;
+ card.style.transition = 'none';
+ });
+ 
+ card.addEventListener('mouseleave', () => {
+ card.style.transition = 'transform 0.5s ease-out';
+ card.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(0px)';
+ });
+ });
+}
+
+// Initialize carousel on page load
+document.addEventListener('DOMContentLoaded', () => {
+ initInfiniteCarousel();
+ initCarouselMouseTracking();
+});
+
+// ============================================
 // RESPONSIVE IMAGE HANDLING
 // ============================================
 function handleResponsiveImages() {
@@ -1634,18 +1768,19 @@ handleResponsiveImages();
 // PRELOADER
 // ============================================
 window.addEventListener('load', () => {
-    document.body.classList.add('loaded');
-    document.body.classList.add('animations-ready');
+ document.body.classList.add('loaded');
+ document.body.classList.add('animations-ready');
 });
 
 // ============================================
 // INITIALIZE ALL
 // ============================================
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('Portfolio initialized successfully!');
-  console.log('🎬 Joel Kundu - Cinematographer & Director');
-  console.log('🎭 Theme:', savedTheme || themeToUse);
-  console.log('🖱️ 3D effects enabled');
-  console.log('🔒 Image protection enabled');
-  console.log('🔐 Password protection enabled');
+ console.log('Portfolio initialized successfully!');
+ console.log('🎬 Joel Kundu - Cinematographer & Director');
+ console.log('🎭 Theme:', savedTheme || themeToUse);
+ console.log('🖱️ 3D effects enabled');
+ console.log('🔒 Image protection enabled');
+ console.log('🔐 Password protection enabled');
+ console.log('🎠 Infinite carousel enabled');
 });
