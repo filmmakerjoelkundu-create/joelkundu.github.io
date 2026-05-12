@@ -479,19 +479,21 @@ const reelFrame = document.querySelector('.reel-frame');
 let reelTiltEnabled = true;
 let iframeShield = null;
 
-// Listen on the frame itself (not the section) so hover area matches the card
-reelFrame.addEventListener('mouseenter', () => {
-    if (reelTiltEnabled) {
-        reelFrame.style.transition = 'none';
-    }
-});
-
-reelFrame.addEventListener('mousemove', (e) => {
+// Track mouse from the section so tilt works across the whole area,
+// but only apply tilt when hovering directly over the frame
+reelSection.addEventListener('mousemove', (e) => {
     if (!reelTiltEnabled) return;
 
     const rect = reelFrame.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
+
+    // Only tilt if mouse is within the frame bounds
+    if (x < 0 || x > rect.width || y < 0 || y > rect.height) {
+        reelFrame.style.transition = 'var(--transition-normal)';
+        reelFrame.style.transform = `rotateX(0deg) rotateY(0deg) translateZ(30px)`;
+        return;
+    }
 
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
@@ -499,6 +501,7 @@ reelFrame.addEventListener('mousemove', (e) => {
     const rotateX = (centerY - y) / 30;
     const rotateY = (x - centerX) / 30;
 
+    reelFrame.style.transition = 'none';
     reelFrame.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(30px)`;
 });
 
@@ -506,21 +509,22 @@ reelFrame.addEventListener('mousemove', (e) => {
 function handleReelMouseLeave() {
     if (reelTiltEnabled) {
         reelFrame.style.transition = 'var(--transition-normal)';
-        reelFrame.style.transform = `rotateX(0deg) rotateY(0deg) translateZ(0px)`;
+        reelFrame.style.transform = `rotateX(0deg) rotateY(0deg) translateZ(30px)`;
     } else {
         // User left while video was active — re-enable tilt + shield
         reelTiltEnabled = true;
         if (iframeShield) iframeShield.style.display = '';
         reelFrame.classList.remove('video-active');
-        reelFrame.style.transform = `rotateX(0deg) rotateY(0deg) translateZ(0px)`;
+        reelFrame.style.transition = 'var(--transition-normal)';
+        reelFrame.style.transform = `rotateX(0deg) rotateY(0deg) translateZ(30px)`;
     }
 }
 
-reelFrame.addEventListener('mouseleave', handleReelMouseLeave);
+reelSection.addEventListener('mouseleave', handleReelMouseLeave);
 
-// Shield overlay: iframe steals mouse events, so we use a transparent
-// div on top when tilt is active. Click removes it and disables tilt,
-// giving full access to Vimeo controls (play, fullscreen, etc.)
+// Shield overlay: sits over the iframe so the first click activates
+// the video player (Vimeo needs focus). Once activated, tilt disables
+// so the user can freely interact with controls (play, fullscreen, etc.)
 const reelIframe = reelFrame.querySelector('iframe');
 if (reelIframe) {
     iframeShield = document.createElement('div');
@@ -531,32 +535,40 @@ if (reelIframe) {
         z-index: 2;
         cursor: pointer;
         border-radius: inherit;
+        pointer-events: auto;
     `;
     reelFrame.style.position = 'relative';
     reelFrame.appendChild(iframeShield);
 
-    // Click: disable tilt, reveal iframe for direct interaction
+    // Click: disable tilt, hide shield, give Vimeo full control
     iframeShield.addEventListener('click', () => {
         reelTiltEnabled = false;
         iframeShield.style.display = 'none';
         reelFrame.style.transition = 'var(--transition-normal)';
         reelFrame.style.transform = `rotateX(0deg) rotateY(0deg) translateZ(30px)`;
-        reelFrame.style.borderColor = 'var(--color-accent)';
         reelFrame.classList.add('video-active');
 
         // Focus the iframe so Vimeo receives keyboard events
         reelIframe.contentWindow?.focus();
     });
+
+    // Prevent shield hover from interfering with reel-frame hover state
+    iframeShield.addEventListener('mouseenter', (e) => {
+        e.stopPropagation();
+    });
 }
 
 // Section headers - tilt with parallax depth layers
-// Each header tilts as a unit (max 10°), inner elements at different Z depths
-// create a parallax effect: title floats above tagline, tagline above bg box
+// Track mouse from the parent section (entire area), apply tilt to the header
 const sectionHeaders = document.querySelectorAll('.section-header');
 const SECTION_TILT_MAX = 10; // degrees
 
 sectionHeaders.forEach(header => {
-    header.addEventListener('mousemove', (e) => {
+    // Find the closest parent <section> for tracking area
+    const parentSection = header.closest('section');
+    if (!parentSection) return;
+
+    parentSection.addEventListener('mousemove', (e) => {
         const rect = header.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
@@ -575,7 +587,7 @@ sectionHeaders.forEach(header => {
         header.style.transition = 'none';
     });
 
-    header.addEventListener('mouseleave', () => {
+    parentSection.addEventListener('mouseleave', () => {
         header.style.transition = 'transform 0.5s ease-out';
         header.style.transform = 'rotateX(0deg) rotateY(0deg)';
     });

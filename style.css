@@ -1505,8 +1505,7 @@ border-color: var(--color-accent);
 
 /* Video active state — no tilt, elevated, accessible controls */
 .reel-frame.video-active {
-transform: translateZ(30px) !important;
-border-color: var(--color-accent);
+border-color: var(--color-accent) !important;
 box-shadow: var(--shadow-xl), 0 0 30px rgba(196, 30, 58, 0.15);
 }
 
