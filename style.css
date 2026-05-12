@@ -105,16 +105,16 @@
     --font-serif: 'Crimson Text', serif;
 }
 
-/* SCIFI THEME - Neon Cyan/Blue Future */
+/* SCIFI THEME - Neon Green/Purple Future */
 [data-theme="scifi"] {
  --color-bg-primary: #00001a;
  --color-bg-secondary: #001122;
  --color-bg-tertiary: #002244;
- --color-text-primary: #00ffff;
- --color-text-secondary: #88ccff;
- --color-accent: #00ccff;
- --color-accent-hover: #33ddff;
- --color-border: #00ffff;
+ --color-text-primary: #00ff00;
+ --color-text-secondary: #88ff88;
+ --color-accent: #9d00ff;
+ --color-accent-hover: #bb33ff;
+ --color-border: #00ff00;
  --color-success: #00ff00;
  --color-warning: #ffff00;
  --color-error: #ff0040;
