@@ -323,11 +323,8 @@ setInterval(cycleHeroSlide, 8000);
 // 3D MOUSE EFFECTS - PER-ELEMENT TRACKING
 // ============================================
 function init3DEffects() {
-    // Skip all 3D effects on mobile devices
-    if (isMobile) {
-        console.log('Mobile device detected - skipping 3D mouse effects');
-        return;
-    }
+ // Mobile: 15 degrees max tilt, Desktop: 10 degrees max tilt  
+ console.log(`${isMobile ? 'Mobile' : 'Desktop'} - tilt limit: ${isMobile ? 15 : 10}°`);
 
     // Hero section - all elements react when mouse is in hero
     const heroSection = document.querySelector('.hero');
@@ -579,7 +576,7 @@ if (reelIframe) {
 // Section headers - tilt with parallax depth layers
 // Track mouse from the parent section (entire area), apply tilt to the header
 const sectionHeaders = document.querySelectorAll('.section-header');
-const SECTION_TILT_MAX = 10; // degrees
+const SECTION_TILT_MAX = isMobile ? 15 : 10; // Mobile: 15°, Desktop: 10°
 
 sectionHeaders.forEach(header => {
     // Find the closest parent <section> for tracking area
@@ -1715,7 +1712,7 @@ function initCarouselMouseTracking() {
  if (!workSection || workCards.length === 0) return;
  
  // Use section header tracking approach (limited tilt)
- const SECTION_TILT_MAX = 10; // degrees - same as section headers
+ const SECTION_TILT_MAX = isMobile ? 15 : 10; // Mobile: 15°, Desktop: 10°
  
  workCards.forEach(card => {
  card.addEventListener('mousemove', (e) => {

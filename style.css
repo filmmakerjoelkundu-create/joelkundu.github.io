@@ -240,13 +240,15 @@ img {
 }
 
 .password-container {
-    text-align: center;
-    max-width: 400px;
-    padding: 3rem;
-    background: var(--color-bg-secondary);
-    border: 2px solid var(--color-accent);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-xl);
+ text-align: center;
+ max-width: 400px;
+ min-width: 300px;
+ width: 90%;
+ padding: 3rem;
+ background: var(--color-bg-secondary);
+ border: 2px solid var(--color-accent);
+ border-radius: var(--radius-lg);
+ box-shadow: var(--shadow-xl);
 }
 
 .password-container h2 {
