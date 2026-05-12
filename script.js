@@ -1247,16 +1247,7 @@ function viewFullscreenImage(src, clickedItem) {
  if (!gallerySection) return;
  
  const galleryRect = gallerySection.getBoundingClientRect();
- const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
  
- // Scroll to gallery section first
- window.scrollTo({
- top: galleryRect.top + scrollTop - (window.innerHeight / 2) + (galleryRect.height / 2),
- behavior: 'smooth'
- });
- 
- // Wait for scroll to complete, then show modal
- setTimeout(() => {
  // Create modal overlay
  const modal = document.createElement('div');
  modal.style.cssText = `
@@ -1326,7 +1317,6 @@ function viewFullscreenImage(src, clickedItem) {
  imgContainer.style.transform = 'scale(0.8)';
  setTimeout(() => {
  modal.remove();
- // Restore scroll - but don't lock it
  document.body.style.overflow = '';
  }, 300);
  };
@@ -1351,7 +1341,7 @@ function viewFullscreenImage(src, clickedItem) {
  modal.appendChild(imgContainer);
  document.body.appendChild(modal);
  
- // Don't lock scroll - let user scroll freely
+ // Don't disable body scroll - keep it unlocked
  
  // Click outside to close
  modal.addEventListener('click', (e) => {
@@ -1374,7 +1364,6 @@ function viewFullscreenImage(src, clickedItem) {
  modal.style.opacity = '1';
  imgContainer.style.transform = 'scale(1)';
  }, 10);
- }, 500); // Wait for scroll animation
 }
 
 // Initialize gallery on load
