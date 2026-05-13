@@ -9,7 +9,7 @@ const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 
 const app = express();
-const PORT = 5001; // Dashboard server port
+const PORT = 5001; // Changed to 5001
 const JWT_SECRET = 'joel-portfolio-secret-key-change-in-production';
 
 // Middleware
