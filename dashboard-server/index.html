@@ -716,47 +716,50 @@ function toggleService(index) {
     markChanged();
 }
 
-        // Add/Edit/Delete functions
+ // Add/Edit/Delete functions
 function addLaurel() {
- const input = document.createElement('input');
- input.type = 'file';
- input.accept = 'image/*';
- input.onchange = async (e) => {
- const file = e.target.files[0];
- if (file) {
- const formData = new FormData();
- formData.append('file', file);
- try {
- const response = await fetch('/api/upload', {
- method: 'POST',
- headers: { 'Authorization': `Bearer ${authToken}` },
- body: formData
- });
- const data = await response.json();
- if (data.success) {
- config.hero.laurels.push({
- id: 'laurel-' + Date.now(),
- image: data.path,  // Use absolute path with leading /
- alt: file.name
- });
- renderLaurels();
- markChanged();
- } else {
- alert('Upload failed: ' + (data.error || 'Unknown error'));
- }
- } catch (error) {
- console.error('Upload error:', error);
- alert('Upload failed: ' + error.message);
- }
- };
- input.click();
-}
-            if (confirm('Remove this laurel?')) {
-                config.hero.laurels.splice(index, 1);
-                renderLaurels();
-                markChanged();
-            }
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append('file', file);
+      try {
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${authToken}` },
+          body: formData
+        });
+        const data = await response.json();
+        if (data.success) {
+          config.hero.laurels.push({
+            id: 'laurel-' + Date.now(),
+            image: data.path,
+            alt: file.name
+          });
+          renderLaurels();
+          markChanged();
+        } else {
+          alert('Upload failed: ' + (data.error || 'Unknown error'));
         }
+      } catch (error) {
+        console.error('Upload error:', error);
+        alert('Upload failed: ' + error.message);
+      }
+    }
+  };
+  input.click();
+}
+
+function removeLaurel(index) {
+  if (confirm('Remove this laurel?')) {
+    config.hero.laurels.splice(index, 1);
+    renderLaurels();
+    markChanged();
+  }
+}
 
 function addStat() {
     // Open stats modal for editing
