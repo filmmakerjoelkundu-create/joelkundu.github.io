@@ -877,6 +877,8 @@ function editThemes() {
     }
     if (equationInput) {
         equationInput.value = config.hero?.patternEquation || 'sin(x)*cos(y)';
+        // Add event listener for live preview
+        equationInput.addEventListener('input', updatePatternPreview);
         updatePatternPreview();
     }
     
@@ -950,7 +952,7 @@ function updatePatternPreview() {
     canvas.width = 400;
     canvas.height = 100;
     
-    const equation = document.getElementById('patternEquation').value;
+    const equation = document.getElementById('patternEquation').value || 'sin(x)*cos(y)';
     const ctx = canvas.getContext('2d');
     const width = canvas.width;
     const height = canvas.height;
@@ -962,21 +964,25 @@ function updatePatternPreview() {
         const imageData = ctx.createImageData(width, height);
         const scale = 0.1;
         
-        for (let x = 0; x < width; x += 4) {
-            for (let y = 0; y < height; y += 4) {
-                const nx = x * scale;
-                const ny = y * scale;
-                let value;
+        for (let px = 0; px < width; px += 4) {
+            for (let py = 0; py < height; py += 4) {
+                // Use both raw coordinates (x, y) and scaled (nx, ny) for compatibility
+                const x = px;
+                const y = py;
+                const nx = px * scale;
+                const ny = py * scale;
                 
-                // Evaluate the equation
+                let value;
                 try {
-                    value = Math.abs(eval(equation)) || 0;
+                    // Try evaluating with nx, ny first, then fallback to x, y
+                    const result = eval(equation);
+                    value = typeof result === 'number' ? Math.abs(result) % 1 : 0.5;
                 } catch {
                     value = 0.5;
                 }
                 
                 const intensity = Math.min(255, Math.floor(value * 255));
-                const idx = (y * width + x) * 4;
+                const idx = (py * width + px) * 4;
                 imageData.data[idx] = intensity;
                 imageData.data[idx + 1] = intensity;
                 imageData.data[idx + 2] = intensity;
@@ -988,14 +994,6 @@ function updatePatternPreview() {
         console.error('Pattern error:', e);
     }
 }
-
-// Add event listener for pattern equation input
-setTimeout(() => {
-    const equationInput = document.getElementById('patternEquation');
-    if (equationInput) {
-        equationInput.addEventListener('input', updatePatternPreview);
-    }
-}, 1000);
 
 function closeThemeModal() {
     document.getElementById('themeModal').classList.remove('active');
