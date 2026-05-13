@@ -92,10 +92,17 @@
         .social-info { flex: 1; }
         
         /* Modal */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 2000; }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 2000; }
         .modal-overlay.active { display: flex; }
-        .modal { background: white; border-radius: 12px; padding: 2rem; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; }
-        .modal h3 { margin-bottom: 1rem; }
+        .modal { background: white; border-radius: 12px; padding: 2rem; max-width: 700px; width: 90%; max-height: 90vh; overflow-y: auto; }
+        .modal h3 { margin-bottom: 1rem; font-size: 1.5rem; }
+        .modal-actions { display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem; }
+        .color-picker-wrapper { display: flex; gap: 0.5rem; align-items: center; }
+        .color-preview { width: 40px; height: 40px; border-radius: 8px; border: 2px solid #d2d2d7; }
+        .theme-card { border: 2px solid #d2d2d7; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+        .theme-card h4 { margin-bottom: 0.5rem; }
+        .color-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+        .stat-edit-card { background: #f5f5f7; padding: 1rem; border-radius: 8px; margin-bottom: 0.75rem; }
         
         /* Save Bar */
         .save-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 1rem 2rem; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); display: none; gap: 1rem; }
@@ -160,6 +167,12 @@
                         <button class="btn btn-primary" onclick="addLaurel()">Add Laurel</button>
                     </div>
                 </div>
+
+                <div class="card">
+                    <h3>Theme Colors</h3>
+                    <p style="color: #86868b; margin-bottom: 1rem;">Edit colors for all 5 themes</p>
+                    <button class="btn btn-primary" onclick="editThemes()">Edit Theme Colors</button>
+                </div>
             </div>
 
             <!-- About Section -->
@@ -183,7 +196,7 @@
                     <h3>Stats</h3>
                     <div class="stats-grid" id="statsGrid"></div>
                     <div style="margin-top: 1rem;">
-                        <button class="btn btn-primary" onclick="addStat()">Add Stat</button>
+                        <button class="btn btn-primary" onclick="editStats()">Edit Stats</button>
                     </div>
                 </div>
             </div>
@@ -289,6 +302,70 @@
     <div class="save-bar" id="saveBar">
         <button class="btn btn-primary" onclick="saveAll()">Save Changes</button>
         <button class="btn btn-secondary" onclick="cancelChanges()">Cancel</button>
+    </div>
+
+    <!-- Project Modal -->
+    <div class="modal-overlay" id="projectModal">
+        <div class="modal">
+            <h3 id="projectModalTitle">Add Project</h3>
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text" id="projectTitle" placeholder="Project title">
+            </div>
+            <div class="form-group">
+                <label>Tagline</label>
+                <textarea id="projectTagline" placeholder="Project tagline"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Role</label>
+                <input type="text" id="projectRole" placeholder="Your role">
+            </div>
+            <div class="form-group">
+                <label>Category</label>
+                <select id="projectCategory">
+                    <option value="narrative">Narrative</option>
+                    <option value="documentary">Documentary</option>
+                    <option value="commercial">Commercial</option>
+                    <option value="music video">Music Video</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Image</label>
+                <input type="file" id="projectImage" accept="image/*">
+            </div>
+            <div class="form-group">
+                <label>Visible</label>
+                <div class="toggle" id="projectVisible" onclick="toggleProjectVisible()"></div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeProjectModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveProject()">Save Project</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Modal -->
+    <div class="modal-overlay" id="statsModal">
+        <div class="modal">
+            <h3>Edit Stats</h3>
+            <div id="statsEditList"></div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeStatsModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveStats()">Save Stats</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Theme Colors Modal -->
+    <div class="modal-overlay" id="themeModal">
+        <div class="modal">
+            <h3>Edit Theme Colors</h3>
+            <div id="themeEditList"></div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeThemeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveThemes()">Save Themes</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -502,37 +579,150 @@
             }
         }
 
-        function addStat() {
-            const number = prompt('Stat number (e.g., "5+"):');
-            const text = prompt('Stat text (e.g., "Years Experience"):');
-            if (number && text) {
-                config.about.stats.push({ number, text });
-                renderStats();
-                markChanged();
-            }
-        }
+function addStat() {
+    // Open stats modal for editing
+    editStats();
+}
 
-        function addProject() {
-            const title = prompt('Project title:');
-            if (title) {
-                config.selectedWorks.push({
-                    id: 'project-' + Date.now(),
-                    title: title,
-                    tagline: '',
-                    role: '',
-                    category: 'narrative',
-                    image: '',
-                    visible: true,
-                    details: {}
-                });
-                renderProjects();
-                markChanged();
-            }
-        }
+function addProject() {
+    // Open project modal in add mode
+    window.editingProjectIndex = null;
+    document.getElementById('projectModalTitle').textContent = 'Add Project';
+    document.getElementById('projectTitle').value = '';
+    document.getElementById('projectTagline').value = '';
+    document.getElementById('projectRole').value = '';
+    document.getElementById('projectCategory').value = 'narrative';
+    document.getElementById('projectVisible').className = 'toggle active';
+    document.getElementById('projectModal').classList.add('active');
+}
 
-        function editProject(index) {
-            alert('Project editing would open a modal with all fields - implement as needed');
+function editProject(index) {
+    // Open project modal in edit mode
+    const project = config.selectedWorks[index];
+    document.getElementById('projectModalTitle').textContent = 'Edit Project';
+    document.getElementById('projectTitle').value = project.title || '';
+    document.getElementById('projectTagline').value = project.tagline || '';
+    document.getElementById('projectRole').value = project.role || '';
+    document.getElementById('projectCategory').value = project.category || 'narrative';
+    document.getElementById('projectVisible').className = `toggle ${project.visible ? 'active' : ''}`;
+    window.editingProjectIndex = index;
+    document.getElementById('projectModal').classList.add('active');
+}
+
+function closeProjectModal() {
+    document.getElementById('projectModal').classList.remove('active');
+    window.editingProjectIndex = null;
+}
+
+function saveProject() {
+    const project = {
+        id: window.editingProjectIndex !== null ? config.selectedWorks[window.editingProjectIndex].id : 'project-' + Date.now(),
+        title: document.getElementById('projectTitle').value,
+        tagline: document.getElementById('projectTagline').value,
+        role: document.getElementById('projectRole').value,
+        category: document.getElementById('projectCategory').value,
+        visible: document.getElementById('projectVisible').classList.contains('active'),
+        image: projectImage ? projectImage : 'assets/images/placeholder.png',
+        details: {}
+    };
+    
+    if (window.editingProjectIndex !== null) {
+        config.selectedWorks[window.editingProjectIndex] = project;
+    } else {
+        config.selectedWorks.push(project);
+    }
+    
+    renderProjects();
+    closeProjectModal();
+    markChanged();
+}
+
+function toggleProjectVisible() {
+    const toggle = document.getElementById('projectVisible');
+    toggle.classList.toggle('active');
+}
+
+function editStats() {
+    const list = document.getElementById('statsEditList');
+    list.innerHTML = '';
+    config.about?.stats?.forEach((stat, index) => {
+        const div = document.createElement('div');
+        div.className = 'stat-edit-card';
+        div.innerHTML = `
+            <div class="form-group">
+                <label>Stat ${index + 1} Number</label>
+                <input type="text" id="stat-${index}-number" value="${stat.number}">
+            </div>
+            <div class="form-group">
+                <label>Stat ${index + 1} Text</label>
+                <input type="text" id="stat-${index}-text" value="${stat.text}">
+            </div>
+        `;
+        list.appendChild(div);
+    });
+    document.getElementById('statsModal').classList.add('active');
+}
+
+function closeStatsModal() {
+    document.getElementById('statsModal').classList.remove('active');
+}
+
+function saveStats() {
+    config.about.stats = config.about.stats.map((stat, index) => ({
+        number: document.getElementById(`stat-${index}-number`).value,
+        text: document.getElementById(`stat-${index}-text`).value
+    }));
+    renderStats();
+    closeStatsModal();
+    markChanged();
+}
+
+function editThemes() {
+    const list = document.getElementById('themeEditList');
+    list.innerHTML = '';
+    config.hero?.themes?.forEach((theme, index) => {
+        const div = document.createElement('div');
+        div.className = 'theme-card';
+        div.innerHTML = `
+            <h4>${theme.name} ${theme.icon}</h4>
+            <div class="color-grid">
+                <div class="form-group">
+                    <label>Background Primary</label>
+                    <div class="color-picker-wrapper">
+                        <input type="color" id="theme-${index}-bg1" value="${theme.colors.bgPrimary}" class="color-preview">
+                        <span>${theme.colors.bgPrimary}</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Accent Color</label>
+                    <div class="color-picker-wrapper">
+                        <input type="color" id="theme-${index}-accent" value="${theme.colors.accent}" class="color-preview">
+                        <span>${theme.colors.accent}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+        list.appendChild(div);
+    });
+    document.getElementById('themeModal').classList.add('active');
+}
+
+function closeThemeModal() {
+    document.getElementById('themeModal').classList.remove('active');
+}
+
+function saveThemes() {
+    config.hero.themes = config.hero.themes.map((theme, index) => ({
+        ...theme,
+        colors: {
+            ...theme.colors,
+            bgPrimary: document.getElementById(`theme-${index}-bg1`).value,
+            accent: document.getElementById(`theme-${index}-accent`).value
         }
+    }));
+    closeThemeModal();
+    markChanged();
+}
 
         function deleteProject(index) {
             if (confirm('Delete this project?')) {
