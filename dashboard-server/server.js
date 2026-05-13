@@ -9,7 +9,7 @@ const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 
 const app = express();
-const PORT = 3001; // Changed from 3000 to avoid conflicts
+const PORT = 5001; // Changed to avoid conflicts with firecrawl (3002) and other services
 const JWT_SECRET = 'joel-portfolio-secret-key-change-in-production';
 
 // Middleware

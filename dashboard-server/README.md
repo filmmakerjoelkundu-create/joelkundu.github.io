@@ -22,7 +22,7 @@ npm install
 npm start
 ```
 
-The dashboard will open at: **http://localhost:3000/dashboard/**
+The dashboard will open at: **http://localhost:5001/dashboard/**
 
 ### 4. Login
 Default password: `JOELKUNDU`
