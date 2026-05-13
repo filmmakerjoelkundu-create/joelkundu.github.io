@@ -699,7 +699,8 @@ function toggleLocation() {
 }
 
 function toggleLocationVisible() {
-    const toggle = document.getElementById('locationToggle');
+    const toggle = document.getElementById('locationVisibleToggle');
+    if (!toggle) return;
     toggle.classList.toggle('active');
     markChanged();
 }
@@ -797,14 +798,19 @@ function closeProjectModal() {
 }
 
 function saveProject() {
+    // Grab the image from the image input, or keep existing one
+    const imageInput = document.getElementById('projectImage');
+    const existingImage = window.editingProjectIndex !== null ? config.selectedWorks[window.editingProjectIndex].image : null;
+    const image = imageInput?.files?.[0] ? URL.createObjectURL(imageInput.files[0]) : (existingImage || '/assets/images/placeholder.png');
+    
     const project = {
         id: window.editingProjectIndex !== null ? config.selectedWorks[window.editingProjectIndex].id : 'project-' + Date.now(),
-        title: document.getElementById('projectTitle').value,
-        tagline: document.getElementById('projectTagline').value,
-        role: document.getElementById('projectRole').value,
-        category: document.getElementById('projectCategory').value,
-        visible: document.getElementById('projectVisible').classList.contains('active'),
-        image: projectImage ? projectImage : 'assets/images/placeholder.png',
+        title: (document.getElementById('projectTitle')?.value || '').trim(),
+        tagline: (document.getElementById('projectTagline')?.value || '').trim(),
+        role: (document.getElementById('projectRole')?.value || '').trim(),
+        category: document.getElementById('projectCategory')?.value || 'narrative',
+        visible: document.getElementById('projectVisible')?.classList.contains('active') ?? true,
+        image,
         details: {}
     };
     
@@ -867,6 +873,7 @@ function editThemes() {
     }
     
     list.innerHTML = '';
+    const fontOptions = ['Inter', 'Playfair Display', 'Montserrat', 'Roboto', 'Oswald', 'Lato'];
     
     // Set global values with checks
     const opacityInput = document.getElementById('globalPatternOpacity');
@@ -877,7 +884,8 @@ function editThemes() {
     }
     if (equationInput) {
         equationInput.value = config.hero?.patternEquation || 'sin(x)*cos(y)';
-        // Add event listener for live preview
+        // Replace listener each time to avoid stacking duplicates
+        equationInput.removeEventListener('input', updatePatternPreview);
         equationInput.addEventListener('input', updatePatternPreview);
         updatePatternPreview();
     }
@@ -885,6 +893,8 @@ function editThemes() {
     config.hero?.themes?.forEach((theme, index) => {
         const div = document.createElement('div');
         div.className = 'theme-card';
+        const headingFont = (theme.fonts?.heading || theme.fonts?.body || 'Inter');
+        const bodyFont = (theme.fonts?.body || theme.fonts?.heading || 'Inter');
         div.innerHTML = `
             <h4>${theme.name} ${theme.icon}</h4>
             <div class="color-grid">
@@ -913,23 +923,13 @@ function editThemes() {
             <div class="form-group">
                 <label>Heading Font</label>
                 <select id="theme-${index}-headingFont">
-                    <option value="Inter">Inter</option>
-                    <option value="Playfair Display">Playfair Display</option>
-                    <option value="Montserrat">Montserrat</option>
-                    <option value="Roboto">Roboto</option>
-                    <option value="Oswald">Oswald</option>
-                    <option value="Lato">Lato</option>
+                    ${fontOptions.map(f => `<option value="${f}"${f === headingFont ? ' selected' : ''}>${f}</option>`).join('')}
                 </select>
             </div>
             <div class="form-group">
                 <label>Body Font</label>
                 <select id="theme-${index}-bodyFont">
-                    <option value="Inter">Inter</option>
-                    <option value="Playfair Display">Playfair Display</option>
-                    <option value="Montserrat">Montserrat</option>
-                    <option value="Roboto">Roboto</option>
-                    <option value="Oswald">Oswald</option>
-                    <option value="Lato">Lato</option>
+                    ${fontOptions.map(f => `<option value="${f}"${f === bodyFont ? ' selected' : ''}>${f}</option>`).join('')}
                 </select>
             </div>
         `;
@@ -948,45 +948,42 @@ function updatePatternPreview() {
     const canvas = document.getElementById('patternPreview');
     if (!canvas) return;
     
-    // Set canvas dimensions to match display size
+    // Set canvas dimensions
     canvas.width = 400;
     canvas.height = 100;
     
-    const equation = document.getElementById('patternEquation').value || 'sin(x)*cos(y)';
+    const equation = (document.getElementById('patternEquation')?.value || '').trim() || 'sin(x)*cos(y)';
     const ctx = canvas.getContext('2d');
-    const width = canvas.width;
-    const height = canvas.height;
+    const w = canvas.width;
+    const h = canvas.height;
+    const scale = 0.1;
+    const stride = 4;
     
     ctx.fillStyle = '#000';
-    ctx.fillRect(0, 0, width, height);
+    ctx.fillRect(0, 0, w, h);
+    
+    let evalFn;
+    try {
+        // Pre-compile the function once instead of eval per pixel
+        evalFn = new Function('x', 'y', 'nx', 'ny', `try { return Math.abs((${equation})) % 1; } catch(e) { return 0.5; }`);
+    } catch {
+        evalFn = () => 0.5;
+    }
     
     try {
-        const imageData = ctx.createImageData(width, height);
-        const scale = 0.1;
+        const imageData = ctx.createImageData(w, h);
+        const data = imageData.data;
         
-        for (let px = 0; px < width; px += 4) {
-            for (let py = 0; py < height; py += 4) {
-                // Use both raw coordinates (x, y) and scaled (nx, ny) for compatibility
-                const x = px;
-                const y = py;
-                const nx = px * scale;
-                const ny = py * scale;
-                
-                let value;
-                try {
-                    // Try evaluating with nx, ny first, then fallback to x, y
-                    const result = eval(equation);
-                    value = typeof result === 'number' ? Math.abs(result) % 1 : 0.5;
-                } catch {
-                    value = 0.5;
-                }
-                
-                const intensity = Math.min(255, Math.floor(value * 255));
-                const idx = (py * width + px) * 4;
-                imageData.data[idx] = intensity;
-                imageData.data[idx + 1] = intensity;
-                imageData.data[idx + 2] = intensity;
-                imageData.data[idx + 3] = 255;
+        for (let py = 0; py < h; py += stride) {
+            const ny = py * scale;
+            for (let px = 0; px < w; px += stride) {
+                const val = evalFn(px, py, px * scale, ny);
+                const intensity = (val * 255) | 0;  // faster than Math.min/Math.floor
+                const idx = (py * w + px) * 4;
+                data[idx] = intensity;
+                data[idx + 1] = intensity;
+                data[idx + 2] = intensity;
+                data[idx + 3] = 255;
             }
         }
         ctx.putImageData(imageData, 0, 0);
@@ -1001,20 +998,22 @@ function closeThemeModal() {
 
 function saveThemes() {
     // Save global settings
-    config.hero.patternOpacity = parseInt(document.getElementById('globalPatternOpacity').value);
-    config.hero.patternEquation = document.getElementById('patternEquation').value;
+    const opacityEl = document.getElementById('globalPatternOpacity');
+    const equationEl = document.getElementById('patternEquation');
+    if (opacityEl) config.hero.patternOpacity = parseInt(opacityEl.value);
+    if (equationEl) config.hero.patternEquation = equationEl.value;
     
     // Save theme-specific settings
     config.hero.themes = config.hero.themes.map((theme, index) => ({
         ...theme,
         colors: {
-            bgPrimary: document.getElementById(`theme-${index}-bg1`).value,
-            accent1: document.getElementById(`theme-${index}-accent1`).value,
-            accent2: document.getElementById(`theme-${index}-accent2`).value
+            bgPrimary: (document.getElementById(`theme-${index}-bg1`)?.value) || theme.colors.bgPrimary,
+            accent1: (document.getElementById(`theme-${index}-accent1`)?.value) || theme.colors.accent1 || theme.colors.accent,
+            accent2: (document.getElementById(`theme-${index}-accent2`)?.value) || theme.colors.accent2 || theme.colors.accent
         },
         fonts: {
-            heading: document.getElementById(`theme-${index}-headingFont`).value,
-            body: document.getElementById(`theme-${index}-bodyFont`).value
+            heading: (document.getElementById(`theme-${index}-headingFont`)?.value) || 'Inter',
+            body: (document.getElementById(`theme-${index}-bodyFont`)?.value) || 'Inter'
         }
     }));
     
