@@ -858,12 +858,24 @@ function saveStats() {
 
 function editThemes() {
     const list = document.getElementById('themeEditList');
+    if (!list) {
+        console.error('themeEditList not found');
+        return;
+    }
+    
     list.innerHTML = '';
     
-    // Set global values
-    document.getElementById('globalPatternOpacity').value = config.hero?.patternOpacity || 50;
-    document.getElementById('patternEquation').value = config.hero?.patternEquation || 'sin(x)*cos(y)';
-    updatePatternPreview();
+    // Set global values with checks
+    const opacityInput = document.getElementById('globalPatternOpacity');
+    const equationInput = document.getElementById('patternEquation');
+    
+    if (opacityInput) {
+        opacityInput.value = config.hero?.patternOpacity || 50;
+    }
+    if (equationInput) {
+        equationInput.value = config.hero?.patternEquation || 'sin(x)*cos(y)';
+        updatePatternPreview();
+    }
     
     config.hero?.themes?.forEach((theme, index) => {
         const div = document.createElement('div');
@@ -918,7 +930,13 @@ function editThemes() {
         `;
         list.appendChild(div);
     });
-    document.getElementById('themeModal').classList.add('active');
+    
+    const modal = document.getElementById('themeModal');
+    if (modal) {
+        modal.classList.add('active');
+    } else {
+        console.error('themeModal not found');
+    }
 }
 
 function updatePatternPreview() {
