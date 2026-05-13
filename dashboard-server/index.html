@@ -410,12 +410,12 @@
                 <p style="color: #86868b; font-size: 0.875rem; margin-top: 0.5rem;">Controls how much of the pattern is visible (0% = solid, 100% = full pattern)</p>
             </div>
             
-            <div class="form-group">
-                <label>Background Pattern Equation</label>
-                <input type="text" id="patternEquation" value="sin(x)*cos(y)" placeholder="e.g., sin(x)*cos(y)">
-                <p style="color: #86868b; font-size: 0.875rem; margin-top: 0.5rem;">Math equation for pattern generation. Try: sin(x)*cos(y), sin(x+y), x*y, etc.</p>
-                <div id="patternPreview" style="width: 100%; height: 100px; border: 1px solid #d2d2d7; border-radius: 8px; margin-top: 0.5rem; background: #000;"></div>
-            </div>
+      <div class="form-group">
+        <label>Background Pattern Equation</label>
+        <input type="text" id="patternEquation" value="sin(x)*cos(y)" placeholder="e.g., sin(x)*cos(y)">
+        <p style="color: #86868b; font-size: 0.875rem; margin-top: 0.5rem;">Math equation for pattern generation. Try: sin(x)*cos(y), sin(x+y), x*y, etc.</p>
+        <canvas id="patternPreview" style="width: 100%; height: 100px; border: 1px solid #d2d2d7; border-radius: 8px; margin-top: 0.5rem; background: #000;"></canvas>
+      </div>
             
             <div id="themeEditList"></div>
             
@@ -943,10 +943,14 @@ function updatePatternPreview() {
     const canvas = document.getElementById('patternPreview');
     if (!canvas) return;
     
+    // Set canvas dimensions to match display size
+    canvas.width = 400;
+    canvas.height = 100;
+    
     const equation = document.getElementById('patternEquation').value;
     const ctx = canvas.getContext('2d');
-    const width = canvas.width || 400;
-    const height = canvas.height || 100;
+    const width = canvas.width;
+    const height = canvas.height;
     
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, width, height);
