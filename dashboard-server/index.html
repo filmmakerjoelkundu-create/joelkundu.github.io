@@ -210,6 +210,7 @@
                             <tr>
                                 <th>Title</th>
                                 <th>Role</th>
+                                <th>Director</th>
                                 <th>Category</th>
                                 <th>Visible</th>
                                 <th>Actions</th>
@@ -348,38 +349,86 @@
 
     <!-- Project Modal -->
     <div class="modal-overlay" id="projectModal">
-        <div class="modal">
+        <div class="modal" style="max-width: 800px;">
             <h3 id="projectModalTitle">Add Project</h3>
-            <div class="form-group">
-                <label>Title</label>
-                <input type="text" id="projectTitle" placeholder="Project title">
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                    <h4 style="margin-bottom: 0.75rem;">Basic Info</h4>
+                    <div class="form-group">
+                        <label>Title *</label>
+                        <input type="text" id="projectTitle" placeholder="e.g. E13M">
+                    </div>
+                    <div class="form-group">
+                        <label>Tagline</label>
+                        <textarea id="projectTagline" placeholder="Short description" rows="2"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="projectCategory">
+                            <option value="narrative">Narrative</option>
+                            <option value="documentary">Documentary</option>
+                            <option value="commercial">Commercial</option>
+                            <option value="music video">Music Video</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Poster Image</label>
+                        <input type="file" id="projectImage" accept="image/*">
+                    </div>
+                    <div class="form-group">
+                        <label>Visible on site</label>
+                        <div class="toggle" id="projectVisible" onclick="toggleProjectVisible()"></div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 0.75rem;">Your Role</h4>
+                    <div class="form-group">
+                        <label>Primary Role</label>
+                        <input type="text" id="projectRole" placeholder="e.g. Cinematographer & Director">
+                    </div>
+                    <div class="form-group">
+                        <label>Vimeo / Trailer URL</label>
+                        <input type="text" id="projectTrailerUrl" placeholder="https://vimeo.com/...">
+                    </div>
+                    <div class="form-group">
+                        <label>IMDb URL</label>
+                        <input type="text" id="projectImdbUrl" placeholder="https://www.imdb.com/title/tt...">
+                    </div>
+                    <div class="form-group">
+                        <label>Release Year</label>
+                        <input type="number" id="projectYear" placeholder="e.g. 2025" min="1900" max="2099">
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label>Tagline</label>
-                <textarea id="projectTagline" placeholder="Project tagline"></textarea>
+            
+            <h4 style="margin-top: 1.5rem; margin-bottom: 0.75rem;">Crew & Credits <span style="color: #86868b; font-weight: 400; font-size: 0.875rem;">(all optional — only filled fields appear on site)</span></h4>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem;">
+                <div class="form-group"><label>Director</label><input type="text" id="projectDirector" placeholder="—"></div>
+                <div class="form-group"><label>DOP / Cinematographer</label><input type="text" id="projectDop" placeholder="—"></div>
+                <div class="form-group"><label>Producer</label><input type="text" id="projectProducer" placeholder="—"></div>
+                <div class="form-group"><label>Production Designer</label><input type="text" id="projectPd" placeholder="—"></div>
+                <div class="form-group"><label>Editor</label><input type="text" id="projectEditor" placeholder="—"></div>
+                <div class="form-group"><label>Assistant Director</label><input type="text" id="projectAd" placeholder="—"></div>
+                <div class="form-group"><label>Writer</label><input type="text" id="projectWriter" placeholder="—"></div>
+                <div class="form-group"><label>Composer</label><input type="text" id="projectComposer" placeholder="—"></div>
+                <div class="form-group"><label>Sound Designer</label><input type="text" id="projectSound" placeholder="—"></div>
+                <div class="form-group"><label>Colorist</label><input type="text" id="projectColorist" placeholder="—"></div>
+                <div class="form-group"><label>VFX Supervisor</label><input type="text" id="projectVfx" placeholder="—"></div>
+                <div class="form-group"><label>Costume Designer</label><input type="text" id="projectCostume" placeholder="—"></div>
+                <div class="form-group"><label>Makeup / Hair</label><input type="text" id="projectMakeup" placeholder="—"></div>
+                <div class="form-group"><label>Gaffer</label><input type="text" id="projectGaffer" placeholder="—"></div>
+                <div class="form-group"><label>Key Grip</label><input type="text" id="projectKeyGrip" placeholder="—"></div>
             </div>
-            <div class="form-group">
-                <label>Role</label>
-                <input type="text" id="projectRole" placeholder="Your role">
+            
+            <div class="form-group" style="margin-top: 0.75rem;">
+                <label>Additional Crew (optional — one per line, format: <code>Role: Name</code>)</label>
+                <textarea id="projectAdditionalCrew" placeholder="e.g. Stunts: John Smith&#10;Choreographer: Jane Doe&#10;Location Scout: Bob Jones" rows="3"></textarea>
             </div>
-            <div class="form-group">
-                <label>Category</label>
-                <select id="projectCategory">
-                    <option value="narrative">Narrative</option>
-                    <option value="documentary">Documentary</option>
-                    <option value="commercial">Commercial</option>
-                    <option value="music video">Music Video</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Image</label>
-                <input type="file" id="projectImage" accept="image/*">
-            </div>
-            <div class="form-group">
-                <label>Visible</label>
-                <div class="toggle" id="projectVisible" onclick="toggleProjectVisible()"></div>
-            </div>
-            <div class="modal-actions">
+            
+            <div class="modal-actions" style="margin-top: 1.5rem;">
                 <button class="btn btn-secondary" onclick="closeProjectModal()">Cancel</button>
                 <button class="btn btn-primary" onclick="saveProject()">Save Project</button>
             </div>
@@ -630,16 +679,19 @@ document.getElementById('contactFormEnabled').className = `toggle ${formEnabled 
             });
         }
 
-        function renderProjects() {
+function renderProjects() {
             const tbody = document.getElementById('projectsTable');
             tbody.innerHTML = '';
             config.selectedWorks?.forEach((project, index) => {
+                const credits = project.credits || {};
+                const director = credits.director || '—';
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>${project.title}</td>
-                    <td>${project.role}</td>
-                    <td>${project.category}</td>
-                    <td><span class="badge ${project.visible ? 'badge-visible' : 'badge-hidden'}">${project.visible ? 'Yes' : 'No'}</span></td>
+                    <td><strong>${project.title}</strong></td>
+                    <td>${project.role || '—'}</td>
+                    <td>${director}</td>
+                    <td>${project.category || '—'}</td>
+                    <td><span class="badge ${project.visible !== false ? 'badge-visible' : 'badge-hidden'}">${project.visible !== false ? 'Yes' : 'No'}</span></td>
                     <td>
                         <button class="btn btn-secondary" onclick="editProject(${index})">Edit</button>
                         <button class="btn btn-danger" onclick="deleteProject(${index})">Delete</button>
@@ -775,6 +827,25 @@ function addProject() {
     document.getElementById('projectTagline').value = '';
     document.getElementById('projectRole').value = '';
     document.getElementById('projectCategory').value = 'narrative';
+    document.getElementById('projectTrailerUrl').value = '';
+    document.getElementById('projectImdbUrl').value = '';
+    document.getElementById('projectYear').value = '';
+    document.getElementById('projectDirector').value = '';
+    document.getElementById('projectDop').value = '';
+    document.getElementById('projectProducer').value = '';
+    document.getElementById('projectPd').value = '';
+    document.getElementById('projectEditor').value = '';
+    document.getElementById('projectAd').value = '';
+    document.getElementById('projectWriter').value = '';
+    document.getElementById('projectComposer').value = '';
+    document.getElementById('projectSound').value = '';
+    document.getElementById('projectColorist').value = '';
+    document.getElementById('projectVfx').value = '';
+    document.getElementById('projectCostume').value = '';
+    document.getElementById('projectMakeup').value = '';
+    document.getElementById('projectGaffer').value = '';
+    document.getElementById('projectKeyGrip').value = '';
+    document.getElementById('projectAdditionalCrew').value = '';
     document.getElementById('projectVisible').className = 'toggle active';
     document.getElementById('projectModal').classList.add('active');
 }
@@ -787,7 +858,33 @@ function editProject(index) {
     document.getElementById('projectTagline').value = project.tagline || '';
     document.getElementById('projectRole').value = project.role || '';
     document.getElementById('projectCategory').value = project.category || 'narrative';
-    document.getElementById('projectVisible').className = `toggle ${project.visible ? 'active' : ''}`;
+    document.getElementById('projectTrailerUrl').value = project.trailerUrl || '';
+    document.getElementById('projectImdbUrl').value = project.imdbUrl || '';
+    document.getElementById('projectYear').value = project.year || '';
+    
+    const c = project.credits || {};
+    document.getElementById('projectDirector').value = c.director || '';
+    document.getElementById('projectDop').value = c.dop || '';
+    document.getElementById('projectProducer').value = c.producer || '';
+    document.getElementById('projectPd').value = c.productionDesigner || '';
+    document.getElementById('projectEditor').value = c.editor || '';
+    document.getElementById('projectAd').value = c.assistantDirector || '';
+    document.getElementById('projectWriter').value = c.writer || '';
+    document.getElementById('projectComposer').value = c.composer || '';
+    document.getElementById('projectSound').value = c.soundDesigner || '';
+    document.getElementById('projectColorist').value = c.colorist || '';
+    document.getElementById('projectVfx').value = c.vfxSupervisor || '';
+    document.getElementById('projectCostume').value = c.costumeDesigner || '';
+    document.getElementById('projectMakeup').value = c.makeup || '';
+    document.getElementById('projectGaffer').value = c.gaffer || '';
+    document.getElementById('projectKeyGrip').value = c.keyGrip || '';
+    
+    // Convert additionalCrew object back to textarea lines
+    const additional = c.additional || {};
+    const lines = Object.entries(additional).map(([role, name]) => `${role}: ${name}`);
+    document.getElementById('projectAdditionalCrew').value = lines.join('\n');
+    
+    document.getElementById('projectVisible').className = `toggle ${project.visible !== false ? 'active' : ''}`;
     window.editingProjectIndex = index;
     document.getElementById('projectModal').classList.add('active');
 }
@@ -803,16 +900,63 @@ function saveProject() {
     const existingImage = window.editingProjectIndex !== null ? config.selectedWorks[window.editingProjectIndex].image : null;
     const image = imageInput?.files?.[0] ? URL.createObjectURL(imageInput.files[0]) : (existingImage || '/assets/images/placeholder.png');
     
+    function val(id) { return (document.getElementById(id)?.value || '').trim(); }
+    
+    // Collect crew fields — only truthy values get stored
+    const credits = {};
+    const crewFields = {
+        director: val('projectDirector'),
+        dop: val('projectDop'),
+        producer: val('projectProducer'),
+        productionDesigner: val('projectPd'),
+        editor: val('projectEditor'),
+        assistantDirector: val('projectAd'),
+        writer: val('projectWriter'),
+        composer: val('projectComposer'),
+        soundDesigner: val('projectSound'),
+        colorist: val('projectColorist'),
+        vfxSupervisor: val('projectVfx'),
+        costumeDesigner: val('projectCostume'),
+        makeup: val('projectMakeup'),
+        gaffer: val('projectGaffer'),
+        keyGrip: val('projectKeyGrip')
+    };
+    for (const [key, value] of Object.entries(crewFields)) {
+        if (value) credits[key] = value;
+    }
+    
+    // Parse additional crew from textarea (Role: Name per line)
+    const addLines = val('projectAdditionalCrew').split('\n').filter(Boolean);
+    const additional = {};
+    for (const line of addLines) {
+        const colonIdx = line.indexOf(':');
+        if (colonIdx > 0) {
+            const role = line.slice(0, colonIdx).trim();
+            const name = line.slice(colonIdx + 1).trim();
+            if (role && name) additional[role] = name;
+        }
+    }
+    if (Object.keys(additional).length > 0) credits.additional = additional;
+    
     const project = {
         id: window.editingProjectIndex !== null ? config.selectedWorks[window.editingProjectIndex].id : 'project-' + Date.now(),
-        title: (document.getElementById('projectTitle')?.value || '').trim(),
-        tagline: (document.getElementById('projectTagline')?.value || '').trim(),
-        role: (document.getElementById('projectRole')?.value || '').trim(),
-        category: document.getElementById('projectCategory')?.value || 'narrative',
+        title: val('projectTitle'),
+        tagline: val('projectTagline'),
+        role: val('projectRole'),
+        category: val('projectCategory') || 'narrative',
+        trailerUrl: val('projectTrailerUrl'),
+        imdbUrl: val('projectImdbUrl'),
+        year: val('projectYear'),
         visible: document.getElementById('projectVisible')?.classList.contains('active') ?? true,
         image,
-        details: {}
+        credits: Object.keys(credits).length > 0 ? credits : undefined
     };
+    
+    // Remove empty optional fields to keep config clean
+    if (!project.trailerUrl) delete project.trailerUrl;
+    if (!project.imdbUrl) delete project.imdbUrl;
+    if (!project.year) delete project.year;
+    if (!project.credits) delete project.credits;
     
     if (window.editingProjectIndex !== null) {
         config.selectedWorks[window.editingProjectIndex] = project;
