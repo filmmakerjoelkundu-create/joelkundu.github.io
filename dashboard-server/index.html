@@ -4,10 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard | Joel Kundu Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=SF+Pro+Display:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif; background: #f5f5f7; }
-        .login-screen { position: fixed; inset: 0; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif; background: #f5f5f7; color: #1d1d1f; line-height: 1.5; }
+        
+        /* Login */
+        .login-screen { position: fixed; inset: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; z-index: 1000; }
         .login-box { background: white; padding: 3rem; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-width: 400px; width: 90%; }
         .login-box h1 { font-size: 2rem; margin-bottom: 0.5rem; }
         .login-box p { color: #86868b; margin-bottom: 2rem; }
@@ -15,6 +20,8 @@
         .login-box input:focus { outline: none; border-color: #0071e3; }
         .login-box button { width: 100%; padding: 1rem; background: #0071e3; color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; }
         .error { color: #ff3b30; margin-top: 1rem; display: none; }
+        
+        /* Dashboard */
         .dashboard { display: none; min-height: 100vh; }
         .dashboard.active { display: flex; }
         .sidebar { width: 280px; background: white; border-right: 1px solid #d2d2d7; padding: 2rem 1.5rem; position: fixed; height: 100vh; overflow-y: auto; }
@@ -22,7 +29,7 @@
         .sidebar p { font-size: 0.875rem; color: #86868b; }
         .nav { list-style: none; margin-top: 2rem; }
         .nav li { margin-bottom: 0.5rem; }
-        .nav a { display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 8px; text-decoration: none; color: #1d1d1f; font-weight: 500; cursor: pointer; }
+        .nav a { display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 8px; text-decoration: none; color: #1d1d1f; font-weight: 500; cursor: pointer; transition: all 0.2s; }
         .nav a:hover { background: #f5f5f7; }
         .nav a.active { background: #0071e3; color: white; }
         .main { flex: 1; margin-left: 280px; padding: 2rem 3rem; }
@@ -32,33 +39,68 @@
         .card h3 { font-size: 1.25rem; margin-bottom: 1rem; }
         .form-group { margin-bottom: 1.5rem; }
         .form-group label { display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem; }
-        .form-group input, .form-group textarea { width: 100%; padding: 0.75rem; border: 2px solid #d2d2d7; border-radius: 8px; font-size: 1rem; }
-        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: #0071e3; }
-        .btn { display: inline-flex; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 500; cursor: pointer; border: none; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 0.75rem; border: 2px solid #d2d2d7; border-radius: 8px; font-size: 1rem; font-family: inherit; }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: #0071e3; }
+        .form-group textarea { min-height: 120px; resize: vertical; }
+        .btn { display: inline-flex; align-items: center; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 500; cursor: pointer; border: none; transition: all 0.3s; }
         .btn-primary { background: #0071e3; color: white; }
+        .btn-primary:hover { background: #005bb5; }
         .btn-secondary { background: #f5f5f7; color: #1d1d1f; }
-        .toggle { width: 50px; height: 28px; background: #d2d2d7; border-radius: 14px; cursor: pointer; position: relative; }
+        .btn-secondary:hover { background: #e8e8ed; }
+        .btn-danger { background: #ff3b30; color: white; }
+        .btn-danger:hover { background: #d63027; }
+        .toggle { width: 50px; height: 28px; background: #d2d2d7; border-radius: 14px; cursor: pointer; position: relative; transition: background 0.3s; }
         .toggle.active { background: #0071e3; }
         .toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 24px; height: 24px; background: white; border-radius: 50%; transition: transform 0.3s; }
         .toggle.active::after { transform: translateX(22px); }
+        
+        /* Laurels */
         .laurel-grid { display: flex; flex-wrap: wrap; gap: 10px; padding: 20px; background: #f5f5f7; border-radius: 8px; min-height: 200px; }
-        .laurel-item { width: 80px; height: 80px; border-radius: 50%; background: #C4A35A; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; }
+        .laurel-item { width: 80px; height: 80px; border-radius: 50%; background: #C4A35A; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; transition: transform 0.3s; }
+        .laurel-item:hover { transform: scale(1.1); }
         .laurel-item img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
         .laurel-item .remove { position: absolute; top: -5px; right: -5px; width: 20px; height: 20px; background: #ff3b30; color: white; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 12px; }
         .laurel-item:hover .remove { display: flex; }
+        
+        /* Stats */
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
         .stat-card { background: #f5f5f7; padding: 1.5rem; border-radius: 8px; text-align: center; }
         .stat-number { font-size: 2rem; font-weight: 700; color: #0071e3; }
         .stat-text { font-size: 0.875rem; color: #86868b; }
-        .project-list { width: 100%; border-collapse: collapse; }
-        .project-list th, .project-list td { padding: 1rem; text-align: left; border-bottom: 1px solid #d2d2d7; }
-        .project-list th { background: #f5f5f7; font-weight: 600; }
+        
+        /* Projects Table */
+        .project-table { width: 100%; border-collapse: collapse; }
+        .project-table th, .project-table td { padding: 1rem; text-align: left; border-bottom: 1px solid #d2d2d7; }
+        .project-table th { background: #f5f5f7; font-weight: 600; }
+        .project-table tr:hover { background: #f9f9fb; }
         .badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 500; }
         .badge-visible { background: #d4edda; color: #155724; }
         .badge-hidden { background: #f8d7da; color: #721c24; }
+        
+        /* Services */
+        .service-list { list-style: none; }
         .service-item { display: flex; align-items: center; justify-content: space-between; padding: 1rem; background: #f5f5f7; border-radius: 8px; margin-bottom: 0.75rem; }
+        .service-info { flex: 1; }
+        .service-title { font-weight: 600; margin-bottom: 0.25rem; }
+        .service-desc { font-size: 0.875rem; color: #86868b; }
+        .service-actions { display: flex; gap: 0.5rem; }
+        
+        /* Social Links */
         .social-list { list-style: none; }
         .social-item { display: flex; align-items: center; gap: 1rem; padding: 1rem; background: #f5f5f7; border-radius: 8px; margin-bottom: 0.75rem; }
+        .social-icon { font-size: 1.5rem; }
+        .social-info { flex: 1; }
+        
+        /* Modal */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 2000; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: white; border-radius: 12px; padding: 2rem; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; }
+        .modal h3 { margin-bottom: 1rem; }
+        
+        /* Save Bar */
+        .save-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 1rem 2rem; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); display: none; gap: 1rem; }
+        .save-bar.active { display: flex; }
+        .save-bar button { min-width: 120px; }
     </style>
 </head>
 <body>
@@ -103,31 +145,34 @@
                     <h3>Basic Information</h3>
                     <div class="form-group">
                         <label>Name</label>
-                        <input type="text" id="heroName" value="Joel Kundu">
+                        <input type="text" id="heroName" value="">
                     </div>
                     <div class="form-group">
                         <label>Tagline</label>
-                        <input type="text" id="heroTagline" value="Cinematographer & Director">
+                        <input type="text" id="heroTagline" value="">
                     </div>
                 </div>
+
                 <div class="card">
                     <h3>Laurels</h3>
                     <div class="laurel-grid" id="laurelGrid"></div>
-                    <button class="btn btn-primary" style="margin-top:1rem" onclick="addLaurel()">Add Laurel</button>
+                    <div style="margin-top: 1rem;">
+                        <button class="btn btn-primary" onclick="addLaurel()">Add Laurel</button>
+                    </div>
                 </div>
             </div>
 
             <!-- About Section -->
             <div id="about" class="section">
                 <div class="card">
-                    <h3>About Content</h3>
+                    <h3>About Me</h3>
                     <div class="form-group">
                         <label>Header</label>
-                        <input type="text" id="aboutHeader" value="About Me">
+                        <input type="text" id="aboutHeader" value="">
                     </div>
                     <div class="form-group">
                         <label>Tagline</label>
-                        <input type="text" id="aboutTagline" value="Visual storyteller">
+                        <input type="text" id="aboutTagline" value="">
                     </div>
                     <div class="form-group">
                         <label>Paragraph</label>
@@ -137,7 +182,9 @@
                 <div class="card">
                     <h3>Stats</h3>
                     <div class="stats-grid" id="statsGrid"></div>
-                    <button class="btn btn-primary" style="margin-top:1rem" onclick="addStat()">Add Stat</button>
+                    <div style="margin-top: 1rem;">
+                        <button class="btn btn-primary" onclick="addStat()">Add Stat</button>
+                    </div>
                 </div>
             </div>
 
@@ -145,23 +192,35 @@
             <div id="works" class="section">
                 <div class="card">
                     <h3>Projects</h3>
-                    <table class="project-list">
+                    <table class="project-table">
                         <thead>
-                            <tr><th>Title</th><th>Year</th><th>Status</th><th>Actions</th></tr>
+                            <tr>
+                                <th>Title</th>
+                                <th>Role</th>
+                                <th>Category</th>
+                                <th>Visible</th>
+                                <th>Actions</th>
+                            </tr>
                         </thead>
                         <tbody id="projectsTable"></tbody>
                     </table>
-                    <button class="btn btn-primary" style="margin-top:1rem" onclick="addProject()">Add Project</button>
+                    <div style="margin-top: 1rem;">
+                        <button class="btn btn-primary" onclick="addProject()">Add Project</button>
+                    </div>
                 </div>
             </div>
 
             <!-- Showreel -->
             <div id="showreel" class="section">
                 <div class="card">
-                    <h3>Showreel Settings</h3>
+                    <h3>Showreel</h3>
                     <div class="form-group">
                         <label>Vimeo URL</label>
-                        <input type="text" id="vimeoUrl" placeholder="https://vimeo.com/...">
+                        <input type="text" id="showreelUrl" value="">
+                    </div>
+                    <div class="form-group">
+                        <label>Vimeo ID</label>
+                        <input type="text" id="showreelId" value="">
                     </div>
                 </div>
             </div>
@@ -169,8 +228,9 @@
             <!-- Gallery -->
             <div id="gallery" class="section">
                 <div class="card">
-                    <h3>Gallery Management</h3>
-                    <p>Auto-populated from Selected Works projects</p>
+                    <h3>Gallery Images</h3>
+                    <p style="color: #86868b; margin-bottom: 1rem;">Images are automatically pulled from your Selected Works projects. Upload additional images here.</p>
+                    <div id="galleryList"></div>
                 </div>
             </div>
 
@@ -178,8 +238,10 @@
             <div id="services" class="section">
                 <div class="card">
                     <h3>Services</h3>
-                    <div id="servicesList"></div>
-                    <button class="btn btn-primary" style="margin-top:1rem" onclick="addService()">Add Service</button>
+                    <ul class="service-list" id="serviceList"></ul>
+                    <div style="margin-top: 1rem;">
+                        <button class="btn btn-primary" onclick="addService()">Add Service</button>
+                    </div>
                 </div>
             </div>
 
@@ -193,7 +255,15 @@
                     </div>
                     <div class="form-group">
                         <label>Email</label>
-                        <input type="email" id="contactEmail" value="filmmaker.joelkundu@gmail.com">
+                        <input type="email" id="contactEmail" value="">
+                    </div>
+                    <div class="form-group">
+                        <label>Location</label>
+                        <input type="text" id="contactLocation" value="">
+                        <div style="margin-top: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <div class="toggle" id="locationToggle" onclick="toggleLocation()"></div>
+                            <span>Show on site</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -201,45 +271,43 @@
             <!-- Footer -->
             <div id="footer" class="section">
                 <div class="card">
-                    <h3>Footer Content</h3>
+                    <h3>Footer</h3>
                     <div class="form-group">
                         <label>Tagline</label>
-                        <input type="text" id="footerTagline">
+                        <input type="text" id="footerTagline" value="">
                     </div>
-                    <div class="form-group">
-                        <label>Social Links</label>
-                        <ul class="social-list" id="socialList"></ul>
-                        <button class="btn btn-primary" style="margin-top:1rem" onclick="addSocial()">Add Social Link</button>
-                    </div>
+                </div>
+                <div class="card">
+                    <h3>Social Links</h3>
+                    <ul class="social-list" id="socialList"></ul>
                 </div>
             </div>
         </main>
     </div>
 
-    <script>
-        let authToken = localStorage.getItem('dashboardToken');
-        let config = {};
+    <!-- Save Bar -->
+    <div class="save-bar" id="saveBar">
+        <button class="btn btn-primary" onclick="saveAll()">Save Changes</button>
+        <button class="btn btn-secondary" onclick="cancelChanges()">Cancel</button>
+    </div>
 
-        // Check login
-        if (authToken) {
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('dashboard').classList.add('active');
-            loadConfig();
-        }
+    <script>
+        let config = {};
+        let authToken = '';
+        let hasChanges = false;
 
         // Login
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const password = document.getElementById('password').value;
             try {
-                const res = await fetch('/api/login', {
+                const response = await fetch('/api/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ password })
                 });
-                const data = await res.json();
+                const data = await response.json();
                 if (data.success) {
-                    localStorage.setItem('dashboardToken', data.token);
                     authToken = data.token;
                     document.getElementById('loginScreen').style.display = 'none';
                     document.getElementById('dashboard').classList.add('active');
@@ -247,7 +315,7 @@
                 } else {
                     document.getElementById('loginError').style.display = 'block';
                 }
-            } catch (err) {
+            } catch (error) {
                 document.getElementById('loginError').style.display = 'block';
             }
         });
@@ -255,50 +323,145 @@
         // Load config
         async function loadConfig() {
             try {
-                const res = await fetch('/api/config', { headers: { 'Authorization': `Bearer ${authToken}` } });
-                config = await res.json();
+                const response = await fetch('/api/config', {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                config = await response.json();
                 populateForms();
-            } catch (err) { console.error(err); }
+            } catch (error) {
+                console.error('Error loading config:', error);
+            }
         }
 
+        // Populate all forms
         function populateForms() {
-            if (config.hero) {
-                document.getElementById('heroName').value = config.hero.name || '';
-                document.getElementById('heroTagline').value = config.hero.tagline || '';
-                renderLaurels(config.hero.laurels || []);
-            }
-            if (config.about) {
-                document.getElementById('aboutHeader').value = config.about.header || '';
-                document.getElementById('aboutTagline').value = config.about.tagline || '';
-                document.getElementById('aboutParagraph').value = config.about.paragraph || '';
-                renderStats(config.about.stats || []);
-            }
-            if (config.services) renderServices(config.services);
+            // Hero
+            document.getElementById('heroName').value = config.hero?.name || '';
+            document.getElementById('heroTagline').value = config.hero?.tagline || '';
+            renderLaurels();
+
+            // About
+            document.getElementById('aboutHeader').value = config.about?.header || '';
+            document.getElementById('aboutTagline').value = config.about?.tagline || '';
+            document.getElementById('aboutParagraph').value = config.about?.paragraph || '';
+            renderStats();
+
+            // Works - rendered in table
+            renderProjects();
+
+            // Showreel
+            document.getElementById('showreelUrl').value = config.showreel?.vimeoUrl || '';
+            document.getElementById('showreelId').value = config.showreel?.vimeoId || '';
+
+            // Services
+            renderServices();
+
+            // Contact
+            document.getElementById('contactMessage').value = config.contact?.message || '';
+            document.getElementById('contactEmail').value = config.contact?.email || '';
+            document.getElementById('contactLocation').value = config.contact?.location?.text || '';
+
+            // Footer
+            document.getElementById('footerTagline').value = config.footer?.tagline || '';
+            renderSocialLinks();
         }
 
-        // Navigation
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('click', () => {
-                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-                link.classList.add('active');
-                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-                document.getElementById(link.dataset.section).classList.add('active');
-                document.getElementById('sectionTitle').textContent = link.textContent;
-            });
-        });
-
-        // Laurels
-        function renderLaurels(laurels) {
+        // Render functions
+        function renderLaurels() {
             const grid = document.getElementById('laurelGrid');
-            grid.innerHTML = laurels.map((l, i) => `
-                <div class="laurel-item" onclick="editLaurel(${i})">
-                    <img src="${l.path || ''}" alt="Laurel">
-                    <span class="remove" onclick="event.stopPropagation(); removeLaurel(${i})">×</span>
-                </div>
-            `).join('');
+            grid.innerHTML = '';
+            config.hero?.laurels?.forEach((laurel, index) => {
+                const item = document.createElement('div');
+                item.className = 'laurel-item';
+                item.innerHTML = `<img src="${laurel.image}" alt="${laurel.alt}"><div class="remove" onclick="removeLaurel(${index})">×</div>`;
+                grid.appendChild(item);
+            });
         }
 
-        async function addLaurel() {
+        function renderStats() {
+            const grid = document.getElementById('statsGrid');
+            grid.innerHTML = '';
+            config.about?.stats?.forEach((stat, index) => {
+                const card = document.createElement('div');
+                card.className = 'stat-card';
+                card.innerHTML = `<div class="stat-number">${stat.number}</div><div class="stat-text">${stat.text}</div>`;
+                grid.appendChild(card);
+            });
+        }
+
+        function renderProjects() {
+            const tbody = document.getElementById('projectsTable');
+            tbody.innerHTML = '';
+            config.selectedWorks?.forEach((project, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${project.title}</td>
+                    <td>${project.role}</td>
+                    <td>${project.category}</td>
+                    <td><span class="badge ${project.visible ? 'badge-visible' : 'badge-hidden'}">${project.visible ? 'Yes' : 'No'}</span></td>
+                    <td>
+                        <button class="btn btn-secondary" onclick="editProject(${index})">Edit</button>
+                        <button class="btn btn-danger" onclick="deleteProject(${index})">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderServices() {
+            const list = document.getElementById('serviceList');
+            list.innerHTML = '';
+            config.services?.forEach((service, index) => {
+                const li = document.createElement('li');
+                li.className = 'service-item';
+                li.innerHTML = `
+                    <div class="service-info">
+                        <div class="service-title">${service.title}</div>
+                        <div class="service-desc">${service.description}</div>
+                    </div>
+                    <div class="service-actions">
+                        <div class="toggle ${service.visible ? 'active' : ''}" onclick="toggleService(${index})"></div>
+                        <button class="btn btn-secondary" onclick="editService(${index})">Edit</button>
+                        <button class="btn btn-danger" onclick="deleteService(${index})">Delete</button>
+                    </div>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        function renderSocialLinks() {
+            const list = document.getElementById('socialList');
+            list.innerHTML = '';
+            config.footer?.socialLinks?.forEach((link, index) => {
+                const li = document.createElement('li');
+                li.className = 'social-item';
+                li.innerHTML = `
+                    <span class="social-icon">${link.icon}</span>
+                    <div class="social-info">
+                        <strong>${link.platform}</strong><br>
+                        <small>${link.url || 'No URL set'}</small>
+                    </div>
+                    <button class="btn btn-secondary" onclick="editSocial(${index})">Edit</button>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        // Toggle functions
+        function toggleLocation() {
+            const toggle = document.getElementById('locationToggle');
+            toggle.classList.toggle('active');
+            markChanged();
+        }
+
+        function toggleService(index) {
+            config.services[index].visible = !config.services[index].visible;
+            renderServices();
+            markChanged();
+        }
+
+        // Add/Edit/Delete functions
+        function addLaurel() {
             const input = document.createElement('input');
             input.type = 'file';
             input.accept = 'image/*';
@@ -307,17 +470,24 @@
                 if (file) {
                     const formData = new FormData();
                     formData.append('file', file);
-                    const res = await fetch('/api/upload', {
-                        method: 'POST',
-                        headers: { 'Authorization': `Bearer ${authToken}` },
-                        body: formData
-                    });
-                    const data = await res.json();
-                    if (data.success) {
-                        if (!config.hero.laurels) config.hero.laurels = [];
-                        config.hero.laurels.push({ path: data.assetsPath });
-                        renderLaurels(config.hero.laurels);
-                        saveConfig();
+                    try {
+                        const response = await fetch('/api/upload', {
+                            method: 'POST',
+                            headers: { 'Authorization': `Bearer ${authToken}` },
+                            body: formData
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            config.hero.laurels.push({
+                                id: 'laurel-' + Date.now(),
+                                image: data.assetsPath,
+                                alt: file.name
+                            });
+                            renderLaurels();
+                            markChanged();
+                        }
+                    } catch (error) {
+                        console.error('Upload error:', error);
                     }
                 }
             };
@@ -325,123 +495,170 @@
         }
 
         function removeLaurel(index) {
-            config.hero.laurels.splice(index, 1);
-            renderLaurels(config.hero.laurels);
-            saveConfig();
-        }
-
-        // Stats
-        function renderStats(stats) {
-            const grid = document.getElementById('statsGrid');
-            grid.innerHTML = stats.map((s, i) => `
-                <div class="stat-card">
-                    <div class="stat-number">${s.number}</div>
-                    <div class="stat-text">${s.text}</div>
-                </div>
-            `).join('');
-        }
-
-        function addStat() {
-            const number = prompt('Stat number (e.g., 10+):');
-            const text = prompt('Stat text:');
-            if (number && text) {
-                config.about.stats.push({ number, text });
-                renderStats(config.about.stats);
-                saveConfig();
+            if (confirm('Remove this laurel?')) {
+                config.hero.laurels.splice(index, 1);
+                renderLaurels();
+                markChanged();
             }
         }
 
-        // Services
-        function renderServices(services) {
-            const list = document.getElementById('servicesList');
-            list.innerHTML = services.map((s, i) => `
-                <div class="service-item">
-                    <div>
-                        <strong>${s.title}</strong>
-                        <p style="color:#86868b;font-size:0.875rem">${s.description}</p>
-                    </div>
-                    <div class="toggle ${s.visible ? 'active' : ''}" onclick="toggleService(${i})"></div>
-                </div>
-            `).join('');
+        function addStat() {
+            const number = prompt('Stat number (e.g., "5+"):');
+            const text = prompt('Stat text (e.g., "Years Experience"):');
+            if (number && text) {
+                config.about.stats.push({ number, text });
+                renderStats();
+                markChanged();
+            }
         }
 
-        function toggleService(index) {
-            config.services[index].visible = !config.services[index].visible;
-            renderServices(config.services);
-            saveConfig();
+        function addProject() {
+            const title = prompt('Project title:');
+            if (title) {
+                config.selectedWorks.push({
+                    id: 'project-' + Date.now(),
+                    title: title,
+                    tagline: '',
+                    role: '',
+                    category: 'narrative',
+                    image: '',
+                    visible: true,
+                    details: {}
+                });
+                renderProjects();
+                markChanged();
+            }
+        }
+
+        function editProject(index) {
+            alert('Project editing would open a modal with all fields - implement as needed');
+        }
+
+        function deleteProject(index) {
+            if (confirm('Delete this project?')) {
+                config.selectedWorks.splice(index, 1);
+                renderProjects();
+                markChanged();
+            }
         }
 
         function addService() {
             const title = prompt('Service title:');
             const description = prompt('Service description:');
-            if (title && description) {
-                config.services.push({ title, description, visible: true });
-                renderServices(config.services);
-                saveConfig();
-            }
-        }
-
-        // Projects
-        function renderProjects(projects) {
-            const tbody = document.getElementById('projectsTable');
-            tbody.innerHTML = projects.map(p => `
-                <tr>
-                    <td>${p.title}</td>
-                    <td>${p.year}</td>
-                    <td><span class="badge ${p.visible ? 'badge-visible' : 'badge-hidden'}">${p.visible ? 'Visible' : 'Hidden'}</span></td>
-                    <td><button class="btn btn-secondary" onclick="editProject(${projects.indexOf(p)})">Edit</button></td>
-                </tr>
-            `).join('');
-        }
-
-        function addProject() {
-            const title = prompt('Project title:');
-            const year = prompt('Year:');
             if (title) {
-                if (!config.selectedWorks) config.selectedWorks = [];
-                config.selectedWorks.push({ title, year, visible: true });
-                renderProjects(config.selectedWorks);
-                saveConfig();
+                config.services.push({
+                    id: 'service-' + Date.now(),
+                    title: title,
+                    description: description || '',
+                    visible: true,
+                    order: config.services.length
+                });
+                renderServices();
+                markChanged();
             }
         }
 
-        // Save config
-        async function saveConfig() {
+        function editService(index) {
+            const service = config.services[index];
+            const newTitle = prompt('Service title:', service.title);
+            if (newTitle) {
+                service.title = newTitle;
+                const newDesc = prompt('Service description:', service.description);
+                service.description = newDesc || '';
+                renderServices();
+                markChanged();
+            }
+        }
+
+        function deleteService(index) {
+            if (confirm('Delete this service?')) {
+                config.services.splice(index, 1);
+                renderServices();
+                markChanged();
+            }
+        }
+
+        function editSocial(index) {
+            const link = config.footer.socialLinks[index];
+            const newUrl = prompt(`${link.platform} URL:`, link.url);
+            if (newUrl !== null) {
+                link.url = newUrl;
+                renderSocialLinks();
+                markChanged();
+            }
+        }
+
+        // Navigation
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const section = link.dataset.section;
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+                document.getElementById('sectionTitle').textContent = link.textContent.replace(/^[^ ]+ /, '');
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                document.getElementById(section).classList.add('active');
+            });
+        });
+
+        // Mark changes
+        function markChanged() {
+            hasChanges = true;
+            document.getElementById('saveBar').classList.add('active');
+        }
+
+        // Save
+        async function saveAll() {
+            // Collect all form data
+            config.hero.name = document.getElementById('heroName').value;
+            config.hero.tagline = document.getElementById('heroTagline').value;
+            config.about.header = document.getElementById('aboutHeader').value;
+            config.about.tagline = document.getElementById('aboutTagline').value;
+            config.about.paragraph = document.getElementById('aboutParagraph').value;
+            config.showreel.vimeoUrl = document.getElementById('showreelUrl').value;
+            config.showreel.vimeoId = document.getElementById('showreelId').value;
+            config.contact.message = document.getElementById('contactMessage').value;
+            config.contact.email = document.getElementById('contactEmail').value;
+            config.contact.location.text = document.getElementById('contactLocation').value;
+            config.contact.location.visible = document.getElementById('locationToggle').classList.contains('active');
+            config.footer.tagline = document.getElementById('footerTagline').value;
+
             try {
-                await fetch('/api/config', {
+                const response = await fetch('/api/config', {
                     method: 'POST',
-                    headers: { 
-                        'Authorization': `Bearer ${authToken}`,
-                        'Content-Type': 'application/json'
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
                     },
                     body: JSON.stringify(config)
                 });
-            } catch (err) { console.error(err); }
-        }
-
-        // Social links
-        function addSocial() {
-            const platform = prompt('Platform (e.g., Instagram):');
-            const url = prompt('URL:');
-            if (platform && url) {
-                if (!config.footer) config.footer = {};
-                if (!config.footer.socialLinks) config.footer.socialLinks = [];
-                config.footer.socialLinks.push({ platform, url });
-                renderSocial(config.footer.socialLinks);
-                saveConfig();
+                const data = await response.json();
+                if (data.success) {
+                    alert('✅ Saved successfully!');
+                    hasChanges = false;
+                    document.getElementById('saveBar').classList.remove('active');
+                } else {
+                    alert('❌ Save failed');
+                }
+            } catch (error) {
+                console.error('Save error:', error);
+                alert('❌ Save failed: ' + error.message);
             }
         }
 
-        function renderSocial(links) {
-            const list = document.getElementById('socialList');
-            if (!links) return;
-            list.innerHTML = links.map((s, i) => `
-                <li class="social-item">
-                    <strong>${s.platform}</strong>
-                    <a href="${s.url}" target="_blank">${s.url}</a>
-                </li>
-            `).join('');
+        function cancelChanges() {
+            hasChanges = false;
+            document.getElementById('saveBar').classList.remove('active');
+            loadConfig();
         }
+
+        // Prevent navigation with unsaved changes
+        window.addEventListener('beforeunload', (e) => {
+            if (hasChanges) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
     </script>
 </body>
 </html>
