@@ -55,11 +55,11 @@
         .toggle.active::after { transform: translateX(22px); }
         
         /* Laurels */
-        .laurel-grid { display: flex; flex-wrap: wrap; gap: 10px; padding: 20px; background: #f5f5f7; border-radius: 8px; min-height: 200px; }
-        .laurel-item { width: 80px; height: 80px; border-radius: 50%; background: #C4A35A; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; transition: transform 0.3s; }
-        .laurel-item:hover { transform: scale(1.1); }
-        .laurel-item img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-        .laurel-item .remove { position: absolute; top: -5px; right: -5px; width: 20px; height: 20px; background: #ff3b30; color: white; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 12px; }
+.laurel-grid { display: flex; flex-wrap: wrap; gap: 15px; padding: 30px; background: #f5f5f7; border-radius: 12px; min-height: 250px; }
+.laurel-item { width: 140px; height: 140px; border-radius: 20px; background: #C4A35A; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; transition: transform 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+.laurel-item:hover { transform: scale(1.08); }
+.laurel-item img { width: 90%; height: 90%; object-fit: contain; border-radius: 16px; }
+.laurel-item .remove { position: absolute; top: -8px; right: -8px; width: 28px; height: 28px; background: #ff3b30; color: white; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 16px; border: 2px solid white; }
         .laurel-item:hover .remove { display: flex; }
         
         /* Stats */
@@ -169,9 +169,9 @@
                 </div>
 
                 <div class="card">
-                    <h3>Theme Colors</h3>
-                    <p style="color: #86868b; margin-bottom: 1rem;">Edit colors for all 5 themes</p>
-                    <button class="btn btn-primary" onclick="editThemes()">Edit Theme Colors</button>
+                    <h3>Theme Customization</h3>
+                    <p style="color: #86868b; margin-bottom: 1rem;">Edit colors, fonts, and background patterns for all 5 themes</p>
+                    <button class="btn btn-primary" onclick="editThemes()">Edit Theme Colors & Fonts</button>
                 </div>
             </div>
 
@@ -400,12 +400,28 @@
 
     <!-- Theme Colors Modal -->
     <div class="modal-overlay" id="themeModal">
-        <div class="modal">
-            <h3>Edit Theme Colors</h3>
+        <div class="modal" style="max-width: 900px;">
+            <h3>Edit Theme Customization</h3>
+            <p style="color: #86868b; margin-bottom: 1rem;">Edit colors, fonts, and background patterns for each theme</p>
+            
+            <div class="form-group">
+                <label>Background Pattern Opacity (Global)</label>
+                <input type="range" id="globalPatternOpacity" min="0" max="100" value="50" style="width: 100%;">
+                <p style="color: #86868b; font-size: 0.875rem; margin-top: 0.5rem;">Controls how much of the pattern is visible (0% = solid, 100% = full pattern)</p>
+            </div>
+            
+            <div class="form-group">
+                <label>Background Pattern Equation</label>
+                <input type="text" id="patternEquation" value="sin(x)*cos(y)" placeholder="e.g., sin(x)*cos(y)">
+                <p style="color: #86868b; font-size: 0.875rem; margin-top: 0.5rem;">Math equation for pattern generation. Try: sin(x)*cos(y), sin(x+y), x*y, etc.</p>
+                <div id="patternPreview" style="width: 100%; height: 100px; border: 1px solid #d2d2d7; border-radius: 8px; margin-top: 0.5rem; background: #000;"></div>
+            </div>
+            
             <div id="themeEditList"></div>
+            
             <div class="modal-actions">
                 <button class="btn btn-secondary" onclick="closeThemeModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="saveThemes()">Save Themes</button>
+                <button class="btn btn-primary" onclick="saveThemes()">Save All Changes</button>
             </div>
         </div>
     </div>
@@ -843,6 +859,12 @@ function saveStats() {
 function editThemes() {
     const list = document.getElementById('themeEditList');
     list.innerHTML = '';
+    
+    // Set global values
+    document.getElementById('globalPatternOpacity').value = config.hero?.patternOpacity || 50;
+    document.getElementById('patternEquation').value = config.hero?.patternEquation || 'sin(x)*cos(y)';
+    updatePatternPreview();
+    
     config.hero?.themes?.forEach((theme, index) => {
         const div = document.createElement('div');
         div.className = 'theme-card';
@@ -857,12 +879,41 @@ function editThemes() {
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Accent Color</label>
+                    <label>Accent Color 1</label>
                     <div class="color-picker-wrapper">
-                        <input type="color" id="theme-${index}-accent" value="${theme.colors.accent}" class="color-preview">
-                        <span>${theme.colors.accent}</span>
+                        <input type="color" id="theme-${index}-accent1" value="${theme.colors.accent1 || theme.colors.accent}" class="color-preview">
+                        <span>${theme.colors.accent1 || theme.colors.accent}</span>
                     </div>
                 </div>
+                <div class="form-group">
+                    <label>Accent Color 2</label>
+                    <div class="color-picker-wrapper">
+                        <input type="color" id="theme-${index}-accent2" value="${theme.colors.accent2 || theme.colors.accent}" class="color-preview">
+                        <span>${theme.colors.accent2 || theme.colors.accent}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Heading Font</label>
+                <select id="theme-${index}-headingFont">
+                    <option value="Inter">Inter</option>
+                    <option value="Playfair Display">Playfair Display</option>
+                    <option value="Montserrat">Montserrat</option>
+                    <option value="Roboto">Roboto</option>
+                    <option value="Oswald">Oswald</option>
+                    <option value="Lato">Lato</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Body Font</label>
+                <select id="theme-${index}-bodyFont">
+                    <option value="Inter">Inter</option>
+                    <option value="Playfair Display">Playfair Display</option>
+                    <option value="Montserrat">Montserrat</option>
+                    <option value="Roboto">Roboto</option>
+                    <option value="Oswald">Oswald</option>
+                    <option value="Lato">Lato</option>
+                </select>
             </div>
         `;
         list.appendChild(div);
@@ -870,19 +921,80 @@ function editThemes() {
     document.getElementById('themeModal').classList.add('active');
 }
 
+function updatePatternPreview() {
+    const canvas = document.getElementById('patternPreview');
+    if (!canvas) return;
+    
+    const equation = document.getElementById('patternEquation').value;
+    const ctx = canvas.getContext('2d');
+    const width = canvas.width || 400;
+    const height = canvas.height || 100;
+    
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, width, height);
+    
+    try {
+        const imageData = ctx.createImageData(width, height);
+        const scale = 0.1;
+        
+        for (let x = 0; x < width; x += 4) {
+            for (let y = 0; y < height; y += 4) {
+                const nx = x * scale;
+                const ny = y * scale;
+                let value;
+                
+                // Evaluate the equation
+                try {
+                    value = Math.abs(eval(equation)) || 0;
+                } catch {
+                    value = 0.5;
+                }
+                
+                const intensity = Math.min(255, Math.floor(value * 255));
+                const idx = (y * width + x) * 4;
+                imageData.data[idx] = intensity;
+                imageData.data[idx + 1] = intensity;
+                imageData.data[idx + 2] = intensity;
+                imageData.data[idx + 3] = 255;
+            }
+        }
+        ctx.putImageData(imageData, 0, 0);
+    } catch (e) {
+        console.error('Pattern error:', e);
+    }
+}
+
+// Add event listener for pattern equation input
+setTimeout(() => {
+    const equationInput = document.getElementById('patternEquation');
+    if (equationInput) {
+        equationInput.addEventListener('input', updatePatternPreview);
+    }
+}, 1000);
+
 function closeThemeModal() {
     document.getElementById('themeModal').classList.remove('active');
 }
 
 function saveThemes() {
+    // Save global settings
+    config.hero.patternOpacity = parseInt(document.getElementById('globalPatternOpacity').value);
+    config.hero.patternEquation = document.getElementById('patternEquation').value;
+    
+    // Save theme-specific settings
     config.hero.themes = config.hero.themes.map((theme, index) => ({
         ...theme,
         colors: {
-            ...theme.colors,
             bgPrimary: document.getElementById(`theme-${index}-bg1`).value,
-            accent: document.getElementById(`theme-${index}-accent`).value
+            accent1: document.getElementById(`theme-${index}-accent1`).value,
+            accent2: document.getElementById(`theme-${index}-accent2`).value
+        },
+        fonts: {
+            heading: document.getElementById(`theme-${index}-headingFont`).value,
+            body: document.getElementById(`theme-${index}-bodyFont`).value
         }
     }));
+    
     closeThemeModal();
     markChanged();
 }
