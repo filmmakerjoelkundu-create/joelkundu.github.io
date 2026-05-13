@@ -235,15 +235,36 @@
                         <label>Vimeo ID</label>
                         <input type="text" id="showreelId" value="">
                     </div>
+                    <div class="form-group">
+                        <label>Preview</label>
+                        <div id="vimeoPreview" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; border-radius: 8px; background: #000;">
+                            <iframe id="vimeoPlayer" src="" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+                        <p style="color: #86868b; margin-top: 0.5rem; font-size: 0.875rem;">Preview updates automatically as you type the URL</p>
+                    </div>
                 </div>
             </div>
 
             <!-- Gallery -->
             <div id="gallery" class="section">
                 <div class="card">
-                    <h3>Gallery Images</h3>
-                    <p style="color: #86868b; margin-bottom: 1rem;">Images are automatically pulled from your Selected Works projects. Upload additional images here.</p>
-                    <div id="galleryList"></div>
+                    <h3>Gallery Management</h3>
+                    <p style="color: #86868b; margin-bottom: 1rem;">Upload images and assign them to project tags. Users can filter gallery by these project tags.</p>
+                    
+                    <div class="form-group">
+                        <label>Available Project Tags (from Selected Works)</label>
+                        <div id="projectTagsList" style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem;"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Upload New Image</label>
+                        <input type="file" id="galleryImageUpload" accept="image/*" multiple onchange="uploadGalleryImages(event)">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Gallery Images (<span id="galleryCount">0</span> images)</label>
+                        <div id="galleryList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;"></div>
+                    </div>
                 </div>
             </div>
 
@@ -253,7 +274,7 @@
                     <h3>Services</h3>
                     <ul class="service-list" id="serviceList"></ul>
                     <div style="margin-top: 1rem;">
-                        <button class="btn btn-primary" onclick="addService()">Add Service</button>
+                        <button class="btn btn-primary" onclick="openAddServiceModal()">Add Service</button>
                     </div>
                 </div>
             </div>
@@ -368,6 +389,53 @@
         </div>
     </div>
 
+    <!-- Gallery Image Edit Modal -->
+    <div class="modal-overlay" id="galleryImageModal">
+        <div class="modal">
+            <h3>Edit Image Details</h3>
+            <div class="form-group">
+                <label>Image Preview</label>
+                <img id="editImagePreview" src="" alt="Preview" style="max-width: 100%; border-radius: 8px; margin-bottom: 1rem;">
+            </div>
+            <div class="form-group">
+                <label>Assign to Project Tag</label>
+                <select id="editImageTag">
+                    <option value="">-- Select Project --</option>
+                </select>
+                <p style="color: #86868b; font-size: 0.875rem; margin-top: 0.5rem;">Images without a tag will appear in the random mix</p>
+            </div>
+            <div class="form-group">
+                <label>BTS (Behind the Scenes)</label>
+                <div class="toggle" id="editImageBts" onclick="toggleBts()"></div>
+                <p style="color: #86868b; font-size: 0.875rem; margin-top: 0.5rem;">Mark as BTS image</p>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeGalleryImageModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveGalleryImageDetails()">Save</button>
+                <button class="btn btn-danger" onclick="deleteGalleryImage()">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Service Edit Modal -->
+    <div class="modal-overlay" id="serviceModal">
+        <div class="modal">
+            <h3 id="serviceModalTitle">Add Service</h3>
+            <div class="form-group">
+                <label>Service Title</label>
+                <input type="text" id="serviceTitle" placeholder="e.g., Cinematography">
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="serviceDescription" placeholder="Service description"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeServiceModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveService()">Save Service</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let config = {};
         let authToken = '';
@@ -411,37 +479,45 @@
         }
 
         // Populate all forms
-        function populateForms() {
-            // Hero
-            document.getElementById('heroName').value = config.hero?.name || '';
-            document.getElementById('heroTagline').value = config.hero?.tagline || '';
-            renderLaurels();
+function populateForms() {
+    // Hero
+    document.getElementById('heroName').value = config.hero?.name || '';
+    document.getElementById('heroTagline').value = config.hero?.tagline || '';
+    renderLaurels();
 
-            // About
-            document.getElementById('aboutHeader').value = config.about?.header || '';
-            document.getElementById('aboutTagline').value = config.about?.tagline || '';
-            document.getElementById('aboutParagraph').value = config.about?.paragraph || '';
-            renderStats();
+    // About
+    document.getElementById('aboutHeader').value = config.about?.header || '';
+    document.getElementById('aboutTagline').value = config.about?.tagline || '';
+    document.getElementById('aboutParagraph').value = config.about?.paragraph || '';
+    renderStats();
 
-            // Works - rendered in table
-            renderProjects();
+    // Works - rendered in table
+    renderProjects();
 
-            // Showreel
-            document.getElementById('showreelUrl').value = config.showreel?.vimeoUrl || '';
-            document.getElementById('showreelId').value = config.showreel?.vimeoId || '';
+    // Showreel
+    document.getElementById('showreelUrl').value = config.showreel?.vimeoUrl || '';
+    document.getElementById('showreelId').value = config.showreel?.vimeoId || '';
+    updateVimeoPreview();
 
-            // Services
-            renderServices();
+    // Gallery - initialize
+    if (!config.gallery) {
+        config.gallery = { images: [], bts: [] };
+    }
+    renderGallery();
+    renderProjectTags();
 
-            // Contact
-            document.getElementById('contactMessage').value = config.contact?.message || '';
-            document.getElementById('contactEmail').value = config.contact?.email || '';
-            document.getElementById('contactLocation').value = config.contact?.location?.text || '';
+    // Services
+    renderServices();
 
-            // Footer
-            document.getElementById('footerTagline').value = config.footer?.tagline || '';
-            renderSocialLinks();
-        }
+    // Contact
+    document.getElementById('contactMessage').value = config.contact?.message || '';
+    document.getElementById('contactEmail').value = config.contact?.email || '';
+    document.getElementById('contactLocation').value = config.contact?.location?.text || '';
+
+    // Footer
+    document.getElementById('footerTagline').value = config.footer?.tagline || '';
+    renderSocialLinks();
+}
 
         // Render functions
         function renderLaurels() {
@@ -748,25 +824,194 @@ function saveThemes() {
             }
         }
 
-        function editService(index) {
-            const service = config.services[index];
-            const newTitle = prompt('Service title:', service.title);
-            if (newTitle) {
-                service.title = newTitle;
-                const newDesc = prompt('Service description:', service.description);
-                service.description = newDesc || '';
-                renderServices();
-                markChanged();
-            }
-        }
+function editService(index) {
+    const service = config.services[index];
+    document.getElementById('serviceModalTitle').textContent = 'Edit Service';
+    document.getElementById('serviceTitle').value = service.title;
+    document.getElementById('serviceDescription').value = service.description;
+    window.editingServiceIndex = index;
+    document.getElementById('serviceModal').classList.add('active');
+}
 
-        function deleteService(index) {
-            if (confirm('Delete this service?')) {
-                config.services.splice(index, 1);
-                renderServices();
+function openAddServiceModal() {
+    document.getElementById('serviceModalTitle').textContent = 'Add Service';
+    document.getElementById('serviceTitle').value = '';
+    document.getElementById('serviceDescription').value = '';
+    window.editingServiceIndex = null;
+    document.getElementById('serviceModal').classList.add('active');
+}
+
+function closeServiceModal() {
+    document.getElementById('serviceModal').classList.remove('active');
+}
+
+function saveService() {
+    const service = {
+        id: window.editingServiceIndex !== null ? config.services[window.editingServiceIndex].id : 'service-' + Date.now(),
+        title: document.getElementById('serviceTitle').value,
+        description: document.getElementById('serviceDescription').value,
+        visible: true,
+        order: config.services.length
+    };
+    
+    if (window.editingServiceIndex !== null) {
+        config.services[window.editingServiceIndex] = service;
+    } else {
+        config.services.push(service);
+    }
+    
+    renderServices();
+    closeServiceModal();
+    markChanged();
+}
+
+function deleteService(index) {
+    if (confirm('Delete this service?')) {
+        config.services.splice(index, 1);
+        renderServices();
+        markChanged();
+    }
+}
+
+// Gallery Functions
+function renderGallery() {
+    const list = document.getElementById('galleryList');
+    const count = document.getElementById('galleryCount');
+    if (!list || !config.gallery) return;
+    
+    count.textContent = config.gallery.images?.length || 0;
+    list.innerHTML = '';
+    
+    config.gallery.images?.forEach((img, index) => {
+        const div = document.createElement('div');
+        div.style.cssText = 'position: relative; border-radius: 8px; overflow: hidden; cursor: pointer;';
+        div.onclick = () => editGalleryImage(index);
+        div.innerHTML = `
+            <img src="${img.src || img}" alt="${img.alt || 'Gallery image'}" style="width: 100%; height: 200px; object-fit: cover; display: block;">
+            <div style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.7); color: white; padding: 0.5rem; font-size: 0.75rem;">
+                ${img.tag ? 'Tag: ' + img.tag : 'No tag'} ${img.bts ? '• BTS' : ''}
+            </div>
+        `;
+        list.appendChild(div);
+    });
+}
+
+function renderProjectTags() {
+    const container = document.getElementById('projectTagsList');
+    const select = document.getElementById('editImageTag');
+    if (!container || !select) return;
+    
+    container.innerHTML = '';
+    select.innerHTML = '<option value="">-- Select Project --</option>';
+    
+    config.selectedWorks?.forEach(project => {
+        // Add to tags list
+        const tag = document.createElement('span');
+        tag.style.cssText = 'background: #0071e3; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem;';
+        tag.textContent = project.title;
+        container.appendChild(tag);
+        
+        // Add to select
+        const option = document.createElement('option');
+        option.value = project.title;
+        option.textContent = project.title;
+        select.appendChild(option);
+    });
+}
+
+function uploadGalleryImages(event) {
+    const files = event.target.files;
+    if (!files.length) return;
+    
+    Array.from(files).forEach(file => {
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        fetch('/api/upload', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${authToken}` },
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                if (!config.gallery) config.gallery = { images: [], bts: [] };
+                config.gallery.images.push({
+                    src: data.assetsPath || data.path,
+                    tag: '',
+                    bts: false,
+                    alt: file.name
+                });
+                renderGallery();
                 markChanged();
             }
-        }
+        });
+    });
+}
+
+function editGalleryImage(index) {
+    const img = config.gallery.images[index];
+    document.getElementById('editImagePreview').src = img.src || img;
+    document.getElementById('editImageTag').value = img.tag || '';
+    document.getElementById('editImageBts').className = `toggle ${img.bts ? 'active' : ''}`;
+    window.editingGalleryIndex = index;
+    document.getElementById('galleryImageModal').classList.add('active');
+}
+
+function closeGalleryImageModal() {
+    document.getElementById('galleryImageModal').classList.remove('active');
+}
+
+function toggleBts() {
+    const toggle = document.getElementById('editImageBts');
+    toggle.classList.toggle('active');
+}
+
+function saveGalleryImageDetails() {
+    const index = window.editingGalleryIndex;
+    if (index === undefined) return;
+    
+    config.gallery.images[index].tag = document.getElementById('editImageTag').value;
+    config.gallery.images[index].bts = document.getElementById('editImageBts').classList.contains('active');
+    
+    renderGallery();
+    closeGalleryImageModal();
+    markChanged();
+}
+
+function deleteGalleryImage() {
+    const index = window.editingGalleryIndex;
+    if (index === undefined) return;
+    
+    if (confirm('Delete this image?')) {
+        config.gallery.images.splice(index, 1);
+        renderGallery();
+        closeGalleryImageModal();
+        markChanged();
+    }
+}
+
+// Vimeo preview
+function updateVimeoPreview() {
+    const urlInput = document.getElementById('showreelUrl');
+    const player = document.getElementById('vimeoPlayer');
+    if (!urlInput || !player) return;
+    
+    const url = urlInput.value;
+    const vimeoId = url.match(/video\/(\d+)/)?.[1] || url.match(/vimeo\.com\/(\d+)/)?.[1];
+    
+    if (vimeoId) {
+        player.src = `https://player.vimeo.com/video/${vimeoId}?h=${url.split('h=')[1]?.split('&')[0] || ''}&title=0&byline=0&portrait=0&autoplay=0`;
+    }
+}
+
+// Add event listener for Vimeo URL changes
+setTimeout(() => {
+    const urlInput = document.getElementById('showreelUrl');
+    if (urlInput) {
+        urlInput.addEventListener('input', updateVimeoPreview);
+    }
+}, 1000);
 
         function editSocial(index) {
             const link = config.footer.socialLinks[index];
