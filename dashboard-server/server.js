@@ -9,7 +9,7 @@ const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 
 const app = express();
-const PORT = 5001; // Changed to avoid conflicts with firecrawl (3002) and other services
+const PORT = 5001; // Dashboard server port
 const JWT_SECRET = 'joel-portfolio-secret-key-change-in-production';
 
 // Middleware
@@ -161,10 +161,7 @@ app.post('/api/login', (req, res) => {
   const { password } = req.body;
   
   if (bcrypt.compareSync(password, PASSWORD_HASH)) {
-    const token = jwt.verify(
-      jwt.sign({ user: 'admin' }, JWT_SECRET, { expiresIn: '24h' }),
-      JWT_SECRET
-    );
+    const token = jwt.sign({ user: 'admin' }, JWT_SECRET, { expiresIn: '24h' });
     res.json({ token, success: true });
   } else {
     res.status(401).json({ error: 'Invalid password' });

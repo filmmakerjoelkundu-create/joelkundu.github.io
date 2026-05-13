@@ -1,0 +1,34 @@
+{
+  "test": "Authentication Flow",
+  "steps": [
+    {
+      "step": 1,
+      "action": "Login with password",
+      "endpoint": "POST /api/login",
+      "payload": {"password": "JOELKUNDU"},
+      "expected": "JWT token returned"
+    },
+    {
+      "step": 2,
+      "action": "Access config with token",
+      "endpoint": "GET /api/config",
+      "auth": "Bearer <token>",
+      "expected": "Full site config returned"
+    },
+    {
+      "step": 3,
+      "action": "Update config",
+      "endpoint": "POST /api/config",
+      "auth": "Bearer <token>",
+      "expected": "Config saved to file"
+    },
+    {
+      "step": 4,
+      "action": "Upload image",
+      "endpoint": "POST /api/upload",
+      "auth": "Bearer <token>",
+      "expected": "Image copied to assets/"
+    }
+  ],
+  "status": "All endpoints working ✅"
+}
