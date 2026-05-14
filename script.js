@@ -253,7 +253,6 @@ const passwordContainer = document.querySelector('.password-container');
 // SHA-256 hash of the password (JOELKUNDU)
 const PASSWORD_HASH = '3eafffb953d3f55fb134b6854dea019bbb2f091f32faa7666c1871d5fc171fe7';
 
-// SHA-256 hashing function
 async function sha256(message) {
     const msgBuffer = new TextEncoder().encode(message);
     const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
@@ -1410,7 +1409,6 @@ galleryGrid.innerHTML = '';
  }
 }
 
-// Helper function to add gallery items with fade-in
 function addGalleryItems(items) {
   items.forEach((imgData, index) => {
     const item = document.createElement('div');

@@ -1,8 +1,8 @@
 # 🔍 COMPREHENSIVE SECURITY & CODE QUALITY AUDIT
 
-**Audit Date:** 2026-05-14T02:39:58.451Z
+**Audit Date:** 2026-05-14T02:46:27.333Z
 **Files Analyzed:** 4
-**Total Issues Found:** 531
+**Total Issues Found:** 367
 
 ---
 
@@ -10,9 +10,9 @@
 
 | Category | Critical | High | Medium | Low | Info | Total |
 |----------|----------|------|--------|-----|------|-------|
-| Security | 4 | 2 | 1 | 0 | 0 | 7 |
+| Security | 4 | 1 | 1 | 0 | 0 | 6 |
 | Coding | 0 | 0 | 0 | 26 | 0 | 26 |
-| DeadCode | 0 | 0 | 0 | 498 | 0 | 498 |
+| DeadCode | 0 | 0 | 0 | 335 | 0 | 335 |
 | Redundant | 0 | 0 | 0 | 0 | 0 | 0 |
 | Performance | 0 | 0 | 0 | 0 | 0 | 0 |
 | BestPractices | 0 | 0 | 0 | 0 | 0 | 0 |
@@ -57,12 +57,6 @@
 - **Recommendation:** Use environment variables for API keys
 
 
-### Use of eval() or Function() constructor
-- **File:** index.html:1203
-- **Severity:** HIGH
-- **Recommendation:** Avoid eval - use safe alternatives
-
-
 ---
 
 ## 📝 MEDIUM SEVERITY ISSUES
@@ -85,24 +79,24 @@
 - [script.js:74] Console logging in production code - Remove or use a logging library with levels
 - [script.js:84] Console logging in production code - Remove or use a logging library with levels
 - [script.js:239] Console logging in production code - Remove or use a logging library with levels
-- [script.js:381] Console logging in production code - Remove or use a logging library with levels
-- [script.js:554] Console logging in production code - Remove or use a logging library with levels
-- [script.js:849] Console logging in production code - Remove or use a logging library with levels
-- [script.js:853] Console logging in production code - Remove or use a logging library with levels
-- [script.js:886] Console logging in production code - Remove or use a logging library with levels
-- [script.js:916] Console logging in production code - Remove or use a logging library with levels
-- [script.js:956] Console logging in production code - Remove or use a logging library with levels
-- [script.js:965] Console logging in production code - Remove or use a logging library with levels
-- [script.js:1385] Console logging in production code - Remove or use a logging library with levels
-- [script.js:1403] Console logging in production code - Remove or use a logging library with levels
-- [script.js:1748] Console logging in production code - Remove or use a logging library with levels
+- [script.js:380] Console logging in production code - Remove or use a logging library with levels
+- [script.js:553] Console logging in production code - Remove or use a logging library with levels
+- [script.js:848] Console logging in production code - Remove or use a logging library with levels
+- [script.js:852] Console logging in production code - Remove or use a logging library with levels
+- [script.js:885] Console logging in production code - Remove or use a logging library with levels
+- [script.js:915] Console logging in production code - Remove or use a logging library with levels
+- [script.js:955] Console logging in production code - Remove or use a logging library with levels
+- [script.js:964] Console logging in production code - Remove or use a logging library with levels
+- [script.js:1384] Console logging in production code - Remove or use a logging library with levels
+- [script.js:1402] Console logging in production code - Remove or use a logging library with levels
+- [script.js:1746] Console logging in production code - Remove or use a logging library with levels
+- [script.js:2001] Console logging in production code - Remove or use a logging library with levels
+- [script.js:2002] Console logging in production code - Remove or use a logging library with levels
 - [script.js:2003] Console logging in production code - Remove or use a logging library with levels
 - [script.js:2004] Console logging in production code - Remove or use a logging library with levels
 - [script.js:2005] Console logging in production code - Remove or use a logging library with levels
 - [script.js:2006] Console logging in production code - Remove or use a logging library with levels
 - [script.js:2007] Console logging in production code - Remove or use a logging library with levels
-- [script.js:2008] Console logging in production code - Remove or use a logging library with levels
-- [script.js:2009] Console logging in production code - Remove or use a logging library with levels
 
 ---
 
@@ -153,167 +147,6 @@
 - [server.js:292] Commented out code
 - [server.js:293] Commented out code
 - [server.js:296] Commented out code
-- [index.html:661] Commented out code
-- [index.html:662] Commented out code
-- [index.html:663] Commented out code
-- [index.html:668] Commented out code
-- [index.html:670] Commented out code
-- [index.html:675] Commented out code
-- [index.html:692] Commented out code
-- [index.html:740] Commented out code
-- [index.html:742] Commented out code
-- [index.html:750] Commented out code
-- [index.html:752] Commented out code
-- [index.html:755] Commented out code
-- [index.html:763] Commented out code
-- [index.html:766] Commented out code
-- [index.html:774] Commented out code
-- [index.html:777] Commented out code
-- [index.html:778] Commented out code
-- [index.html:779] Commented out code
-- [index.html:796] Commented out code
-- [index.html:799] Commented out code
-- [index.html:817] Commented out code
-- [index.html:820] Commented out code
-- [index.html:837] Commented out code
-- [index.html:839] Commented out code
-- [index.html:845] Commented out code
-- [index.html:852] Commented out code
-- [index.html:863] Commented out code
-- [index.html:865] Commented out code
-- [index.html:869] Commented out code
-- [index.html:871] Commented out code
-- [index.html:874] Commented out code
-- [index.html:879] Commented out code
-- [index.html:946] Commented out code
-- [index.html:956] Commented out code
-- [index.html:974] Commented out code
-- [index.html:975] Commented out code
-- [index.html:990] Commented out code
-- [index.html:991] Commented out code
-- [index.html:992] Commented out code
-- [index.html:997] Commented out code
-- [index.html:998] Commented out code
-- [index.html:1015] Commented out code
-- [index.html:1020] Commented out code
-- [index.html:1021] Commented out code
-- [index.html:1022] Commented out code
-- [index.html:1023] Commented out code
-- [index.html:1025] Commented out code
-- [index.html:1026] Commented out code
-- [index.html:1032] Commented out code
-- [index.html:1064] Commented out code
-- [index.html:1069] Commented out code
-- [index.html:1072] Commented out code
-- [index.html:1104] Commented out code
-- [index.html:1111] Commented out code
-- [index.html:1114] Commented out code
-- [index.html:1115] Commented out code
-- [index.html:1129] Commented out code
-- [index.html:1131] Commented out code
-- [index.html:1132] Commented out code
-- [index.html:1174] Commented out code
-- [index.html:1183] Commented out code
-- [index.html:1190] Commented out code
-- [index.html:1191] Commented out code
-- [index.html:1192] Commented out code
-- [index.html:1193] Commented out code
-- [index.html:1194] Commented out code
-- [index.html:1195] Commented out code
-- [index.html:1200] Commented out code
-- [index.html:1202] Commented out code
-- [index.html:1209] Commented out code
-- [index.html:1210] Commented out code
-- [index.html:1212] Commented out code
-- [index.html:1213] Commented out code
-- [index.html:1214] Commented out code
-- [index.html:1215] Commented out code
-- [index.html:1216] Commented out code
-- [index.html:1217] Commented out code
-- [index.html:1236] Commented out code
-- [index.html:1237] Commented out code
-- [index.html:1268] Commented out code
-- [index.html:1269] Commented out code
-- [index.html:1284] Commented out code
-- [index.html:1305] Commented out code
-- [index.html:1349] Commented out code
-- [index.html:1353] Commented out code
-- [index.html:1367] Commented out code
-- [index.html:1368] Commented out code
-- [index.html:1395] Commented out code
-- [index.html:1396] Commented out code
-- [index.html:1399] Commented out code
-- [index.html:1409] Commented out code
-- [index.html:1424] Commented out code
-- [index.html:1425] Commented out code
-- [index.html:1426] Commented out code
-- [index.html:1427] Commented out code
-- [index.html:1429] Commented out code
-- [index.html:1452] Commented out code
-- [index.html:1453] Commented out code
-- [index.html:1457] Commented out code
-- [index.html:1458] Commented out code
-- [index.html:1459] Commented out code
-- [index.html:1460] Commented out code
-- [index.html:1470] Commented out code
-- [index.html:1478] Commented out code
-- [index.html:1486] Commented out code
-- [index.html:1488] Commented out code
-- [index.html:1499] Commented out code
-- [index.html:1504] Commented out code
-- [index.html:1530] Commented out code
-- [index.html:1550] Commented out code
-- [index.html:1556] Commented out code
-- [index.html:1563] Commented out code
-- [index.html:1576] Commented out code
-- [index.html:1578] Commented out code
-- [index.html:1579] Commented out code
-- [index.html:1601] Commented out code
-- [index.html:1633] Commented out code
-- [index.html:1639] Commented out code
-- [index.html:1646] Commented out code
-- [index.html:1657] Commented out code
-- [index.html:1664] Commented out code
-- [index.html:1667] Commented out code
-- [index.html:1671] Commented out code
-- [index.html:1672] Commented out code
-- [index.html:1703] Commented out code
-- [index.html:1706] Commented out code
-- [index.html:1710] Commented out code
-- [index.html:1712] Commented out code
-- [index.html:1744] Commented out code
-- [index.html:1769] Commented out code
-- [index.html:1780] Commented out code
-- [index.html:1785] Commented out code
-- [index.html:1793] Commented out code
-- [index.html:1795] Commented out code
-- [index.html:1814] Commented out code
-- [index.html:1815] Commented out code
-- [index.html:1818] Commented out code
-- [index.html:1819] Commented out code
-- [index.html:1828] Commented out code
-- [index.html:1835] Commented out code
-- [index.html:1862] Commented out code
-- [index.html:1867] Commented out code
-- [index.html:1868] Commented out code
-- [index.html:1869] Commented out code
-- [index.html:1870] Commented out code
-- [index.html:1871] Commented out code
-- [index.html:1873] Commented out code
-- [index.html:1900] Commented out code
-- [index.html:1919] Commented out code
-- [index.html:1952] Commented out code
-- [index.html:1960] Commented out code
-- [index.html:1982] Commented out code
-- [index.html:1983] Commented out code
-- [index.html:1991] Commented out code
-- [index.html:1999] Commented out code
-- [index.html:2017] Commented out code
-- [index.html:2018] Commented out code
-- [index.html:2022] Commented out code
-- [index.html:2029] Commented out code
-- [index.html:2038] Commented out code
-- [index.html:2056] Commented out code
 - [script.js:8] Commented out code
 - [script.js:12] Commented out code
 - [script.js:66] Commented out code
@@ -343,162 +176,162 @@
 - [script.js:250] Commented out code
 - [script.js:251] Commented out code
 - [script.js:254] Commented out code
-- [script.js:256] Commented out code
+- [script.js:257] Commented out code
 - [script.js:258] Commented out code
 - [script.js:259] Commented out code
 - [script.js:260] Commented out code
-- [script.js:261] Commented out code
-- [script.js:267] Commented out code
+- [script.js:266] Commented out code
+- [script.js:268] Commented out code
 - [script.js:269] Commented out code
 - [script.js:270] Commented out code
-- [script.js:271] Commented out code
+- [script.js:280] Commented out code
 - [script.js:281] Commented out code
 - [script.js:282] Commented out code
-- [script.js:283] Commented out code
+- [script.js:291] Commented out code
 - [script.js:292] Commented out code
-- [script.js:293] Commented out code
+- [script.js:323] Commented out code
 - [script.js:324] Commented out code
-- [script.js:325] Commented out code
+- [script.js:343] Commented out code
 - [script.js:344] Commented out code
-- [script.js:345] Commented out code
-- [script.js:348] Commented out code
-- [script.js:352] Commented out code
+- [script.js:347] Commented out code
+- [script.js:351] Commented out code
+- [script.js:356] Commented out code
 - [script.js:357] Commented out code
-- [script.js:358] Commented out code
-- [script.js:390] Commented out code
+- [script.js:389] Commented out code
+- [script.js:398] Commented out code
 - [script.js:399] Commented out code
-- [script.js:400] Commented out code
-- [script.js:403] Commented out code
-- [script.js:408] Commented out code
+- [script.js:402] Commented out code
+- [script.js:407] Commented out code
+- [script.js:417] Commented out code
 - [script.js:418] Commented out code
 - [script.js:419] Commented out code
 - [script.js:420] Commented out code
 - [script.js:421] Commented out code
-- [script.js:422] Commented out code
+- [script.js:432] Commented out code
 - [script.js:433] Commented out code
 - [script.js:434] Commented out code
 - [script.js:435] Commented out code
-- [script.js:436] Commented out code
+- [script.js:448] Commented out code
 - [script.js:449] Commented out code
-- [script.js:450] Commented out code
+- [script.js:457] Commented out code
 - [script.js:458] Commented out code
 - [script.js:459] Commented out code
-- [script.js:460] Commented out code
+- [script.js:461] Commented out code
 - [script.js:462] Commented out code
 - [script.js:463] Commented out code
-- [script.js:464] Commented out code
-- [script.js:468] Commented out code
+- [script.js:467] Commented out code
+- [script.js:474] Commented out code
 - [script.js:475] Commented out code
 - [script.js:476] Commented out code
-- [script.js:477] Commented out code
-- [script.js:481] Commented out code
-- [script.js:497] Commented out code
-- [script.js:500] Commented out code
-- [script.js:507] Commented out code
-- [script.js:510] Commented out code
+- [script.js:480] Commented out code
+- [script.js:496] Commented out code
+- [script.js:499] Commented out code
+- [script.js:506] Commented out code
+- [script.js:509] Commented out code
+- [script.js:525] Commented out code
 - [script.js:526] Commented out code
 - [script.js:527] Commented out code
-- [script.js:528] Commented out code
+- [script.js:556] Commented out code
 - [script.js:557] Commented out code
-- [script.js:558] Commented out code
-- [script.js:561] Commented out code
+- [script.js:560] Commented out code
+- [script.js:565] Commented out code
 - [script.js:566] Commented out code
 - [script.js:567] Commented out code
-- [script.js:568] Commented out code
+- [script.js:569] Commented out code
 - [script.js:570] Commented out code
-- [script.js:571] Commented out code
+- [script.js:572] Commented out code
 - [script.js:573] Commented out code
-- [script.js:574] Commented out code
+- [script.js:580] Commented out code
 - [script.js:581] Commented out code
 - [script.js:582] Commented out code
-- [script.js:583] Commented out code
+- [script.js:584] Commented out code
 - [script.js:585] Commented out code
-- [script.js:586] Commented out code
+- [script.js:587] Commented out code
 - [script.js:588] Commented out code
-- [script.js:589] Commented out code
-- [script.js:605] Commented out code
+- [script.js:604] Commented out code
+- [script.js:608] Commented out code
 - [script.js:609] Commented out code
 - [script.js:610] Commented out code
-- [script.js:611] Commented out code
+- [script.js:612] Commented out code
 - [script.js:613] Commented out code
-- [script.js:614] Commented out code
+- [script.js:615] Commented out code
 - [script.js:616] Commented out code
-- [script.js:617] Commented out code
-- [script.js:628] Commented out code
+- [script.js:627] Commented out code
+- [script.js:631] Commented out code
 - [script.js:632] Commented out code
 - [script.js:633] Commented out code
-- [script.js:634] Commented out code
+- [script.js:635] Commented out code
 - [script.js:636] Commented out code
-- [script.js:637] Commented out code
+- [script.js:638] Commented out code
 - [script.js:639] Commented out code
-- [script.js:640] Commented out code
-- [script.js:651] Commented out code
+- [script.js:650] Commented out code
+- [script.js:654] Commented out code
 - [script.js:655] Commented out code
 - [script.js:656] Commented out code
-- [script.js:657] Commented out code
+- [script.js:658] Commented out code
 - [script.js:659] Commented out code
-- [script.js:660] Commented out code
+- [script.js:661] Commented out code
 - [script.js:662] Commented out code
-- [script.js:663] Commented out code
+- [script.js:673] Commented out code
 - [script.js:674] Commented out code
-- [script.js:675] Commented out code
+- [script.js:678] Commented out code
 - [script.js:679] Commented out code
 - [script.js:680] Commented out code
-- [script.js:681] Commented out code
+- [script.js:683] Commented out code
 - [script.js:684] Commented out code
-- [script.js:685] Commented out code
+- [script.js:686] Commented out code
 - [script.js:687] Commented out code
-- [script.js:688] Commented out code
+- [script.js:703] Commented out code
 - [script.js:704] Commented out code
 - [script.js:705] Commented out code
 - [script.js:706] Commented out code
 - [script.js:707] Commented out code
-- [script.js:708] Commented out code
+- [script.js:734] Commented out code
 - [script.js:735] Commented out code
 - [script.js:736] Commented out code
 - [script.js:737] Commented out code
-- [script.js:738] Commented out code
+- [script.js:748] Commented out code
 - [script.js:749] Commented out code
-- [script.js:750] Commented out code
+- [script.js:751] Commented out code
 - [script.js:752] Commented out code
-- [script.js:753] Commented out code
-- [script.js:776] Commented out code
+- [script.js:775] Commented out code
+- [script.js:804] Commented out code
 - [script.js:805] Commented out code
-- [script.js:806] Commented out code
-- [script.js:810] Commented out code
+- [script.js:809] Commented out code
+- [script.js:813] Commented out code
 - [script.js:814] Commented out code
 - [script.js:815] Commented out code
-- [script.js:816] Commented out code
+- [script.js:817] Commented out code
 - [script.js:818] Commented out code
-- [script.js:819] Commented out code
+- [script.js:821] Commented out code
 - [script.js:822] Commented out code
-- [script.js:823] Commented out code
-- [script.js:847] Commented out code
+- [script.js:846] Commented out code
+- [script.js:854] Commented out code
 - [script.js:855] Commented out code
 - [script.js:856] Commented out code
 - [script.js:857] Commented out code
 - [script.js:858] Commented out code
-- [script.js:859] Commented out code
+- [script.js:897] Commented out code
 - [script.js:898] Commented out code
-- [script.js:899] Commented out code
+- [script.js:922] Commented out code
 - [script.js:923] Commented out code
-- [script.js:924] Commented out code
+- [script.js:927] Commented out code
 - [script.js:928] Commented out code
-- [script.js:929] Commented out code
+- [script.js:945] Commented out code
 - [script.js:946] Commented out code
-- [script.js:947] Commented out code
+- [script.js:973] Commented out code
 - [script.js:974] Commented out code
-- [script.js:975] Commented out code
+- [script.js:978] Commented out code
 - [script.js:979] Commented out code
-- [script.js:980] Commented out code
+- [script.js:988] Commented out code
 - [script.js:989] Commented out code
-- [script.js:990] Commented out code
-- [script.js:1004] Commented out code
-- [script.js:1006] Commented out code
+- [script.js:1003] Commented out code
+- [script.js:1005] Commented out code
+- [script.js:1019] Commented out code
 - [script.js:1020] Commented out code
-- [script.js:1021] Commented out code
-- [script.js:1026] Commented out code
-- [script.js:1041] Commented out code
+- [script.js:1025] Commented out code
+- [script.js:1040] Commented out code
+- [script.js:1134] Commented out code
 - [script.js:1135] Commented out code
 - [script.js:1136] Commented out code
 - [script.js:1137] Commented out code
@@ -506,106 +339,104 @@
 - [script.js:1139] Commented out code
 - [script.js:1140] Commented out code
 - [script.js:1141] Commented out code
-- [script.js:1142] Commented out code
+- [script.js:1148] Commented out code
 - [script.js:1149] Commented out code
-- [script.js:1150] Commented out code
-- [script.js:1155] Commented out code
+- [script.js:1154] Commented out code
+- [script.js:1156] Commented out code
 - [script.js:1157] Commented out code
-- [script.js:1158] Commented out code
-- [script.js:1174] Commented out code
+- [script.js:1173] Commented out code
+- [script.js:1180] Commented out code
 - [script.js:1181] Commented out code
-- [script.js:1182] Commented out code
-- [script.js:1214] Commented out code
-- [script.js:1227] Commented out code
-- [script.js:1258] Commented out code
+- [script.js:1213] Commented out code
+- [script.js:1226] Commented out code
+- [script.js:1257] Commented out code
+- [script.js:1259] Commented out code
 - [script.js:1260] Commented out code
-- [script.js:1261] Commented out code
+- [script.js:1273] Commented out code
 - [script.js:1274] Commented out code
-- [script.js:1275] Commented out code
-- [script.js:1278] Commented out code
-- [script.js:1368] Commented out code
+- [script.js:1277] Commented out code
+- [script.js:1367] Commented out code
+- [script.js:1373] Commented out code
 - [script.js:1374] Commented out code
 - [script.js:1375] Commented out code
-- [script.js:1376] Commented out code
-- [script.js:1379] Commented out code
-- [script.js:1382] Commented out code
-- [script.js:1413] Commented out code
-- [script.js:1416] Commented out code
-- [script.js:1419] Commented out code
-- [script.js:1422] Commented out code
-- [script.js:1429] Commented out code
-- [script.js:1430] Commented out code
-- [script.js:1433] Commented out code
-- [script.js:1434] Commented out code
-- [script.js:1437] Commented out code
-- [script.js:1438] Commented out code
-- [script.js:1441] Commented out code
-- [script.js:1442] Commented out code
-- [script.js:1445] Commented out code
-- [script.js:1446] Commented out code
-- [script.js:1469] Commented out code
-- [script.js:1473] Commented out code
-- [script.js:1474] Commented out code
-- [script.js:1477] Commented out code
-- [script.js:1496] Commented out code
-- [script.js:1508] Commented out code
-- [script.js:1519] Commented out code
-- [script.js:1540] Commented out code
-- [script.js:1579] Commented out code
-- [script.js:1603] Commented out code
-- [script.js:1609] Commented out code
-- [script.js:1612] Commented out code
+- [script.js:1378] Commented out code
+- [script.js:1381] Commented out code
+- [script.js:1414] Commented out code
+- [script.js:1417] Commented out code
+- [script.js:1420] Commented out code
+- [script.js:1427] Commented out code
+- [script.js:1428] Commented out code
+- [script.js:1431] Commented out code
+- [script.js:1432] Commented out code
+- [script.js:1435] Commented out code
+- [script.js:1436] Commented out code
+- [script.js:1439] Commented out code
+- [script.js:1440] Commented out code
+- [script.js:1443] Commented out code
+- [script.js:1444] Commented out code
+- [script.js:1467] Commented out code
+- [script.js:1471] Commented out code
+- [script.js:1472] Commented out code
+- [script.js:1475] Commented out code
+- [script.js:1494] Commented out code
+- [script.js:1506] Commented out code
+- [script.js:1517] Commented out code
+- [script.js:1538] Commented out code
+- [script.js:1577] Commented out code
+- [script.js:1601] Commented out code
+- [script.js:1607] Commented out code
+- [script.js:1610] Commented out code
+- [script.js:1627] Commented out code
+- [script.js:1628] Commented out code
 - [script.js:1629] Commented out code
-- [script.js:1630] Commented out code
-- [script.js:1631] Commented out code
-- [script.js:1638] Commented out code
-- [script.js:1651] Commented out code
-- [script.js:1659] Commented out code
-- [script.js:1663] Commented out code
-- [script.js:1670] Commented out code
-- [script.js:1673] Commented out code
-- [script.js:1679] Commented out code
-- [script.js:1685] Commented out code
-- [script.js:1691] Commented out code
-- [script.js:1697] Commented out code
-- [script.js:1731] Commented out code
-- [script.js:1738] Commented out code
-- [script.js:1739] Commented out code
-- [script.js:1742] Commented out code
-- [script.js:1751] Commented out code
-- [script.js:1752] Commented out code
-- [script.js:1776] Commented out code
-- [script.js:1777] Commented out code
-- [script.js:1801] Commented out code
+- [script.js:1636] Commented out code
+- [script.js:1649] Commented out code
+- [script.js:1657] Commented out code
+- [script.js:1661] Commented out code
+- [script.js:1668] Commented out code
+- [script.js:1671] Commented out code
+- [script.js:1677] Commented out code
+- [script.js:1683] Commented out code
+- [script.js:1689] Commented out code
+- [script.js:1695] Commented out code
+- [script.js:1729] Commented out code
+- [script.js:1736] Commented out code
+- [script.js:1737] Commented out code
+- [script.js:1740] Commented out code
+- [script.js:1749] Commented out code
+- [script.js:1750] Commented out code
+- [script.js:1774] Commented out code
+- [script.js:1775] Commented out code
+- [script.js:1799] Commented out code
+- [script.js:1800] Commented out code
 - [script.js:1802] Commented out code
 - [script.js:1804] Commented out code
-- [script.js:1806] Commented out code
-- [script.js:1843] Commented out code
-- [script.js:1847] Commented out code
-- [script.js:1851] Commented out code
-- [script.js:1876] Commented out code
+- [script.js:1841] Commented out code
+- [script.js:1845] Commented out code
+- [script.js:1849] Commented out code
+- [script.js:1874] Commented out code
+- [script.js:1878] Commented out code
+- [script.js:1879] Commented out code
 - [script.js:1880] Commented out code
-- [script.js:1881] Commented out code
-- [script.js:1882] Commented out code
-- [script.js:1885] Commented out code
-- [script.js:1886] Commented out code
-- [script.js:1905] Commented out code
-- [script.js:1906] Commented out code
-- [script.js:1910] Commented out code
-- [script.js:1911] Commented out code
+- [script.js:1883] Commented out code
+- [script.js:1884] Commented out code
+- [script.js:1903] Commented out code
+- [script.js:1904] Commented out code
+- [script.js:1908] Commented out code
+- [script.js:1909] Commented out code
+- [script.js:1916] Commented out code
+- [script.js:1917] Commented out code
 - [script.js:1918] Commented out code
-- [script.js:1919] Commented out code
-- [script.js:1920] Commented out code
-- [script.js:1936] Commented out code
-- [script.js:1937] Commented out code
-- [script.js:1942] Commented out code
+- [script.js:1934] Commented out code
+- [script.js:1935] Commented out code
+- [script.js:1940] Commented out code
+- [script.js:1944] Commented out code
+- [script.js:1945] Commented out code
 - [script.js:1946] Commented out code
-- [script.js:1947] Commented out code
 - [script.js:1948] Commented out code
-- [script.js:1950] Commented out code
-- [script.js:1951] Commented out code
-- [script.js:1954] Commented out code
-- [script.js:1955] Commented out code
+- [script.js:1949] Commented out code
+- [script.js:1952] Commented out code
+- [script.js:1953] Commented out code
 
 ---
 
@@ -638,13 +469,12 @@ No performance issues found.
 
 ## 📋 DETAILED FINDINGS
 
-### Security Issues: 7
+### Security Issues: 6
 - [CRITICAL] server.js:13 - Hardcoded JWT secret
 - [CRITICAL] server.js:139 - Hardcoded password hash in source code
 - [CRITICAL] server.js:151 - Hardcoded JWT secret
 - [CRITICAL] server.js:164 - Hardcoded JWT secret
 - [HIGH] server.js:296 - API key exposed in code
-- [HIGH] index.html:1203 - Use of eval() or Function() constructor
 - [MEDIUM] server.js:0 - No input sanitization detected
 
 ### Coding Issues: 26
@@ -656,26 +486,26 @@ No performance issues found.
 - [LOW] script.js:74 - Console logging in production code
 - [LOW] script.js:84 - Console logging in production code
 - [LOW] script.js:239 - Console logging in production code
-- [LOW] script.js:381 - Console logging in production code
-- [LOW] script.js:554 - Console logging in production code
-- [LOW] script.js:849 - Console logging in production code
-- [LOW] script.js:853 - Console logging in production code
-- [LOW] script.js:886 - Console logging in production code
-- [LOW] script.js:916 - Console logging in production code
-- [LOW] script.js:956 - Console logging in production code
-- [LOW] script.js:965 - Console logging in production code
-- [LOW] script.js:1385 - Console logging in production code
-- [LOW] script.js:1403 - Console logging in production code
-- [LOW] script.js:1748 - Console logging in production code
+- [LOW] script.js:380 - Console logging in production code
+- [LOW] script.js:553 - Console logging in production code
+- [LOW] script.js:848 - Console logging in production code
+- [LOW] script.js:852 - Console logging in production code
+- [LOW] script.js:885 - Console logging in production code
+- [LOW] script.js:915 - Console logging in production code
+- [LOW] script.js:955 - Console logging in production code
+- [LOW] script.js:964 - Console logging in production code
+- [LOW] script.js:1384 - Console logging in production code
+- [LOW] script.js:1402 - Console logging in production code
+- [LOW] script.js:1746 - Console logging in production code
+- [LOW] script.js:2001 - Console logging in production code
+- [LOW] script.js:2002 - Console logging in production code
 - [LOW] script.js:2003 - Console logging in production code
 - [LOW] script.js:2004 - Console logging in production code
 - [LOW] script.js:2005 - Console logging in production code
 - [LOW] script.js:2006 - Console logging in production code
 - [LOW] script.js:2007 - Console logging in production code
-- [LOW] script.js:2008 - Console logging in production code
-- [LOW] script.js:2009 - Console logging in production code
 
-### Dead Code: 498
+### Dead Code: 335
 - server.js:1 - Commented out code
 - server.js:2 - Commented out code
 - server.js:3 - Commented out code
@@ -721,167 +551,6 @@ No performance issues found.
 - server.js:292 - Commented out code
 - server.js:293 - Commented out code
 - server.js:296 - Commented out code
-- index.html:661 - Commented out code
-- index.html:662 - Commented out code
-- index.html:663 - Commented out code
-- index.html:668 - Commented out code
-- index.html:670 - Commented out code
-- index.html:675 - Commented out code
-- index.html:692 - Commented out code
-- index.html:740 - Commented out code
-- index.html:742 - Commented out code
-- index.html:750 - Commented out code
-- index.html:752 - Commented out code
-- index.html:755 - Commented out code
-- index.html:763 - Commented out code
-- index.html:766 - Commented out code
-- index.html:774 - Commented out code
-- index.html:777 - Commented out code
-- index.html:778 - Commented out code
-- index.html:779 - Commented out code
-- index.html:796 - Commented out code
-- index.html:799 - Commented out code
-- index.html:817 - Commented out code
-- index.html:820 - Commented out code
-- index.html:837 - Commented out code
-- index.html:839 - Commented out code
-- index.html:845 - Commented out code
-- index.html:852 - Commented out code
-- index.html:863 - Commented out code
-- index.html:865 - Commented out code
-- index.html:869 - Commented out code
-- index.html:871 - Commented out code
-- index.html:874 - Commented out code
-- index.html:879 - Commented out code
-- index.html:946 - Commented out code
-- index.html:956 - Commented out code
-- index.html:974 - Commented out code
-- index.html:975 - Commented out code
-- index.html:990 - Commented out code
-- index.html:991 - Commented out code
-- index.html:992 - Commented out code
-- index.html:997 - Commented out code
-- index.html:998 - Commented out code
-- index.html:1015 - Commented out code
-- index.html:1020 - Commented out code
-- index.html:1021 - Commented out code
-- index.html:1022 - Commented out code
-- index.html:1023 - Commented out code
-- index.html:1025 - Commented out code
-- index.html:1026 - Commented out code
-- index.html:1032 - Commented out code
-- index.html:1064 - Commented out code
-- index.html:1069 - Commented out code
-- index.html:1072 - Commented out code
-- index.html:1104 - Commented out code
-- index.html:1111 - Commented out code
-- index.html:1114 - Commented out code
-- index.html:1115 - Commented out code
-- index.html:1129 - Commented out code
-- index.html:1131 - Commented out code
-- index.html:1132 - Commented out code
-- index.html:1174 - Commented out code
-- index.html:1183 - Commented out code
-- index.html:1190 - Commented out code
-- index.html:1191 - Commented out code
-- index.html:1192 - Commented out code
-- index.html:1193 - Commented out code
-- index.html:1194 - Commented out code
-- index.html:1195 - Commented out code
-- index.html:1200 - Commented out code
-- index.html:1202 - Commented out code
-- index.html:1209 - Commented out code
-- index.html:1210 - Commented out code
-- index.html:1212 - Commented out code
-- index.html:1213 - Commented out code
-- index.html:1214 - Commented out code
-- index.html:1215 - Commented out code
-- index.html:1216 - Commented out code
-- index.html:1217 - Commented out code
-- index.html:1236 - Commented out code
-- index.html:1237 - Commented out code
-- index.html:1268 - Commented out code
-- index.html:1269 - Commented out code
-- index.html:1284 - Commented out code
-- index.html:1305 - Commented out code
-- index.html:1349 - Commented out code
-- index.html:1353 - Commented out code
-- index.html:1367 - Commented out code
-- index.html:1368 - Commented out code
-- index.html:1395 - Commented out code
-- index.html:1396 - Commented out code
-- index.html:1399 - Commented out code
-- index.html:1409 - Commented out code
-- index.html:1424 - Commented out code
-- index.html:1425 - Commented out code
-- index.html:1426 - Commented out code
-- index.html:1427 - Commented out code
-- index.html:1429 - Commented out code
-- index.html:1452 - Commented out code
-- index.html:1453 - Commented out code
-- index.html:1457 - Commented out code
-- index.html:1458 - Commented out code
-- index.html:1459 - Commented out code
-- index.html:1460 - Commented out code
-- index.html:1470 - Commented out code
-- index.html:1478 - Commented out code
-- index.html:1486 - Commented out code
-- index.html:1488 - Commented out code
-- index.html:1499 - Commented out code
-- index.html:1504 - Commented out code
-- index.html:1530 - Commented out code
-- index.html:1550 - Commented out code
-- index.html:1556 - Commented out code
-- index.html:1563 - Commented out code
-- index.html:1576 - Commented out code
-- index.html:1578 - Commented out code
-- index.html:1579 - Commented out code
-- index.html:1601 - Commented out code
-- index.html:1633 - Commented out code
-- index.html:1639 - Commented out code
-- index.html:1646 - Commented out code
-- index.html:1657 - Commented out code
-- index.html:1664 - Commented out code
-- index.html:1667 - Commented out code
-- index.html:1671 - Commented out code
-- index.html:1672 - Commented out code
-- index.html:1703 - Commented out code
-- index.html:1706 - Commented out code
-- index.html:1710 - Commented out code
-- index.html:1712 - Commented out code
-- index.html:1744 - Commented out code
-- index.html:1769 - Commented out code
-- index.html:1780 - Commented out code
-- index.html:1785 - Commented out code
-- index.html:1793 - Commented out code
-- index.html:1795 - Commented out code
-- index.html:1814 - Commented out code
-- index.html:1815 - Commented out code
-- index.html:1818 - Commented out code
-- index.html:1819 - Commented out code
-- index.html:1828 - Commented out code
-- index.html:1835 - Commented out code
-- index.html:1862 - Commented out code
-- index.html:1867 - Commented out code
-- index.html:1868 - Commented out code
-- index.html:1869 - Commented out code
-- index.html:1870 - Commented out code
-- index.html:1871 - Commented out code
-- index.html:1873 - Commented out code
-- index.html:1900 - Commented out code
-- index.html:1919 - Commented out code
-- index.html:1952 - Commented out code
-- index.html:1960 - Commented out code
-- index.html:1982 - Commented out code
-- index.html:1983 - Commented out code
-- index.html:1991 - Commented out code
-- index.html:1999 - Commented out code
-- index.html:2017 - Commented out code
-- index.html:2018 - Commented out code
-- index.html:2022 - Commented out code
-- index.html:2029 - Commented out code
-- index.html:2038 - Commented out code
-- index.html:2056 - Commented out code
 - script.js:8 - Commented out code
 - script.js:12 - Commented out code
 - script.js:66 - Commented out code
@@ -911,162 +580,162 @@ No performance issues found.
 - script.js:250 - Commented out code
 - script.js:251 - Commented out code
 - script.js:254 - Commented out code
-- script.js:256 - Commented out code
+- script.js:257 - Commented out code
 - script.js:258 - Commented out code
 - script.js:259 - Commented out code
 - script.js:260 - Commented out code
-- script.js:261 - Commented out code
-- script.js:267 - Commented out code
+- script.js:266 - Commented out code
+- script.js:268 - Commented out code
 - script.js:269 - Commented out code
 - script.js:270 - Commented out code
-- script.js:271 - Commented out code
+- script.js:280 - Commented out code
 - script.js:281 - Commented out code
 - script.js:282 - Commented out code
-- script.js:283 - Commented out code
+- script.js:291 - Commented out code
 - script.js:292 - Commented out code
-- script.js:293 - Commented out code
+- script.js:323 - Commented out code
 - script.js:324 - Commented out code
-- script.js:325 - Commented out code
+- script.js:343 - Commented out code
 - script.js:344 - Commented out code
-- script.js:345 - Commented out code
-- script.js:348 - Commented out code
-- script.js:352 - Commented out code
+- script.js:347 - Commented out code
+- script.js:351 - Commented out code
+- script.js:356 - Commented out code
 - script.js:357 - Commented out code
-- script.js:358 - Commented out code
-- script.js:390 - Commented out code
+- script.js:389 - Commented out code
+- script.js:398 - Commented out code
 - script.js:399 - Commented out code
-- script.js:400 - Commented out code
-- script.js:403 - Commented out code
-- script.js:408 - Commented out code
+- script.js:402 - Commented out code
+- script.js:407 - Commented out code
+- script.js:417 - Commented out code
 - script.js:418 - Commented out code
 - script.js:419 - Commented out code
 - script.js:420 - Commented out code
 - script.js:421 - Commented out code
-- script.js:422 - Commented out code
+- script.js:432 - Commented out code
 - script.js:433 - Commented out code
 - script.js:434 - Commented out code
 - script.js:435 - Commented out code
-- script.js:436 - Commented out code
+- script.js:448 - Commented out code
 - script.js:449 - Commented out code
-- script.js:450 - Commented out code
+- script.js:457 - Commented out code
 - script.js:458 - Commented out code
 - script.js:459 - Commented out code
-- script.js:460 - Commented out code
+- script.js:461 - Commented out code
 - script.js:462 - Commented out code
 - script.js:463 - Commented out code
-- script.js:464 - Commented out code
-- script.js:468 - Commented out code
+- script.js:467 - Commented out code
+- script.js:474 - Commented out code
 - script.js:475 - Commented out code
 - script.js:476 - Commented out code
-- script.js:477 - Commented out code
-- script.js:481 - Commented out code
-- script.js:497 - Commented out code
-- script.js:500 - Commented out code
-- script.js:507 - Commented out code
-- script.js:510 - Commented out code
+- script.js:480 - Commented out code
+- script.js:496 - Commented out code
+- script.js:499 - Commented out code
+- script.js:506 - Commented out code
+- script.js:509 - Commented out code
+- script.js:525 - Commented out code
 - script.js:526 - Commented out code
 - script.js:527 - Commented out code
-- script.js:528 - Commented out code
+- script.js:556 - Commented out code
 - script.js:557 - Commented out code
-- script.js:558 - Commented out code
-- script.js:561 - Commented out code
+- script.js:560 - Commented out code
+- script.js:565 - Commented out code
 - script.js:566 - Commented out code
 - script.js:567 - Commented out code
-- script.js:568 - Commented out code
+- script.js:569 - Commented out code
 - script.js:570 - Commented out code
-- script.js:571 - Commented out code
+- script.js:572 - Commented out code
 - script.js:573 - Commented out code
-- script.js:574 - Commented out code
+- script.js:580 - Commented out code
 - script.js:581 - Commented out code
 - script.js:582 - Commented out code
-- script.js:583 - Commented out code
+- script.js:584 - Commented out code
 - script.js:585 - Commented out code
-- script.js:586 - Commented out code
+- script.js:587 - Commented out code
 - script.js:588 - Commented out code
-- script.js:589 - Commented out code
-- script.js:605 - Commented out code
+- script.js:604 - Commented out code
+- script.js:608 - Commented out code
 - script.js:609 - Commented out code
 - script.js:610 - Commented out code
-- script.js:611 - Commented out code
+- script.js:612 - Commented out code
 - script.js:613 - Commented out code
-- script.js:614 - Commented out code
+- script.js:615 - Commented out code
 - script.js:616 - Commented out code
-- script.js:617 - Commented out code
-- script.js:628 - Commented out code
+- script.js:627 - Commented out code
+- script.js:631 - Commented out code
 - script.js:632 - Commented out code
 - script.js:633 - Commented out code
-- script.js:634 - Commented out code
+- script.js:635 - Commented out code
 - script.js:636 - Commented out code
-- script.js:637 - Commented out code
+- script.js:638 - Commented out code
 - script.js:639 - Commented out code
-- script.js:640 - Commented out code
-- script.js:651 - Commented out code
+- script.js:650 - Commented out code
+- script.js:654 - Commented out code
 - script.js:655 - Commented out code
 - script.js:656 - Commented out code
-- script.js:657 - Commented out code
+- script.js:658 - Commented out code
 - script.js:659 - Commented out code
-- script.js:660 - Commented out code
+- script.js:661 - Commented out code
 - script.js:662 - Commented out code
-- script.js:663 - Commented out code
+- script.js:673 - Commented out code
 - script.js:674 - Commented out code
-- script.js:675 - Commented out code
+- script.js:678 - Commented out code
 - script.js:679 - Commented out code
 - script.js:680 - Commented out code
-- script.js:681 - Commented out code
+- script.js:683 - Commented out code
 - script.js:684 - Commented out code
-- script.js:685 - Commented out code
+- script.js:686 - Commented out code
 - script.js:687 - Commented out code
-- script.js:688 - Commented out code
+- script.js:703 - Commented out code
 - script.js:704 - Commented out code
 - script.js:705 - Commented out code
 - script.js:706 - Commented out code
 - script.js:707 - Commented out code
-- script.js:708 - Commented out code
+- script.js:734 - Commented out code
 - script.js:735 - Commented out code
 - script.js:736 - Commented out code
 - script.js:737 - Commented out code
-- script.js:738 - Commented out code
+- script.js:748 - Commented out code
 - script.js:749 - Commented out code
-- script.js:750 - Commented out code
+- script.js:751 - Commented out code
 - script.js:752 - Commented out code
-- script.js:753 - Commented out code
-- script.js:776 - Commented out code
+- script.js:775 - Commented out code
+- script.js:804 - Commented out code
 - script.js:805 - Commented out code
-- script.js:806 - Commented out code
-- script.js:810 - Commented out code
+- script.js:809 - Commented out code
+- script.js:813 - Commented out code
 - script.js:814 - Commented out code
 - script.js:815 - Commented out code
-- script.js:816 - Commented out code
+- script.js:817 - Commented out code
 - script.js:818 - Commented out code
-- script.js:819 - Commented out code
+- script.js:821 - Commented out code
 - script.js:822 - Commented out code
-- script.js:823 - Commented out code
-- script.js:847 - Commented out code
+- script.js:846 - Commented out code
+- script.js:854 - Commented out code
 - script.js:855 - Commented out code
 - script.js:856 - Commented out code
 - script.js:857 - Commented out code
 - script.js:858 - Commented out code
-- script.js:859 - Commented out code
+- script.js:897 - Commented out code
 - script.js:898 - Commented out code
-- script.js:899 - Commented out code
+- script.js:922 - Commented out code
 - script.js:923 - Commented out code
-- script.js:924 - Commented out code
+- script.js:927 - Commented out code
 - script.js:928 - Commented out code
-- script.js:929 - Commented out code
+- script.js:945 - Commented out code
 - script.js:946 - Commented out code
-- script.js:947 - Commented out code
+- script.js:973 - Commented out code
 - script.js:974 - Commented out code
-- script.js:975 - Commented out code
+- script.js:978 - Commented out code
 - script.js:979 - Commented out code
-- script.js:980 - Commented out code
+- script.js:988 - Commented out code
 - script.js:989 - Commented out code
-- script.js:990 - Commented out code
-- script.js:1004 - Commented out code
-- script.js:1006 - Commented out code
+- script.js:1003 - Commented out code
+- script.js:1005 - Commented out code
+- script.js:1019 - Commented out code
 - script.js:1020 - Commented out code
-- script.js:1021 - Commented out code
-- script.js:1026 - Commented out code
-- script.js:1041 - Commented out code
+- script.js:1025 - Commented out code
+- script.js:1040 - Commented out code
+- script.js:1134 - Commented out code
 - script.js:1135 - Commented out code
 - script.js:1136 - Commented out code
 - script.js:1137 - Commented out code
@@ -1074,106 +743,104 @@ No performance issues found.
 - script.js:1139 - Commented out code
 - script.js:1140 - Commented out code
 - script.js:1141 - Commented out code
-- script.js:1142 - Commented out code
+- script.js:1148 - Commented out code
 - script.js:1149 - Commented out code
-- script.js:1150 - Commented out code
-- script.js:1155 - Commented out code
+- script.js:1154 - Commented out code
+- script.js:1156 - Commented out code
 - script.js:1157 - Commented out code
-- script.js:1158 - Commented out code
-- script.js:1174 - Commented out code
+- script.js:1173 - Commented out code
+- script.js:1180 - Commented out code
 - script.js:1181 - Commented out code
-- script.js:1182 - Commented out code
-- script.js:1214 - Commented out code
-- script.js:1227 - Commented out code
-- script.js:1258 - Commented out code
+- script.js:1213 - Commented out code
+- script.js:1226 - Commented out code
+- script.js:1257 - Commented out code
+- script.js:1259 - Commented out code
 - script.js:1260 - Commented out code
-- script.js:1261 - Commented out code
+- script.js:1273 - Commented out code
 - script.js:1274 - Commented out code
-- script.js:1275 - Commented out code
-- script.js:1278 - Commented out code
-- script.js:1368 - Commented out code
+- script.js:1277 - Commented out code
+- script.js:1367 - Commented out code
+- script.js:1373 - Commented out code
 - script.js:1374 - Commented out code
 - script.js:1375 - Commented out code
-- script.js:1376 - Commented out code
-- script.js:1379 - Commented out code
-- script.js:1382 - Commented out code
-- script.js:1413 - Commented out code
-- script.js:1416 - Commented out code
-- script.js:1419 - Commented out code
-- script.js:1422 - Commented out code
-- script.js:1429 - Commented out code
-- script.js:1430 - Commented out code
-- script.js:1433 - Commented out code
-- script.js:1434 - Commented out code
-- script.js:1437 - Commented out code
-- script.js:1438 - Commented out code
-- script.js:1441 - Commented out code
-- script.js:1442 - Commented out code
-- script.js:1445 - Commented out code
-- script.js:1446 - Commented out code
-- script.js:1469 - Commented out code
-- script.js:1473 - Commented out code
-- script.js:1474 - Commented out code
-- script.js:1477 - Commented out code
-- script.js:1496 - Commented out code
-- script.js:1508 - Commented out code
-- script.js:1519 - Commented out code
-- script.js:1540 - Commented out code
-- script.js:1579 - Commented out code
-- script.js:1603 - Commented out code
-- script.js:1609 - Commented out code
-- script.js:1612 - Commented out code
+- script.js:1378 - Commented out code
+- script.js:1381 - Commented out code
+- script.js:1414 - Commented out code
+- script.js:1417 - Commented out code
+- script.js:1420 - Commented out code
+- script.js:1427 - Commented out code
+- script.js:1428 - Commented out code
+- script.js:1431 - Commented out code
+- script.js:1432 - Commented out code
+- script.js:1435 - Commented out code
+- script.js:1436 - Commented out code
+- script.js:1439 - Commented out code
+- script.js:1440 - Commented out code
+- script.js:1443 - Commented out code
+- script.js:1444 - Commented out code
+- script.js:1467 - Commented out code
+- script.js:1471 - Commented out code
+- script.js:1472 - Commented out code
+- script.js:1475 - Commented out code
+- script.js:1494 - Commented out code
+- script.js:1506 - Commented out code
+- script.js:1517 - Commented out code
+- script.js:1538 - Commented out code
+- script.js:1577 - Commented out code
+- script.js:1601 - Commented out code
+- script.js:1607 - Commented out code
+- script.js:1610 - Commented out code
+- script.js:1627 - Commented out code
+- script.js:1628 - Commented out code
 - script.js:1629 - Commented out code
-- script.js:1630 - Commented out code
-- script.js:1631 - Commented out code
-- script.js:1638 - Commented out code
-- script.js:1651 - Commented out code
-- script.js:1659 - Commented out code
-- script.js:1663 - Commented out code
-- script.js:1670 - Commented out code
-- script.js:1673 - Commented out code
-- script.js:1679 - Commented out code
-- script.js:1685 - Commented out code
-- script.js:1691 - Commented out code
-- script.js:1697 - Commented out code
-- script.js:1731 - Commented out code
-- script.js:1738 - Commented out code
-- script.js:1739 - Commented out code
-- script.js:1742 - Commented out code
-- script.js:1751 - Commented out code
-- script.js:1752 - Commented out code
-- script.js:1776 - Commented out code
-- script.js:1777 - Commented out code
-- script.js:1801 - Commented out code
+- script.js:1636 - Commented out code
+- script.js:1649 - Commented out code
+- script.js:1657 - Commented out code
+- script.js:1661 - Commented out code
+- script.js:1668 - Commented out code
+- script.js:1671 - Commented out code
+- script.js:1677 - Commented out code
+- script.js:1683 - Commented out code
+- script.js:1689 - Commented out code
+- script.js:1695 - Commented out code
+- script.js:1729 - Commented out code
+- script.js:1736 - Commented out code
+- script.js:1737 - Commented out code
+- script.js:1740 - Commented out code
+- script.js:1749 - Commented out code
+- script.js:1750 - Commented out code
+- script.js:1774 - Commented out code
+- script.js:1775 - Commented out code
+- script.js:1799 - Commented out code
+- script.js:1800 - Commented out code
 - script.js:1802 - Commented out code
 - script.js:1804 - Commented out code
-- script.js:1806 - Commented out code
-- script.js:1843 - Commented out code
-- script.js:1847 - Commented out code
-- script.js:1851 - Commented out code
-- script.js:1876 - Commented out code
+- script.js:1841 - Commented out code
+- script.js:1845 - Commented out code
+- script.js:1849 - Commented out code
+- script.js:1874 - Commented out code
+- script.js:1878 - Commented out code
+- script.js:1879 - Commented out code
 - script.js:1880 - Commented out code
-- script.js:1881 - Commented out code
-- script.js:1882 - Commented out code
-- script.js:1885 - Commented out code
-- script.js:1886 - Commented out code
-- script.js:1905 - Commented out code
-- script.js:1906 - Commented out code
-- script.js:1910 - Commented out code
-- script.js:1911 - Commented out code
+- script.js:1883 - Commented out code
+- script.js:1884 - Commented out code
+- script.js:1903 - Commented out code
+- script.js:1904 - Commented out code
+- script.js:1908 - Commented out code
+- script.js:1909 - Commented out code
+- script.js:1916 - Commented out code
+- script.js:1917 - Commented out code
 - script.js:1918 - Commented out code
-- script.js:1919 - Commented out code
-- script.js:1920 - Commented out code
-- script.js:1936 - Commented out code
-- script.js:1937 - Commented out code
-- script.js:1942 - Commented out code
+- script.js:1934 - Commented out code
+- script.js:1935 - Commented out code
+- script.js:1940 - Commented out code
+- script.js:1944 - Commented out code
+- script.js:1945 - Commented out code
 - script.js:1946 - Commented out code
-- script.js:1947 - Commented out code
 - script.js:1948 - Commented out code
-- script.js:1950 - Commented out code
-- script.js:1951 - Commented out code
-- script.js:1954 - Commented out code
-- script.js:1955 - Commented out code
+- script.js:1949 - Commented out code
+- script.js:1952 - Commented out code
+- script.js:1953 - Commented out code
 
 ### Redundant Code: 0
 
@@ -1186,5 +853,5 @@ No performance issues found.
 
 ---
 
-**Audit Completed:** 2026-05-14T02:39:58.452Z
+**Audit Completed:** 2026-05-14T02:46:27.334Z
 **Auditor:** Hermes Code Quality Analyzer
