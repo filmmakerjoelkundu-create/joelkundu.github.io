@@ -1,17 +1,22 @@
-# Large video files
-assets/video/*.mov
-assets/video/*.mp4
-assets/video/*.avi
+# Dependencies
+node_modules/
 
-# Keep the folder structure but ignore large files
-!assets/video/.gitkeep
+# Uploads (processed to assets/images)
+uploads/
 
-# Other common ignores
+# Logs
+*.log
+
+# OS
 .DS_Store
 Thumbs.db
-*.log
-node_modules/
+
+# Env
+.env
+.env.local
+
+# Archive (old docs)
+.cleanup_archive/
 
 # Netlify
 .netlify/
-netlify.toml.bak

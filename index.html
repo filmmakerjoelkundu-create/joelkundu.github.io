@@ -304,7 +304,7 @@
                 <p>A selection of my best work</p>
             </div>
 
-            <div class="reel-container">
+            <div class="reel-container" id="showreelContainer">
                 <div class="reel-frame">
 <iframe 
 src="https://player.vimeo.com/video/1132983429?h=2a3b4c5d6e&title=0&byline=0&portrait=0" 
@@ -371,7 +371,7 @@ allowfullscreen>
                 <p>What I can do for you</p>
             </div>
 
-            <div class="services-grid">
+            <div class="services-grid services-list">
                 <div class="service-card retro-card">
                     <div class="service-icon">📷</div>
                     <h3>Cinematography</h3>
@@ -431,7 +431,11 @@ allowfullscreen>
  <div class="contact-details">
  <div class="contact-item">
  <span class="contact-icon">📧</span>
- <a href="mailto:filmmaker.joelkundu@gmail.com">filmmaker.joelkundu@gmail.com</a>
+ <a href="mailto:filmmaker.joelkundu@gmail.com" class="contact-email">filmmaker.joelkundu@gmail.com</a>
+ </div>
+ <div class="contact-item" style="display:none;">
+ <span class="contact-icon">📍</span>
+ <span class="contact-location">London, Ontario, Canada</span>
  </div>
  </div>
                 </div>
@@ -531,8 +535,8 @@ allowfullscreen>
             <div class="footer-content">
                 <div class="footer-section">
                     <img src="assets/logos/Logo.jpg" alt="Joel Kundu" class="footer-logo">
-                    <h3>Joel Kundu</h3>
-                    <p>Cinematographer & Director</p>
+ <h3>Joel Kundu</h3>
+ <p class="footer-tagline">Cinematographer & Director</p>
                 </div>
                 
                 <div class="footer-section">
@@ -608,6 +612,7 @@ allowfullscreen>
     <!-- Coffee Rain Container -->
     <div class="coffee-rain" id="coffeeRain"></div>
 
-    <script src="script.js"></script>
+    <script src="logger.js"></script>
+ <script src="script.js" defer></script>
 </body>
 </html>

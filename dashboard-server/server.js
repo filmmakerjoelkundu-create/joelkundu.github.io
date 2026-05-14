@@ -7,21 +7,26 @@ const fs = require('fs');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
+const { createLogger } = require('./logger');
+
+// Initialize logger
+const logger = createLogger('Server', { level: 'debug' });
 
 const app = express();
-const PORT = 5001; // Changed to 5001
+const PORT = 5001;
 const JWT_SECRET = 'joel-portfolio-secret-key-change-in-production';
+
+// Paths - defined before middleware so express.static can use them
+const ROOT_DIR = path.join(__dirname, '..');
+const CONFIG_DIR = path.join(ROOT_DIR, 'config');
+const CONFIG_FILE = path.join(CONFIG_DIR, 'site-config.json');
+const IMAGES_DIR = path.join(ROOT_DIR, 'assets/images');
 
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
-app.use(express.static('../'));
+app.use(express.static(ROOT_DIR));
 app.use('/dashboard', express.static(__dirname));
-
-// Config file paths
-const CONFIG_DIR = path.join(__dirname, 'config');
-const CONFIG_FILE = path.join(CONFIG_DIR, 'site-config.json');
-const IMAGES_DIR = path.join(__dirname, '../assets/images');
 
 // Ensure config directory exists
 if (!fs.existsSync(CONFIG_DIR)) {
@@ -32,10 +37,11 @@ if (!fs.existsSync(CONFIG_DIR)) {
 function loadConfig() {
   try {
     if (fs.existsSync(CONFIG_FILE)) {
+      logger.debug('Loading config from file');
       return JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
     }
   } catch (error) {
-    console.error('Error loading config:', error);
+    logger.error('Error loading config:', { error: error.message });
   }
   
   // Default config
@@ -201,79 +207,122 @@ assetsPath: `assets/images/${req.file.originalname}`
 // Build endpoint - copies config and assets to live site
 app.post('/api/build', authenticateToken, (req, res) => {
 try {
-const rootDir = path.join(__dirname, '..');
-const liveConfigDir = path.join(rootDir, 'config');
-const liveConfigFile = path.join(liveConfigDir, 'site-config.json');
+  logger.info('Build process started');
+  const rootDir = path.join(__dirname, '..');
+  const liveConfigDir = path.join(rootDir, 'config');
+  const liveConfigFile = path.join(liveConfigDir, 'site-config.json');
 
-// Ensure live config directory exists
-if (!fs.existsSync(liveConfigDir)) {
-fs.mkdirSync(liveConfigDir, { recursive: true });
-}
+  // Ensure live config directory exists
+  if (!fs.existsSync(liveConfigDir)) {
+    logger.debug('Creating live config directory');
+    fs.mkdirSync(liveConfigDir, { recursive: true });
+  }
 
-// Copy config file
-const currentConfig = JSON.stringify(siteConfig, null, 2);
-fs.writeFileSync(liveConfigFile, currentConfig, 'utf8');
+  // Copy config file
+  const currentConfig = JSON.stringify(siteConfig, null, 2);
+  fs.writeFileSync(liveConfigFile, currentConfig, 'utf8');
+  logger.debug('Config file copied to live directory');
 
-// Copy uploads to assets if needed
-const uploadsDir = path.join(__dirname, '../uploads');
-const assetsDir = path.join(__dirname, '../assets/images');
-if (fs.existsSync(uploadsDir)) {
-const uploadFiles = fs.readdirSync(uploadsDir);
-uploadFiles.forEach(file => {
-const src = path.join(uploadsDir, file);
-const dest = path.join(assetsDir, file);
-if (!fs.existsSync(dest)) {
-fs.copyFileSync(src, dest);
-}
-});
-}
+  // Copy uploads to assets if needed
+  const uploadsDir = path.join(__dirname, '../uploads');
+  const assetsDir = path.join(__dirname, '../assets/images');
+  if (fs.existsSync(uploadsDir)) {
+    const uploadFiles = fs.readdirSync(uploadsDir);
+    let copiedCount = 0;
+    uploadFiles.forEach(file => {
+      const src = path.join(uploadsDir, file);
+      const dest = path.join(assetsDir, file);
+      if (!fs.existsSync(dest)) {
+        fs.copyFileSync(src, dest);
+        copiedCount++;
+      }
+    });
+    if (copiedCount > 0) {
+      logger.info(`Copied ${copiedCount} files to assets directory`);
+    }
+  }
 
-res.json({ success: true, message: 'Build completed successfully' });
+  logger.info('Build completed successfully');
+  res.json({ success: true, message: 'Build completed successfully' });
 } catch (error) {
-console.error('Build error:', error);
-res.status(500).json({ error: error.message });
+  logger.error('Build failed:', { error: error.message, stack: error.stack });
+  res.status(500).json({ error: error.message });
 }
 });
 
-// Push endpoint - commits and pushes to GitHub
-app.post('/api/push', authenticateToken, (req, res) => {
-const { message = 'Update from dashboard' } = req.body;
+// Git branch list endpoint
+app.get('/api/branches', authenticateToken, (req, res) => {
 const { exec } = require('child_process');
 const rootDir = path.join(__dirname, '..');
 
-// Check for changes
-exec('git status --porcelain', { cwd: rootDir }, (err, stdout) => {
+exec('git branch', { cwd: rootDir }, (err, stdout) => {
 if (err) {
-return res.status(500).json({ error: 'Git status failed: ' + err.message });
+logger.error('Git branch failed:', { error: err.message });
+return res.status(500).json({ error: 'Git branch failed: ' + err.message });
 }
+const branches = stdout.split('\n').filter(b => b.trim()).map(b => b.trim());
+res.json({ success: true, branches });
+});
+});
 
-if (!stdout.trim()) {
-// No changes to commit
-return res.json({ success: true, message: 'No changes to push' });
-}
+// Git add endpoint
+app.post('/api/git/add', authenticateToken, (req, res) => {
+const { exec } = require('child_process');
+const rootDir = path.join(__dirname, '..');
 
-// Add all changes
-exec('git add -A', { cwd: rootDir }, (err) => {
-if (err) return res.status(500).json({ error: 'Git add failed: ' + err.message });
-
-// Commit
-exec(`git commit -m "${message}"`, { cwd: rootDir }, (err) => {
+exec('git add -A', { cwd: rootDir }, (err, stdout, stderr) => {
 if (err) {
-// Commit might fail if nothing to commit, which is OK
-console.log('Commit note:', err.message);
+logger.error('Git add failed:', { error: err.message });
+return res.status(500).json({ output: 'Error: ' + stderr });
+}
+res.json({ output: 'Staged all changes\\n' });
+});
+});
+
+// Git commit endpoint
+app.post('/api/git/commit', authenticateToken, (req, res) => {
+const { exec } = require('child_process');
+const rootDir = path.join(__dirname, '..');
+const { message } = req.body;
+
+if (!message) {
+return res.status(400).json({ output: 'Error: Commit message required\\n' });
 }
 
-// Push to main
-exec('git push origin main', { cwd: rootDir }, (err, stdout, stderr) => {
-if (err) {
-return res.status(500).json({ error: 'Push failed: ' + stderr });
+exec(`git commit -m "${message}"`, { cwd: rootDir }, (err, stdout, stderr) => {
+if (err && !stderr.includes('nothing to commit')) {
+logger.error('Git commit failed:', { error: stderr });
+return res.status(500).json({ output: 'Error: ' + stderr });
 }
-res.json({ success: true, message: 'Successfully pushed to GitHub!' });
+res.json({ output: stderr || 'Committed successfully\\n' });
 });
 });
+
+// Git push endpoint
+app.post('/api/git/push', authenticateToken, (req, res) => {
+const { exec } = require('child_process');
+const rootDir = path.join(__dirname, '..');
+const { branch } = req.body;
+
+if (!branch) {
+return res.status(400).json({ output: 'Error: Branch name required\\n' });
+}
+
+exec(`git push origin ${branch}`, { cwd: rootDir }, (err, stdout, stderr) => {
+if (err) {
+logger.error('Git push failed:', { error: stderr });
+return res.status(500).json({ output: 'Error: ' + stderr });
+}
+logger.info('Successfully pushed to ' + branch);
+res.json({ output: stdout || 'Pushed successfully\\n' });
 });
 });
-});
+
+// Old push endpoint - kept for backward compatibility but deprecated
+// app.post('/api/push', ...) - REMOVED, use /api/git/push instead
+
+// Push endpoint - commits and pushes to GitHub - DEPRECATED
+// app.post('/api/push', authenticateToken, (req, res) => { ... });
 
 // IMDB data fetch (using OMDB API)
 app.get('/api/imdb', authenticateToken, async (req, res) => {
@@ -301,6 +350,6 @@ app.get('/api/imdb', authenticateToken, async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🎬 Dashboard server running at http://localhost:${PORT}/dashboard/`);
-  console.log('📁 Config directory:', CONFIG_DIR);
+  logger.info(`Dashboard server running at http://localhost:${PORT}/dashboard/`);
+  logger.debug(`Config directory: ${CONFIG_DIR}`);
 });

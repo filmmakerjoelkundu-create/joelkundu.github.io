@@ -2,6 +2,30 @@
 // CINEMATOGRAPHER PORTFOLIO - JOEL KUNDU
 // ============================================
 
+// Logger will be initialized after logger.js loads
+let clientLogger;
+
+// Initialize logger when logger.js is available
+function initializeLogger() {
+  if (typeof createLogger === 'function') {
+    clientLogger = createLogger('Portfolio', { 
+      level: window.location.hostname === 'localhost' ? 'debug' : 'error'
+    });
+    clientLogger.info('Logger initialized');
+  } else {
+    // Fallback if logger not loaded
+    clientLogger = {
+      debug: () => {},
+      info: () => {},
+      warn: console.warn,
+      error: console.error
+    };
+  }
+}
+
+// Auto-initialize
+initializeLogger();
+
 // ============================================
 // CONFIG LOADING - Fetch from dashboard-generated config
 // ============================================
@@ -9,14 +33,14 @@ let siteConfig = null;
 
 async function loadSiteConfig() {
 try {
-const response = await fetch('config/site-config.json');
+const response = await fetch('config/site-config.json?t=' + Date.now());
 if (!response.ok) throw new Error('Config not found');
 siteConfig = await response.json();
-console.log('✅ Config loaded successfully');
+clientLogger.debug('Config loaded successfully');
 updateHeroFromConfig();
 return true;
 } catch (error) {
-console.warn('⚠️ Using fallback config (config file not found or invalid)');
+clientLogger.warn('Using fallback config (config file not found or invalid)');
 siteConfig = getFallbackConfig();
 return false;
 }
@@ -65,15 +89,14 @@ if (!siteConfig?.hero) return;
 // Update title and tagline
 const titleEl = document.querySelector('.hero h1');
 const taglineEl = document.querySelector('.hero .tagline');
-const aboutHeader = document.querySelector('.about h2');
 
 if (titleEl) titleEl.textContent = siteConfig.hero.name || 'Joel Kundu';
 if (taglineEl) taglineEl.textContent = siteConfig.hero.tagline || 'Cinematographer & Director';
-if (aboutHeader) aboutHeader.textContent = siteConfig.about?.header || 'About Me';
 
-console.log('🎨 Hero section updated from config');
+clientLogger.debug('Hero section updated from config');
 
 // Update all sections
+updateAbout();
 updateSelectedWorks();
 updateGallery();
 updateContact();
@@ -81,7 +104,40 @@ updateFooter();
 updateServices();
 updateShowreel();
 
-console.log('✅ All sections updated from config');
+clientLogger.debug('All sections updated from config');
+}
+
+// Render About section from config
+function updateAbout() {
+if (!siteConfig?.about) return;
+
+const aboutHeader = document.querySelector('.about h2');
+const aboutTagline = document.querySelector('.about .section-header p');
+const aboutTextContainer = document.querySelector('.about .about-text');
+const aboutStats = document.querySelector('.about-stats');
+
+if (aboutHeader) aboutHeader.textContent = siteConfig.about.header || 'About Me';
+if (aboutTagline) aboutTagline.textContent = siteConfig.about.tagline || 'Visual storyteller behind the lens';
+
+// Update about paragraph - split by newlines into separate <p> tags
+if (aboutTextContainer && siteConfig.about.paragraph) {
+const paragraphs = siteConfig.about.paragraph.split('\n').filter(p => p.trim());
+aboutTextContainer.innerHTML = paragraphs.map(p => `<p>${p}</p>`).join('');
+}
+
+// Update stats from config
+if (aboutStats && siteConfig.about.stats?.length > 0) {
+aboutStats.innerHTML = '';
+siteConfig.about.stats.forEach(stat => {
+const div = document.createElement('div');
+div.className = 'stat stat-card retro-card';
+div.innerHTML = `
+<h3>${stat.number}</h3>
+<p>${stat.text}</p>
+`;
+aboutStats.appendChild(div);
+});
+}
 }
 
 // Render Selected Works from config
@@ -134,13 +190,37 @@ function updateGallery() {
 const galleryGrid = document.getElementById('galleryGrid');
 if (!galleryGrid || !siteConfig?.gallery?.projects) return;
 
+// Dynamically populate filter buttons from config projects
+const filtersContainer = document.querySelector('.gallery-filters');
+if (filtersContainer && siteConfig.gallery.projects.length > 0) {
+// Keep "All Projects" button, remove the rest
+const allBtn = filtersContainer.querySelector('[data-filter="all"]');
+filtersContainer.innerHTML = '';
+if (allBtn) {
+allBtn.classList.add('active');
+filtersContainer.appendChild(allBtn);
+}
+
+// Add a button for each project
+siteConfig.gallery.projects.forEach(project => {
+if (project.stills?.length > 0) {
+const btn = document.createElement('button');
+btn.className = 'filter-btn';
+btn.dataset.filter = project.id || project.name.toLowerCase().replace(/\s+/g, '-');
+btn.textContent = project.name;
+filtersContainer.appendChild(btn);
+}
+});
+}
+
 // Collect all stills from all projects
 const allStills = [];
 siteConfig.gallery.projects.forEach(project => {
 project.stills?.forEach(still => {
 allStills.push({
 ...still,
-projectName: project.name
+projectName: project.name,
+projectId: project.id || project.name.toLowerCase().replace(/\s+/g, '-')
 });
 });
 });
@@ -151,10 +231,27 @@ galleryGrid.innerHTML = '';
 allStills.forEach(still => {
 const div = document.createElement('div');
 div.className = 'gallery-item';
+div.dataset.project = still.projectId || '';
 div.innerHTML = `
 <img src="${still.src}" alt="${still.alt || still.projectName}">
 `;
 galleryGrid.appendChild(div);
+});
+
+// Re-attach filter click handlers
+filtersContainer?.querySelectorAll('.filter-btn').forEach(btn => {
+btn.addEventListener('click', () => {
+filtersContainer.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+btn.classList.add('active');
+const filter = btn.dataset.filter;
+galleryGrid.querySelectorAll('.gallery-item').forEach(item => {
+if (filter === 'all' || item.dataset.project === filter) {
+item.style.display = '';
+} else {
+item.style.display = 'none';
+}
+});
+});
 });
 }
 }
@@ -165,11 +262,21 @@ if (!siteConfig?.contact) return;
 
 const emailEl = document.querySelector('.contact-email');
 const locationEl = document.querySelector('.contact-location');
+const locationItem = locationEl?.closest('.contact-item');
+const clientStatement = document.querySelector('.client-statement p');
 
-if (emailEl) emailEl.textContent = siteConfig.contact.email || '';
-if (locationEl && siteConfig.contact.location?.visible) {
-locationEl.textContent = siteConfig.contact.location.text || '';
-locationEl.style.display = 'block';
+if (emailEl) {
+emailEl.textContent = siteConfig.contact.email || '';
+emailEl.href = `mailto:${siteConfig.contact.email || ''}`;
+}
+if (locationEl) {
+locationEl.textContent = siteConfig.contact.location?.text || '';
+if (locationItem) {
+locationItem.style.display = siteConfig.contact.location?.visible ? '' : 'none';
+}
+}
+if (clientStatement && siteConfig.contact.message) {
+clientStatement.textContent = siteConfig.contact.message;
 }
 }
 
@@ -189,7 +296,9 @@ if (link.visible !== false && link.url) {
 const a = document.createElement('a');
 a.href = link.url;
 a.target = '_blank';
-a.textContent = link.platform || 'Link';
+a.rel = 'noopener';
+a.className = 'social-link';
+a.innerHTML = `<span>${link.icon || '🔗'}</span><small>${link.platform || 'Link'}</small>`;
 socialList.appendChild(a);
 }
 });
@@ -206,8 +315,9 @@ servicesSection.innerHTML = '';
 siteConfig.services.forEach(service => {
 if (service.visible !== false) {
 const div = document.createElement('div');
-div.className = 'service-item';
+div.className = 'service-card retro-card';
 div.innerHTML = `
+<div class="service-icon">${service.icon || '🔧'}</div>
 <h3>${service.title}</h3>
 <p>${service.description}</p>
 `;
@@ -236,7 +346,7 @@ function isMobileDevice() {
 }
 
 const isMobile = isMobileDevice();
-console.log('Mobile device detected:', isMobile);
+clientLogger.debug(`Mobile device detected: ${isMobile}`);
 
 // Update year in footer
 document.getElementById('year').textContent = new Date().getFullYear();
@@ -377,7 +487,7 @@ function setTheme(theme) {
     // Save preference (so manual changes persist)
     localStorage.setItem('portfolio-theme', theme);
     
-    console.log(`🎭 Theme: ${theme}`);
+    clientLogger.info(`Theme: ${theme}`);
 }
 
 // Initialize with random theme on each load
@@ -550,7 +660,7 @@ setInterval(cycleHeroSlide, 8000);
 // ============================================
 function init3DEffects() {
  // Mobile: 15 degrees max tilt, Desktop: 10 degrees max tilt  
- console.log(`${isMobile ? 'Mobile' : 'Desktop'} - tilt limit: ${isMobile ? 15 : 10}°`);
+ clientLogger.debug(`Tilt limit: ${isMobile ? 15 : 10}°`);
 
     // Hero section - all elements react when mouse is in hero
     const heroSection = document.querySelector('.hero');
@@ -845,11 +955,11 @@ document.addEventListener('DOMContentLoaded', init3DEffects);
 function initDraggableLogo() {
     const logoImg = document.querySelector('.hero-logo img');
     if (!logoImg) {
-        console.log('Logo image not found');
+        clientLogger.warn('Logo image not found');
         return;
     }
 
-    console.log('Initializing draggable logo...');
+    clientLogger.debug('Initializing draggable logo...');
 
     let isDragging = false;
     let startX, startY;
@@ -882,7 +992,7 @@ function initDraggableLogo() {
         velocityX = 0;
         velocityY = 0;
 
-        console.log('Started dragging');
+        clientLogger.debug('Started dragging');
 
         // Cancel any ongoing spring animation
         if (springAnimation) {
@@ -912,7 +1022,7 @@ function initDraggableLogo() {
         if (!isDragging) return;
         isDragging = false;
 
-        console.log('Ended dragging, springing back...');
+        clientLogger.debug('Springing back...');
 
         // Spring back to original position
         springBack();
@@ -952,7 +1062,7 @@ function initDraggableLogo() {
                 velocityY = 0;
                 logoImg.style.transform = 'translate(0px, 0px)';
                 springAnimation = null;
-                console.log('Logo returned to position');
+                clientLogger.debug('Logo returned to position');
             } else {
                 springAnimation = requestAnimationFrame(animate);
             }
@@ -961,7 +1071,7 @@ function initDraggableLogo() {
         springAnimation = requestAnimationFrame(animate);
     }
 
-    console.log('Draggable logo initialized');
+    clientLogger.debug('Draggable logo initialized');
 }
 
 // Initialize draggable logo when DOM is ready
@@ -1381,7 +1491,7 @@ function initGallery(filter = 'all') {
 const existingItems = galleryGrid.querySelectorAll('.gallery-item');
 
 if (existingItems.length > 0) {
-console.log('Fading out', existingItems.length, 'items');
+clientLogger.debug(`Fading out ${existingItems.length} items`);
 // Ensure items are at full opacity before fading out
 existingItems.forEach((item) => {
 item.style.opacity = '1';
@@ -1399,7 +1509,7 @@ item.classList.add('fade-out');
 
 // Wait for fade-out to complete, then rebuild
 setTimeout(() => {
-console.log('Clearing grid and adding new items');
+clientLogger.debug('Clearing grid and adding new items');
 galleryGrid.innerHTML = '';
     addGalleryItems(selected);
 }, 600); // Wait 600ms for fade-out (slightly more than 500ms animation)
@@ -1743,7 +1853,7 @@ contactForms.forEach(form => {
         }
         
         // Log submission (replace with actual Formspree/backend endpoint)
-        console.log('Form submitted:', data);
+        clientLogger.debug('Form submitted');
         
         // Show inline success message instead of alert()
         const submitBtn = form.querySelector('button[type="submit"]');
@@ -1998,11 +2108,11 @@ window.addEventListener('load', () => {
 // INITIALIZE ALL
 // ============================================
 document.addEventListener('DOMContentLoaded', () => {
- console.log('Portfolio initialized successfully!');
- console.log('🎬 Joel Kundu - Cinematographer & Director');
- console.log('🎭 Theme:', savedTheme || themeToUse);
- console.log('🖱️ 3D effects enabled');
- console.log('🔒 Image protection enabled');
- console.log('🔐 Password protection enabled');
- console.log('🎠 Infinite carousel enabled');
+ clientLogger.info('Portfolio initialized successfully!');
+ clientLogger.info('Joel Kundu - Cinematographer & Director');
+ clientLogger.info(`Theme: ${savedTheme || themeToUse}`);
+ clientLogger.info('3D effects enabled');
+ clientLogger.info('Image protection enabled');
+ clientLogger.info('Password protection enabled');
+ clientLogger.info('Infinite carousel enabled');
 });

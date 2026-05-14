@@ -83,9 +83,9 @@
     ]
   },
   "about": {
-    "header": "About Me",
+    "header": "About Joel",
     "tagline": "Cinematographer, Director, and Storyteller",
-    "paragraph": "I'm a cinematographer and director based in London, Ontario, with a passion for visual storytelling that blends technical precision with emotional depth. My work explores themes of identity, memory, and human connection through a cinematic lens.\n\nWith a background in Occupational Health and Safety Management, I bring a unique perspective to filmmaking—understanding that the safest sets are often the most creative ones. I believe in preparation, precision, and the magic that happens when everything comes together perfectly.\n\nFrom intimate character studies to sweeping visual narratives, I approach every project with the same commitment to craft and collaboration. My film philosophy is simple: every frame should serve the story, every light should reveal character, and every cut should propel the narrative forward.",
+    "paragraph": "I'm a cinematographer and director based in London, Ontario, with a passion for visual storytelling that blends technical precision with emotional depth. My work explores themes of identity, memory, and human connection through a cinematic lens.\nWith a background in Occupational Health and Safety Management, I bring a unique perspective to filmmaking—understanding that the safest sets are often the most creative ones. I believe in preparation, precision, and the magic that happens when everything comes together perfectly.\nFrom intimate character studies to sweeping visual narratives, I approach every project with the same commitment to craft and collaboration. My film philosophy is simple: every frame should serve the story, every light should reveal character, and every cut should propel the narrative forward.",
     "stats": [
       {
         "number": "5+",
@@ -172,8 +172,37 @@
     "vimeoId": "1132983429"
   },
   "gallery": {
-    "projects": [],
-    "knownCameras": []
+    "projects": [
+      {
+        "id": "e13m",
+        "name": "E13M",
+        "stills": [
+          {
+            "src": "assets/images/ac5fb705-416e-4d7b-897d-68adaf3fe848.png",
+            "alt": "Ac5Fb705 416E 4D7B 897D 68Adaf3Fe848",
+            "camera": "ARRI Alexa Mini",
+            "type": "Short Film"
+          },
+          {
+            "src": "assets/images/Screenshot (11).png",
+            "alt": "Screenshot (11)",
+            "camera": "ARRI Alexa Mini",
+            "type": "Short Film"
+          },
+          {
+            "src": "assets/images/Screenshot (12).png",
+            "alt": "Screenshot (12)",
+            "camera": "ARRI Alexa Mini",
+            "type": "Short Film"
+          }
+        ]
+      }
+    ],
+    "knownCameras": [
+      "ARRI Alexa Mini",
+      "RED Komodo",
+      "Sony FX6"
+    ]
   },
   "services": [
     {
@@ -224,7 +253,7 @@
     "email": "filmmaker.joelkundu@gmail.com",
     "location": {
       "text": "London, Ontario, Canada",
-      "visible": false
+      "visible": true
     },
     "website": {
       "url": "",
@@ -232,31 +261,25 @@
     }
   },
   "footer": {
-    "tagline": "Cinematographer & Director",
+    "tagline": "Capturing stories through the lens",
     "socialLinks": [
       {
-        "id": "instagram",
-        "platform": "Instagram",
-        "url": "",
-        "icon": "📷"
-      },
-      {
-        "id": "vimeo",
         "platform": "Vimeo",
-        "url": "",
-        "icon": "🎬"
+        "icon": "🎬",
+        "url": "https://vimeo.com/joelkundu",
+        "visible": true
       },
       {
-        "id": "youtube",
-        "platform": "YouTube",
-        "url": "",
-        "icon": "▶️"
+        "platform": "Instagram",
+        "icon": "📸",
+        "url": "https://instagram.com/joelkundu",
+        "visible": true
       },
       {
-        "id": "linkedin",
         "platform": "LinkedIn",
-        "url": "",
-        "icon": "💼"
+        "icon": "💼",
+        "url": "https://linkedin.com/in/joelkundu",
+        "visible": true
       }
     ]
   }
