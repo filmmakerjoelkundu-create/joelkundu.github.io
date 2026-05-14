@@ -86,12 +86,17 @@ socialLinks: []
 function updateHeroFromConfig() {
 if (!siteConfig?.hero) return;
 
-// Update title and tagline
-const titleEl = document.querySelector('.hero h1');
+// Update first name and last name (2 rows)
+const firstNameEl = document.querySelector('.hero .first-name');
+const lastNameEl = document.querySelector('.hero .last-name');
 const taglineEl = document.querySelector('.hero .tagline');
 
-if (titleEl) titleEl.textContent = siteConfig.hero.name || 'Joel Kundu';
+if (firstNameEl) firstNameEl.textContent = siteConfig.hero.firstName || 'JOEL';
+if (lastNameEl) lastNameEl.textContent = siteConfig.hero.lastName || 'Kundu';
 if (taglineEl) taglineEl.textContent = siteConfig.hero.tagline || 'Cinematographer & Director';
+
+// Update laurels
+updateHeroLaurels();
 
 clientLogger.debug('Hero section updated from config');
 
@@ -105,6 +110,43 @@ updateServices();
 updateShowreel();
 
 clientLogger.debug('All sections updated from config');
+}
+
+// Render Hero Laurels
+function updateHeroLaurels() {
+if (!siteConfig?.hero?.laurels) return;
+
+const container = document.getElementById('heroLaurelsContainer');
+if (!container) return;
+
+container.innerHTML = '';
+
+siteConfig.hero.laurels.forEach((laurel, index) => {
+const laurelEl = document.createElement('div');
+laurelEl.className = 'hero-laurel-bubble';
+laurelEl.style.cssText = `
+position: absolute;
+width: 80px;
+height: 80px;
+border-radius: 50%;
+overflow: hidden;
+cursor: pointer;
+box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+animation: float 3s ease-in-out infinite;
+`;
+laurelEl.innerHTML = `<img src="${laurel.image}" alt="${laurel.alt || 'Laurel'}" style="width: 100%; height: 100%; object-fit: cover;">`;
+
+// Random position within container
+const randomX = Math.random() * 60; // 0-60% to keep them in bounds
+const randomY = Math.random() * 60;
+laurelEl.style.left = `${randomX}%`;
+laurelEl.style.top = `${randomY}%`;
+laurelEl.style.animationDelay = `${index * 0.5}s`;
+
+container.appendChild(laurelEl);
+});
+
+clientLogger.debug('Hero laurels updated');
 }
 
 // Render About section from config
@@ -185,6 +227,19 @@ carouselTrack.appendChild(card);
 }
 }
 
+// Filter gallery by project
+function filterGallery(filterValue) {
+const galleryGrid = document.getElementById('galleryGrid');
+if (!galleryGrid) return;
+
+const items = galleryGrid.querySelectorAll('.gallery-item');
+items.forEach(item => {
+const projectMatch = item.dataset.project === filterValue;
+const showAll = filterValue === 'all';
+item.style.display = (showAll || projectMatch) ? 'block' : 'none';
+});
+}
+
 // Render Gallery from config
 function updateGallery() {
 const galleryGrid = document.getElementById('galleryGrid');
@@ -210,6 +265,19 @@ btn.dataset.filter = project.id || project.name.toLowerCase().replace(/\s+/g, '-
 btn.textContent = project.name;
 filtersContainer.appendChild(btn);
 }
+});
+
+// Add click handlers to filter buttons
+filtersContainer.querySelectorAll('.filter-btn').forEach(btn => {
+btn.addEventListener('click', () => {
+// Remove active class from all
+filtersContainer.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+// Add active to clicked
+btn.classList.add('active');
+// Filter gallery
+const filterValue = btn.dataset.filter;
+filterGallery(filterValue);
+});
 });
 }
 
@@ -564,41 +632,55 @@ function getAllAvailableStills() {
 
 // Get or generate random hero images
 function getHeroImages() {
-    const STORAGE_KEY = 'portfolio-hero-images';
-    const TIMESTAMP_KEY = 'portfolio-hero-timestamp';
-    const CACHE_DURATION = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
-    
-    const storedImages = localStorage.getItem(STORAGE_KEY);
-    const storedTimestamp = localStorage.getItem(TIMESTAMP_KEY);
-    const now = Date.now();
-    
-    // Check if we have cached images that are still valid
-    if (storedImages && storedTimestamp) {
-        const timestamp = parseInt(storedTimestamp);
-        if (now - timestamp < CACHE_DURATION) {
-            return JSON.parse(storedImages);
-        }
-    }
-    
-    // Generate new random selection
-    const allStills = getAllAvailableStills();
-    const selectedImages = [];
-    const usedIndices = new Set();
-    
-    // Select 6 random unique images
-    while (selectedImages.length < 6 && usedIndices.size < allStills.length) {
-        const randomIndex = Math.floor(Math.random() * allStills.length);
-        if (!usedIndices.has(randomIndex)) {
-            usedIndices.add(randomIndex);
-            selectedImages.push(allStills[randomIndex]);
-        }
-    }
-    
-    // Store in localStorage
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(selectedImages));
-    localStorage.setItem(TIMESTAMP_KEY, now.toString());
-    
-    return selectedImages;
+const STORAGE_KEY = 'portfolio-hero-images';
+const TIMESTAMP_KEY = 'portfolio-hero-timestamp';
+const CACHE_DURATION = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
+
+const storedImages = localStorage.getItem(STORAGE_KEY);
+const storedTimestamp = localStorage.getItem(TIMESTAMP_KEY);
+const now = Date.now();
+
+// Check if we have cached images that are still valid
+if (storedImages && storedTimestamp) {
+const timestamp = parseInt(storedTimestamp);
+if (now - timestamp < CACHE_DURATION) {
+return JSON.parse(storedImages);
+}
+}
+
+// NEW: Check if config has selected background stills
+if (siteConfig?.hero?.backgroundStills && siteConfig.hero.backgroundStills.length > 0) {
+// Use the user-selected stills from dashboard
+const selectedCount = Math.min(10, siteConfig.hero.backgroundStills.length);
+const shuffled = [...siteConfig.hero.backgroundStills].sort(() => Math.random() - 0.5);
+const selectedImages = shuffled.slice(0, selectedCount);
+
+// Store in localStorage
+localStorage.setItem(STORAGE_KEY, JSON.stringify(selectedImages));
+localStorage.setItem(TIMESTAMP_KEY, now.toString());
+
+return selectedImages;
+}
+
+// Fallback: Generate from all available stills
+const allStills = getAllAvailableStills();
+const selectedImages = [];
+const usedIndices = new Set();
+
+// Select 6 random unique images
+while (selectedImages.length < 6 && usedIndices.size < allStills.length) {
+const randomIndex = Math.floor(Math.random() * allStills.length);
+if (!usedIndices.has(randomIndex)) {
+usedIndices.add(randomIndex);
+selectedImages.push(allStills[randomIndex]);
+}
+}
+
+// Store in localStorage
+localStorage.setItem(STORAGE_KEY, JSON.stringify(selectedImages));
+localStorage.setItem(TIMESTAMP_KEY, now.toString());
+
+return selectedImages;
 }
 
 // Populate hero slideshow with random images
@@ -2115,4 +2197,9 @@ document.addEventListener('DOMContentLoaded', () => {
  clientLogger.info('Image protection enabled');
  clientLogger.info('Password protection enabled');
  clientLogger.info('Infinite carousel enabled');
+ 
+ // Load dynamic config from dashboard
+ loadSiteConfig().then(() => {
+ clientLogger.info('Dynamic config loaded and applied!');
+ });
 });

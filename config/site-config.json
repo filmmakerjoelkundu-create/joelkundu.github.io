@@ -1,6 +1,5 @@
 {
   "hero": {
-    "name": "Joel Kundu",
     "tagline": "Cinematographer & Director",
     "themes": [
       {
@@ -74,21 +73,134 @@
         }
       }
     ],
-    "laurels": [
-      {
-        "id": "laurel-1",
-        "image": "/assets/logos/Laurel.png",
-        "alt": "MAMM Laurel"
-      }
+    "laurels": [],
+    "firstName": "JOEL",
+    "lastName": "KUNDU",
+    "backgroundStills": [
+      "assets/images/ac5fb705-416e-4d7b-897d-68adaf3fe848.png",
+      "assets/images/Screenshot (11).png",
+      "assets/images/Screenshot (12).png",
+      "assets/images/Screenshot (205).png",
+      "assets/images/Screenshot (206).png",
+      "assets/images/Screenshot (207).png",
+      "assets/images/Screenshot (208).png",
+      "assets/images/Screenshot (210).png",
+      "assets/images/Screenshot 2026-05-14 090352.png",
+      "assets/images/Screenshot 2026-05-14 090358.png",
+      "assets/images/Screenshot 2026-05-14 090403.png",
+      "assets/images/Screenshot 2026-05-14 090425.png",
+      "assets/images/Screenshot 2026-05-14 090438.png",
+      "assets/images/Screenshot 2026-05-14 090447.png",
+      "assets/images/Screenshot 2026-05-14 090455.png",
+      "assets/images/Screenshot 2026-05-14 090518.png",
+      "assets/images/Screenshot 2026-05-14 090532.png",
+      "assets/images/Screenshot 2026-05-14 090551.png",
+      "assets/images/Screenshot 2026-05-14 090608.png",
+      "assets/images/Screenshot 2026-05-14 090619.png",
+      "assets/images/Screenshot 2026-05-14 090626.png",
+      "assets/images/Screenshot 2026-05-14 090646.png",
+      "assets/images/Screenshot 2026-05-14 090706.png",
+      "assets/images/Screenshot 2026-05-14 090732.png",
+      "assets/images/Screenshot 2026-05-14 090801.png",
+      "assets/images/Screenshot 2026-05-14 090825.png",
+      "assets/images/Screenshot 2026-05-14 090840.png",
+      "assets/images/Screenshot 2026-05-14 090905.png",
+      "assets/images/Screenshot 2026-05-14 090931.png",
+      "assets/images/Screenshot 2026-05-14 090939.png",
+      "assets/images/Screenshot 2026-05-14 091002.png",
+      "assets/images/Screenshot 2026-05-14 091054.png",
+      "assets/images/Screenshot 2026-05-14 091120.png",
+      "assets/images/Screenshot 2026-05-14 091217.png",
+      "assets/images/Screenshot 2026-05-14 091228.png",
+      "assets/images/Screenshot 2026-05-14 091249.png",
+      "assets/images/Screenshot 2026-05-14 091307.png",
+      "assets/images/Screenshot 2026-05-14 091324.png",
+      "assets/images/Screenshot 2026-05-14 091342.png",
+      "assets/images/Screenshot 2026-05-14 091353.png",
+      "assets/images/Screenshot 2026-05-14 091425.png",
+      "assets/images/Screenshot 2026-05-14 091440.png",
+      "assets/images/Screenshot 2026-05-14 091501.png",
+      "assets/images/Screenshot 2026-05-14 091509.png",
+      "assets/images/Screenshot 2026-05-14 091528.png",
+      "assets/images/Screenshot 2026-05-14 091536.png",
+      "assets/images/Screenshot 2026-05-14 091547.png",
+      "assets/images/Screenshot 2026-05-14 091559.png",
+      "assets/images/Screenshot 2026-05-14 091607.png",
+      "assets/images/Screenshot 2026-05-14 091625.png",
+      "assets/images/Screenshot 2026-05-14 091648.png",
+      "assets/images/Screenshot 2026-05-14 091708.png",
+      "assets/images/Screenshot 2026-05-14 091714.png",
+      "assets/images/Screenshot 2026-05-14 091730.png",
+      "assets/images/Screenshot 2026-05-14 091746.png",
+      "assets/images/Screenshot 2026-05-14 091804.png",
+      "assets/images/Screenshot 2026-05-14 091900.png",
+      "assets/images/Screenshot 2026-05-14 091921.png",
+      "assets/images/Screenshot 2026-05-14 091939.png",
+      "assets/images/Screenshot (205).png",
+      "assets/images/Screenshot (206).png",
+      "assets/images/Screenshot (207).png",
+      "assets/images/Screenshot (208).png",
+      "assets/images/Screenshot (210).png",
+      "assets/images/Screenshot 2026-05-14 090352.png",
+      "assets/images/Screenshot 2026-05-14 090358.png",
+      "assets/images/Screenshot 2026-05-14 090403.png",
+      "assets/images/Screenshot 2026-05-14 090425.png",
+      "assets/images/Screenshot 2026-05-14 090438.png",
+      "assets/images/Screenshot 2026-05-14 090447.png",
+      "assets/images/Screenshot 2026-05-14 090455.png",
+      "assets/images/Screenshot 2026-05-14 090518.png",
+      "assets/images/Screenshot 2026-05-14 090532.png",
+      "assets/images/Screenshot 2026-05-14 090551.png",
+      "assets/images/Screenshot 2026-05-14 090608.png",
+      "assets/images/Screenshot 2026-05-14 090619.png",
+      "assets/images/Screenshot 2026-05-14 090626.png",
+      "assets/images/Screenshot 2026-05-14 090646.png",
+      "assets/images/Screenshot 2026-05-14 090706.png",
+      "assets/images/Screenshot 2026-05-14 090732.png",
+      "assets/images/Screenshot 2026-05-14 090801.png",
+      "assets/images/Screenshot 2026-05-14 090825.png",
+      "assets/images/Screenshot 2026-05-14 090840.png",
+      "assets/images/Screenshot 2026-05-14 090905.png",
+      "assets/images/Screenshot 2026-05-14 090931.png",
+      "assets/images/Screenshot 2026-05-14 090939.png",
+      "assets/images/Screenshot 2026-05-14 091002.png",
+      "assets/images/Screenshot 2026-05-14 091054.png",
+      "assets/images/Screenshot 2026-05-14 091120.png",
+      "assets/images/Screenshot 2026-05-14 091217.png",
+      "assets/images/Screenshot 2026-05-14 091228.png",
+      "assets/images/Screenshot 2026-05-14 091249.png",
+      "assets/images/Screenshot 2026-05-14 091307.png",
+      "assets/images/Screenshot 2026-05-14 091324.png",
+      "assets/images/Screenshot 2026-05-14 091342.png",
+      "assets/images/Screenshot 2026-05-14 091353.png",
+      "assets/images/Screenshot 2026-05-14 091425.png",
+      "assets/images/Screenshot 2026-05-14 091440.png",
+      "assets/images/Screenshot 2026-05-14 091501.png",
+      "assets/images/Screenshot 2026-05-14 091509.png",
+      "assets/images/Screenshot 2026-05-14 091528.png",
+      "assets/images/Screenshot 2026-05-14 091536.png",
+      "assets/images/Screenshot 2026-05-14 091547.png",
+      "assets/images/Screenshot 2026-05-14 091559.png",
+      "assets/images/Screenshot 2026-05-14 091607.png",
+      "assets/images/Screenshot 2026-05-14 091625.png",
+      "assets/images/Screenshot 2026-05-14 091648.png",
+      "assets/images/Screenshot 2026-05-14 091708.png",
+      "assets/images/Screenshot 2026-05-14 091714.png",
+      "assets/images/Screenshot 2026-05-14 091730.png",
+      "assets/images/Screenshot 2026-05-14 091746.png",
+      "assets/images/Screenshot 2026-05-14 091804.png",
+      "assets/images/Screenshot 2026-05-14 091900.png",
+      "assets/images/Screenshot 2026-05-14 091921.png",
+      "assets/images/Screenshot 2026-05-14 091939.png"
     ]
   },
   "about": {
-    "header": "About Joel",
-    "tagline": "Cinematographer, Director, and Storyteller",
-    "paragraph": "I'm a cinematographer and director based in London, Ontario, with a passion for visual storytelling that blends technical precision with emotional depth. My work explores themes of identity, memory, and human connection through a cinematic lens.\nWith a background in Occupational Health and Safety Management, I bring a unique perspective to filmmaking—understanding that the safest sets are often the most creative ones. I believe in preparation, precision, and the magic that happens when everything comes together perfectly.\nFrom intimate character studies to sweeping visual narratives, I approach every project with the same commitment to craft and collaboration. My film philosophy is simple: every frame should serve the story, every light should reveal character, and every cut should propel the narrative forward.",
+    "header": "About Me - Test",
+    "tagline": "",
+    "paragraph": "",
     "stats": [
       {
-        "number": "5+",
+        "number": "8+",
         "text": "Years Experience"
       },
       {
@@ -107,69 +219,33 @@
   },
   "selectedWorks": [
     {
-      "id": "e13m",
-      "title": "E13M",
-      "tagline": "A father's self-erasure as an act of love",
-      "role": "Director of Photography",
-      "category": "narrative",
-      "image": "assets/images/Screenshot (15).png",
-      "visible": true,
-      "details": {
-        "year": "2024",
-        "director": "",
-        "cinematographer": "Joel Kundu",
-        "genre": "Drama"
-      }
-    },
-    {
-      "id": "short2",
-      "title": "Untitled Short",
-      "tagline": "Coming soon",
-      "role": "Director",
-      "category": "narrative",
-      "image": "assets/images/Screenshot (16).png",
-      "visible": true,
-      "details": {
-        "year": "TBD",
-        "director": "Joel Kundu",
-        "cinematographer": "",
-        "genre": "Short Film"
-      }
-    },
-    {
-      "id": "doc1",
-      "title": "Documentary Project",
-      "tagline": "In development",
+      "id": "project-1778767122006",
+      "title": "Dear Cancer",
+      "tagline": "FOR THOSE WHO FOUGHT.\nFOR THOSE WHO ARE FIGHTING.\nFOR THOSE WHO STAY.",
       "role": "Cinematographer",
-      "category": "documentary",
-      "image": "assets/images/Screenshot (17).png",
+      "category": "narrative",
+      "imdbUrl": "https://www.imdb.com/title/tt36935432/",
+      "year": "2025",
       "visible": true,
-      "details": {
-        "year": "TBD",
-        "director": "",
-        "cinematographer": "Joel Kundu",
-        "genre": "Documentary"
-      }
-    },
-    {
-      "id": "commercial1",
-      "title": "Commercial",
-      "tagline": "Brand storytelling",
-      "role": "DP/Director",
-      "category": "commercial",
-      "image": "assets/images/Screenshot (18).png",
-      "visible": true,
-      "details": {
-        "year": "2024",
-        "director": "Joel Kundu",
-        "cinematographer": "Joel Kundu",
-        "genre": "Commercial"
+      "image": "blob:http://localhost:5001/e0ee1b6c-f77e-4967-8761-fe51d2c7894c",
+      "credits": {
+        "director": "Neetha John",
+        "dop": "Joel Kundu",
+        "producer": "Veronica Soria",
+        "productionDesigner": "Kyle Terry",
+        "editor": "Loic Gomes",
+        "assistantDirector": "Curtis Terry",
+        "writer": "Neetha John",
+        "colorist": "Loic Gomes",
+        "vfxSupervisor": "Joel Kundu",
+        "gaffer": "Harry Grewal",
+        "keyGrip": "Kartik Sharma"
       }
     }
   ],
   "showreel": {
-    "vimeoUrl": "https://player.vimeo.com/video/1132983429?h=2a3b4c5d6e&title=0&byline=0&portrait=0",
-    "vimeoId": "1132983429"
+    "vimeoUrl": "",
+    "vimeoId": ""
   },
   "gallery": {
     "projects": [
@@ -196,12 +272,485 @@
             "type": "Short Film"
           }
         ]
+      },
+      {
+        "id": "gallery-project-1778767201249",
+        "name": "Dear Cancer",
+        "director": "Neetha John",
+        "producer": "Veronica Soria",
+        "dop": "Joel Kundu",
+        "type": "Short Film",
+        "camera": "ARRI Alexa Mini LF",
+        "year": "2025",
+        "stills": [
+          {
+            "src": "assets/images/Screenshot (205).png",
+            "alt": "Screenshot (205).png"
+          },
+          {
+            "src": "assets/images/Screenshot (206).png",
+            "alt": "Screenshot (206).png"
+          },
+          {
+            "src": "assets/images/Screenshot (207).png",
+            "alt": "Screenshot (207).png"
+          },
+          {
+            "src": "assets/images/Screenshot (208).png",
+            "alt": "Screenshot (208).png"
+          },
+          {
+            "src": "assets/images/Screenshot (210).png",
+            "alt": "Screenshot (210).png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090352.png",
+            "alt": "Screenshot 2026-05-14 090352.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090358.png",
+            "alt": "Screenshot 2026-05-14 090358.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090403.png",
+            "alt": "Screenshot 2026-05-14 090403.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090425.png",
+            "alt": "Screenshot 2026-05-14 090425.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090438.png",
+            "alt": "Screenshot 2026-05-14 090438.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090447.png",
+            "alt": "Screenshot 2026-05-14 090447.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090455.png",
+            "alt": "Screenshot 2026-05-14 090455.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090518.png",
+            "alt": "Screenshot 2026-05-14 090518.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090532.png",
+            "alt": "Screenshot 2026-05-14 090532.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090551.png",
+            "alt": "Screenshot 2026-05-14 090551.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090608.png",
+            "alt": "Screenshot 2026-05-14 090608.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090619.png",
+            "alt": "Screenshot 2026-05-14 090619.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090626.png",
+            "alt": "Screenshot 2026-05-14 090626.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090646.png",
+            "alt": "Screenshot 2026-05-14 090646.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090706.png",
+            "alt": "Screenshot 2026-05-14 090706.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090732.png",
+            "alt": "Screenshot 2026-05-14 090732.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090801.png",
+            "alt": "Screenshot 2026-05-14 090801.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090825.png",
+            "alt": "Screenshot 2026-05-14 090825.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090840.png",
+            "alt": "Screenshot 2026-05-14 090840.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090905.png",
+            "alt": "Screenshot 2026-05-14 090905.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090931.png",
+            "alt": "Screenshot 2026-05-14 090931.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090939.png",
+            "alt": "Screenshot 2026-05-14 090939.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091002.png",
+            "alt": "Screenshot 2026-05-14 091002.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091054.png",
+            "alt": "Screenshot 2026-05-14 091054.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091120.png",
+            "alt": "Screenshot 2026-05-14 091120.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091217.png",
+            "alt": "Screenshot 2026-05-14 091217.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091228.png",
+            "alt": "Screenshot 2026-05-14 091228.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091249.png",
+            "alt": "Screenshot 2026-05-14 091249.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091307.png",
+            "alt": "Screenshot 2026-05-14 091307.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091324.png",
+            "alt": "Screenshot 2026-05-14 091324.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091342.png",
+            "alt": "Screenshot 2026-05-14 091342.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091353.png",
+            "alt": "Screenshot 2026-05-14 091353.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091425.png",
+            "alt": "Screenshot 2026-05-14 091425.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091440.png",
+            "alt": "Screenshot 2026-05-14 091440.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091501.png",
+            "alt": "Screenshot 2026-05-14 091501.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091509.png",
+            "alt": "Screenshot 2026-05-14 091509.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091528.png",
+            "alt": "Screenshot 2026-05-14 091528.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091536.png",
+            "alt": "Screenshot 2026-05-14 091536.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091547.png",
+            "alt": "Screenshot 2026-05-14 091547.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091559.png",
+            "alt": "Screenshot 2026-05-14 091559.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091607.png",
+            "alt": "Screenshot 2026-05-14 091607.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091625.png",
+            "alt": "Screenshot 2026-05-14 091625.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091648.png",
+            "alt": "Screenshot 2026-05-14 091648.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091708.png",
+            "alt": "Screenshot 2026-05-14 091708.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091714.png",
+            "alt": "Screenshot 2026-05-14 091714.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091730.png",
+            "alt": "Screenshot 2026-05-14 091730.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091746.png",
+            "alt": "Screenshot 2026-05-14 091746.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091804.png",
+            "alt": "Screenshot 2026-05-14 091804.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091900.png",
+            "alt": "Screenshot 2026-05-14 091900.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091921.png",
+            "alt": "Screenshot 2026-05-14 091921.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091939.png",
+            "alt": "Screenshot 2026-05-14 091939.png"
+          }
+        ]
+      },
+      {
+        "id": "gallery-project-1778767205607",
+        "name": "Dear Cancer",
+        "director": "Neetha John",
+        "producer": "Veronica Soria",
+        "dop": "Joel Kundu",
+        "type": "Short Film",
+        "camera": "ARRI Alexa Mini LF",
+        "year": "2025",
+        "stills": [
+          {
+            "src": "assets/images/Screenshot (205).png",
+            "alt": "Screenshot (205).png"
+          },
+          {
+            "src": "assets/images/Screenshot (206).png",
+            "alt": "Screenshot (206).png"
+          },
+          {
+            "src": "assets/images/Screenshot (207).png",
+            "alt": "Screenshot (207).png"
+          },
+          {
+            "src": "assets/images/Screenshot (208).png",
+            "alt": "Screenshot (208).png"
+          },
+          {
+            "src": "assets/images/Screenshot (210).png",
+            "alt": "Screenshot (210).png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090352.png",
+            "alt": "Screenshot 2026-05-14 090352.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090358.png",
+            "alt": "Screenshot 2026-05-14 090358.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090403.png",
+            "alt": "Screenshot 2026-05-14 090403.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090425.png",
+            "alt": "Screenshot 2026-05-14 090425.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090438.png",
+            "alt": "Screenshot 2026-05-14 090438.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090447.png",
+            "alt": "Screenshot 2026-05-14 090447.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090455.png",
+            "alt": "Screenshot 2026-05-14 090455.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090518.png",
+            "alt": "Screenshot 2026-05-14 090518.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090532.png",
+            "alt": "Screenshot 2026-05-14 090532.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090551.png",
+            "alt": "Screenshot 2026-05-14 090551.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090608.png",
+            "alt": "Screenshot 2026-05-14 090608.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090619.png",
+            "alt": "Screenshot 2026-05-14 090619.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090626.png",
+            "alt": "Screenshot 2026-05-14 090626.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090646.png",
+            "alt": "Screenshot 2026-05-14 090646.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090706.png",
+            "alt": "Screenshot 2026-05-14 090706.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090732.png",
+            "alt": "Screenshot 2026-05-14 090732.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090801.png",
+            "alt": "Screenshot 2026-05-14 090801.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090825.png",
+            "alt": "Screenshot 2026-05-14 090825.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090840.png",
+            "alt": "Screenshot 2026-05-14 090840.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090905.png",
+            "alt": "Screenshot 2026-05-14 090905.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090931.png",
+            "alt": "Screenshot 2026-05-14 090931.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 090939.png",
+            "alt": "Screenshot 2026-05-14 090939.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091002.png",
+            "alt": "Screenshot 2026-05-14 091002.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091054.png",
+            "alt": "Screenshot 2026-05-14 091054.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091120.png",
+            "alt": "Screenshot 2026-05-14 091120.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091217.png",
+            "alt": "Screenshot 2026-05-14 091217.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091228.png",
+            "alt": "Screenshot 2026-05-14 091228.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091249.png",
+            "alt": "Screenshot 2026-05-14 091249.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091307.png",
+            "alt": "Screenshot 2026-05-14 091307.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091324.png",
+            "alt": "Screenshot 2026-05-14 091324.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091342.png",
+            "alt": "Screenshot 2026-05-14 091342.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091353.png",
+            "alt": "Screenshot 2026-05-14 091353.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091425.png",
+            "alt": "Screenshot 2026-05-14 091425.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091440.png",
+            "alt": "Screenshot 2026-05-14 091440.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091501.png",
+            "alt": "Screenshot 2026-05-14 091501.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091509.png",
+            "alt": "Screenshot 2026-05-14 091509.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091528.png",
+            "alt": "Screenshot 2026-05-14 091528.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091536.png",
+            "alt": "Screenshot 2026-05-14 091536.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091547.png",
+            "alt": "Screenshot 2026-05-14 091547.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091559.png",
+            "alt": "Screenshot 2026-05-14 091559.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091607.png",
+            "alt": "Screenshot 2026-05-14 091607.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091625.png",
+            "alt": "Screenshot 2026-05-14 091625.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091648.png",
+            "alt": "Screenshot 2026-05-14 091648.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091708.png",
+            "alt": "Screenshot 2026-05-14 091708.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091714.png",
+            "alt": "Screenshot 2026-05-14 091714.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091730.png",
+            "alt": "Screenshot 2026-05-14 091730.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091746.png",
+            "alt": "Screenshot 2026-05-14 091746.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091804.png",
+            "alt": "Screenshot 2026-05-14 091804.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091900.png",
+            "alt": "Screenshot 2026-05-14 091900.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091921.png",
+            "alt": "Screenshot 2026-05-14 091921.png"
+          },
+          {
+            "src": "assets/images/Screenshot 2026-05-14 091939.png",
+            "alt": "Screenshot 2026-05-14 091939.png"
+          }
+        ]
       }
     ],
     "knownCameras": [
       "ARRI Alexa Mini",
       "RED Komodo",
-      "Sony FX6"
+      "Sony FX6",
+      "ARRI Alexa Mini LF"
     ]
   },
   "services": [
@@ -250,10 +799,10 @@
   ],
   "contact": {
     "message": "\"Every project begins with a conversation. Whether you have a fully developed script or just a spark of an idea, I'm here to help bring your vision to life. Let's discuss how we can collaborate to create something truly exceptional.\"",
-    "email": "filmmaker.joelkundu@gmail.com",
+    "email": "",
     "location": {
-      "text": "London, Ontario, Canada",
-      "visible": true
+      "text": "",
+      "visible": false
     },
     "website": {
       "url": "",
@@ -261,7 +810,7 @@
     }
   },
   "footer": {
-    "tagline": "Capturing stories through the lens",
+    "tagline": "",
     "socialLinks": [
       {
         "platform": "Vimeo",
