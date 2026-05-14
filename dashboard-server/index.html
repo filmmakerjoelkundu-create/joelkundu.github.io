@@ -250,21 +250,46 @@
             <div id="gallery" class="section">
                 <div class="card">
                     <h3>Gallery Management</h3>
-                    <p style="color: #86868b; margin-bottom: 1rem;">Upload images and assign them to project tags. Users can filter gallery by these project tags.</p>
+                    <p style="color: #86868b; margin-bottom: 1rem;">Organize stills by project. Upload images to a project, filter by movie, camera, type, or year.</p>
                     
-                    <div class="form-group">
-                        <label>Available Project Tags (from Selected Works)</label>
-                        <div id="projectTagsList" style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem;"></div>
+                    <!-- Filter Bar -->
+                    <div class="gallery-filters-bar" style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-bottom: 1rem;">
+                        <select id="galleryFilterMovie" style="flex: 1; min-width: 150px; padding: 0.5rem; border: 1px solid #d2d2d7; border-radius: 8px;">
+                            <option value="">All Projects</option>
+                        </select>
+                        <select id="galleryFilterCamera" style="flex: 1; min-width: 150px; padding: 0.5rem; border: 1px solid #d2d2d7; border-radius: 8px;">
+                            <option value="">All Cameras</option>
+                        </select>
+                        <select id="galleryFilterType" style="flex: 1; min-width: 150px; padding: 0.5rem; border: 1px solid #d2d2d7; border-radius: 8px;">
+                            <option value="">All Types</option>
+                            <option value="Short Film">Short Film</option>
+                            <option value="Feature">Feature</option>
+                            <option value="Documentary">Documentary</option>
+                            <option value="Music Video">Music Video</option>
+                            <option value="Commercial">Commercial</option>
+                        </select>
+                        <select id="galleryFilterYear" style="flex: 1; min-width: 150px; padding: 0.5rem; border: 1px solid #d2d2d7; border-radius: 8px;">
+                            <option value="">All Years</option>
+                        </select>
+                        <button class="btn btn-secondary" onclick="clearGalleryFilters()" style="white-space: nowrap;">Clear Filters</button>
+                    </div>
+                    
+                    <!-- Active Filter Bubbles -->
+                    <div id="galleryFilterBubbles" style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; min-height: 2rem;"></div>
+                    
+                    <!-- Project Cards Row -->
+                    <div style="display: flex; gap: 1rem; overflow-x: auto; padding-bottom: 1rem; margin-bottom: 1rem;" id="galleryProjectCards">
+                        <!-- Add Project Card -->
+                        <div onclick="openAddGalleryProjectModal()" style="min-width: 200px; height: 180px; border: 2px dashed #d2d2d7; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; background: #f9f9fb; transition: border-color 0.2s;" onmouseover="this.style.borderColor='#0071e3'" onmouseout="this.style.borderColor='#d2d2d7'">
+                            <span style="font-size: 2rem; color: #0071e3; margin-bottom: 0.5rem;">+</span>
+                            <span style="color: #86868b; font-size: 0.875rem;">Add New Project</span>
+                        </div>
+                        <!-- Dynamic project cards rendered by JS -->
                     </div>
                     
                     <div class="form-group">
-                        <label>Upload New Image</label>
-                        <input type="file" id="galleryImageUpload" accept="image/*" multiple onchange="uploadGalleryImages(event)">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Gallery Images (<span id="galleryCount">0</span> images)</label>
-                        <div id="galleryList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;"></div>
+                        <label>Stills (<span id="galleryCount">0</span> images)</label>
+                        <div id="galleryList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; min-height: 100px;"></div>
                     </div>
                 </div>
             </div>
@@ -475,30 +500,88 @@
         </div>
     </div>
 
-    <!-- Gallery Image Edit Modal -->
-    <div class="modal-overlay" id="galleryImageModal">
-        <div class="modal">
-            <h3>Edit Image Details</h3>
-            <div class="form-group">
-                <label>Image Preview</label>
-                <img id="editImagePreview" src="" alt="Preview" style="max-width: 100%; border-radius: 8px; margin-bottom: 1rem;">
+    <!-- Gallery Project Modal -->
+    <div class="modal-overlay" id="galleryProjectModal">
+        <div class="modal" style="max-width: 650px;">
+            <h3 id="galleryProjectModalTitle">Add Gallery Project</h3>
+            <p style="color: #86868b; font-size: 0.875rem; margin-bottom: 1rem;">Projects here are gallery-only. Use "Promote to Selected Works" to add full crew details.</p>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                    <div class="form-group">
+                        <label>Movie Name *</label>
+                        <input type="text" id="galleryProjectName" placeholder="e.g. E13M">
+                    </div>
+                    <div class="form-group">
+                        <label>Director</label>
+                        <input type="text" id="galleryProjectDirector" placeholder="—">
+                    </div>
+                    <div class="form-group">
+                        <label>Producer</label>
+                        <input type="text" id="galleryProjectProducer" placeholder="—">
+                    </div>
+                </div>
+                <div>
+                    <div class="form-group">
+                        <label>DOP / Cinematographer</label>
+                        <input type="text" id="galleryProjectDop" placeholder="—">
+                    </div>
+                    <div class="form-group">
+                        <label>Type</label>
+                        <select id="galleryProjectType">
+                            <option value="">Select type...</option>
+                            <option value="Short Film">Short Film</option>
+                            <option value="Feature">Feature</option>
+                            <option value="Documentary">Documentary</option>
+                            <option value="Music Video">Music Video</option>
+                            <option value="Commercial">Commercial</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Camera Used</label>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input type="text" id="galleryProjectCamera" placeholder="e.g. ARRI Alexa Mini" style="flex: 1;" list="galleryCameraSuggestions">
+                            <datalist id="galleryCameraSuggestions"></datalist>
+                        </div>
+                        <p style="color: #86868b; font-size: 0.75rem; margin-top: 0.25rem;">First-time cameras are saved for future dropdown options</p>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label>Assign to Project Tag</label>
-                <select id="editImageTag">
-                    <option value="">-- Select Project --</option>
-                </select>
-                <p style="color: #86868b; font-size: 0.875rem; margin-top: 0.5rem;">Images without a tag will appear in the random mix</p>
+            
+            <div class="form-group" style="margin-top: 0.5rem;">
+                <label>Release Year</label>
+                <input type="number" id="galleryProjectYear" placeholder="e.g. 2025" min="1900" max="2099" style="max-width: 150px;">
             </div>
+            
             <div class="form-group">
-                <label>BTS (Behind the Scenes)</label>
-                <div class="toggle" id="editImageBts" onclick="toggleBts()"></div>
-                <p style="color: #86868b; font-size: 0.875rem; margin-top: 0.5rem;">Mark as BTS image</p>
+                <label>Upload Stills</label>
+                <input type="file" id="galleryProjectUpload" accept="image/*" multiple>
+                <p style="color: #86868b; font-size: 0.75rem; margin-top: 0.25rem;">You can add more stills later from the project card.</p>
             </div>
-            <div class="modal-actions">
-                <button class="btn btn-secondary" onclick="closeGalleryImageModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="saveGalleryImageDetails()">Save</button>
-                <button class="btn btn-danger" onclick="deleteGalleryImage()">Delete</button>
+            
+            <div class="modal-actions" style="margin-top: 1.5rem;">
+                <button class="btn btn-secondary" onclick="closeGalleryProjectModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveGalleryProject()">Save Project</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Stills Modal (replaces old galleryImageModal) -->
+    <div class="modal-overlay" id="viewStillsModal">
+        <div class="modal" style="max-width: 900px;">
+            <h3 id="viewStillsTitle">Project Stills</h3>
+            
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                <input type="file" id="viewStillsUpload" accept="image/*" multiple>
+                <button class="btn btn-secondary" onclick="promoteToSelectedWorks()" id="promoteToSelectedBtn">⭐ Promote to Selected Works</button>
+            </div>
+            
+            <div id="viewStillsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; min-height: 100px; padding: 0.5rem;">
+                <p style="color: #86868b; grid-column: 1 / -1; text-align: center;">No stills yet. Upload some above!</p>
+            </div>
+            
+            <div class="modal-actions" style="margin-top: 1.5rem;">
+                <button class="btn btn-secondary" onclick="closeViewStillsModal()">Close</button>
             </div>
         </div>
     </div>
@@ -630,12 +713,13 @@ function populateForms() {
     document.getElementById('showreelId').value = config.showreel?.vimeoId || '';
     updateVimeoPreview();
 
-    // Gallery - initialize
-    if (!config.gallery) {
-        config.gallery = { images: [], bts: [] };
-    }
-    renderGallery();
-    renderProjectTags();
+// Gallery - initialize
+if (!config.gallery || !config.gallery.projects) {
+config.gallery = { projects: [], knownCameras: [] };
+}
+initGallery();
+setupGalleryFilters();
+updateFilterBubbles();
 
     // Services
     renderServices();
@@ -1238,123 +1322,485 @@ function deleteService(index) {
     }
 }
 
-// Gallery Functions
-function renderGallery() {
+// ==================== GALLERY SECTION - PROJECT-BASED ====================
+// Gallery initialization
+function initGallery() {
+    if (!config.gallery) {
+        config.gallery = { projects: [], knownCameras: [] };
+    }
+    if (!config.gallery.projects) config.gallery.projects = [];
+    if (!config.gallery.knownCameras) config.gallery.knownCameras = [];
+    
+    renderGalleryProjects();
+    renderGalleryStills();
+    updateFilterDropdowns();
+    updateCameraSuggestions();
+}
+
+// Render project cards
+function renderGalleryProjects() {
+    const container = document.getElementById('galleryProjectCards');
+    if (!container) return;
+    
+    // Keep the "Add Project" card
+    const addCard = container.querySelector('[onclick="openAddGalleryProjectModal()"]');
+    container.innerHTML = '';
+    if (addCard) container.appendChild(addCard);
+    else {
+        container.innerHTML = `
+            <div onclick="openAddGalleryProjectModal()" style="min-width: 200px; height: 180px; border: 2px dashed #d2d2d7; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; background: #f9f9fb; transition: border-color 0.2s;" onmouseover="this.style.borderColor='#0071e3'" onmouseout="this.style.borderColor='#d2d2d7'">
+                <span style="font-size: 2rem; color: #0071e3; margin-bottom: 0.5rem;">+</span>
+                <span style="color: #86868b; font-size: 0.875rem;">Add New Project</span>
+            </div>
+        `;
+    }
+    
+    // Render each project
+    config.gallery.projects?.forEach((project, index) => {
+        const stillCount = project.stills?.length || 0;
+        const card = document.createElement('div');
+        card.style.cssText = 'min-width: 200px; height: 180px; border: 1px solid #d2d2d7; border-radius: 12px; padding: 1rem; display: flex; flex-direction: column; cursor: pointer; flex-shrink: 0; background: white; transition: all 0.2s;';
+        card.onmouseover = () => card.style.borderColor = '#0071e3';
+        card.onmouseout = () => card.style.borderColor = '#d2d2d7';
+        card.onclick = () => openViewStillsModal(index);
+        
+        card.innerHTML = `
+            <div style="font-weight: 600; margin-bottom: 0.5rem; font-size: 0.95rem;">${project.name || 'Untitled'}</div>
+            <div style="color: #86868b; font-size: 0.8rem; margin-bottom: auto;">
+                ${project.director ? `<div>Director: ${project.director}</div>` : ''}
+                ${project.type ? `<div>${project.type}</div>` : ''}
+                ${project.year ? `<div>${project.year}</div>` : ''}
+            </div>
+            <div style="margin-top: 0.5rem; font-size: 0.85rem; color: #0071e3;">
+                🖼️ ${stillCount} still${stillCount !== 1 ? 's' : ''}
+            </div>
+            <div style="margin-top: 0.5rem; display: flex; gap: 0.5rem;">
+                <button class="btn btn-secondary" onclick="event.stopPropagation(); editGalleryProject(${index})" style="flex: 1; font-size: 0.75rem; padding: 0.25rem;">Edit</button>
+                <button class="btn btn-danger" onclick="event.stopPropagation(); deleteGalleryProject(${index})" style="flex: 1; font-size: 0.75rem; padding: 0.25rem;">Delete</button>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+// Render stills grid (filtered)
+function renderGalleryStills() {
     const list = document.getElementById('galleryList');
     const count = document.getElementById('galleryCount');
-    if (!list || !config.gallery) return;
+    if (!list) return;
     
-    count.textContent = config.gallery.images?.length || 0;
+    const stills = getFilteredStills();
+    count.textContent = stills.length;
     list.innerHTML = '';
     
-    config.gallery.images?.forEach((img, index) => {
+    if (stills.length === 0) {
+        list.innerHTML = '<p style="color: #86868b; grid-column: 1 / -1; text-align: center; padding: 2rem;">No stills match the current filters. Upload some images!</p>';
+        return;
+    }
+    
+    stills.forEach((still, idx) => {
         const div = document.createElement('div');
         div.style.cssText = 'position: relative; border-radius: 8px; overflow: hidden; cursor: pointer;';
-        div.onclick = () => editGalleryImage(index);
+        div.onclick = () => openViewStillsModal(still.projectIndex);
         div.innerHTML = `
-            <img src="${img.src || img}" alt="${img.alt || 'Gallery image'}" style="width: 100%; height: 200px; object-fit: cover; display: block;">
+            <img src="${still.src}" alt="${still.alt || 'Still'}" style="width: 100%; height: 200px; object-fit: cover; display: block;">
             <div style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.7); color: white; padding: 0.5rem; font-size: 0.75rem;">
-                ${img.tag ? 'Tag: ' + img.tag : 'No tag'} ${img.bts ? '• BTS' : ''}
+                ${still.projectName || ''}
             </div>
         `;
         list.appendChild(div);
     });
 }
 
-function renderProjectTags() {
-    const container = document.getElementById('projectTagsList');
-    const select = document.getElementById('editImageTag');
-    if (!container || !select) return;
+// Get filtered stills based on active filters
+function getFilteredStills() {
+    const movieFilter = document.getElementById('galleryFilterMovie')?.value || '';
+    const cameraFilter = document.getElementById('galleryFilterCamera')?.value || '';
+    const typeFilter = document.getElementById('galleryFilterType')?.value || '';
+    const yearFilter = document.getElementById('galleryFilterYear')?.value || '';
     
-    container.innerHTML = '';
-    select.innerHTML = '<option value="">-- Select Project --</option>';
+    const allStills = [];
     
-    config.selectedWorks?.forEach(project => {
-        // Add to tags list
-        const tag = document.createElement('span');
-        tag.style.cssText = 'background: #0071e3; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem;';
-        tag.textContent = project.title;
-        container.appendChild(tag);
+    config.gallery.projects?.forEach((project, pIdx) => {
+        if (movieFilter && project.name !== movieFilter) return;
+        if (cameraFilter && project.camera !== cameraFilter) return;
+        if (typeFilter && project.type !== typeFilter) return;
+        if (yearFilter && project.year !== yearFilter) return;
         
-        // Add to select
-        const option = document.createElement('option');
-        option.value = project.title;
-        option.textContent = project.title;
-        select.appendChild(option);
-    });
-}
-
-function uploadGalleryImages(event) {
-    const files = event.target.files;
-    if (!files.length) return;
-    
-    Array.from(files).forEach(file => {
-        const formData = new FormData();
-        formData.append('file', file);
-        
-        fetch('/api/upload', {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${authToken}` },
-            body: formData
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                if (!config.gallery) config.gallery = { images: [], bts: [] };
-                config.gallery.images.push({
-                    src: data.assetsPath || data.path,
-                    tag: '',
-                    bts: false,
-                    alt: file.name
-                });
-                renderGallery();
-                markChanged();
-            }
+        project.stills?.forEach((still, sIdx) => {
+            allStills.push({
+                ...still,
+                projectIndex: pIdx,
+                stillIndex: sIdx,
+                projectName: project.name
+            });
         });
     });
-}
-
-function editGalleryImage(index) {
-    const img = config.gallery.images[index];
-    document.getElementById('editImagePreview').src = img.src || img;
-    document.getElementById('editImageTag').value = img.tag || '';
-    document.getElementById('editImageBts').className = `toggle ${img.bts ? 'active' : ''}`;
-    window.editingGalleryIndex = index;
-    document.getElementById('galleryImageModal').classList.add('active');
-}
-
-function closeGalleryImageModal() {
-    document.getElementById('galleryImageModal').classList.remove('active');
-}
-
-function toggleBts() {
-    const toggle = document.getElementById('editImageBts');
-    toggle.classList.toggle('active');
-}
-
-function saveGalleryImageDetails() {
-    const index = window.editingGalleryIndex;
-    if (index === undefined) return;
     
-    config.gallery.images[index].tag = document.getElementById('editImageTag').value;
-    config.gallery.images[index].bts = document.getElementById('editImageBts').classList.contains('active');
+    return allStills;
+}
+
+// Update filter dropdowns
+function updateFilterDropdowns() {
+    const movieSelect = document.getElementById('galleryFilterMovie');
+    const yearSelect = document.getElementById('galleryFilterYear');
+    if (!movieSelect || !yearSelect) return;
     
-    renderGallery();
-    closeGalleryImageModal();
+    // Get unique values
+    const movies = new Set();
+    const years = new Set();
+    const cameras = new Set();
+    const types = new Set();
+    
+    config.gallery.projects?.forEach(p => {
+        if (p.name) movies.add(p.name);
+        if (p.year) years.add(p.year);
+        if (p.camera) cameras.add(p.camera);
+        if (p.type) types.add(p.type);
+    });
+    
+    // Update movie dropdown
+    const currentMovie = movieSelect.value;
+    movieSelect.innerHTML = '<option value="">All Projects</option>';
+    movies.forEach(m => {
+        movieSelect.innerHTML += `<option value="${m}">${m}</option>`;
+    });
+    movieSelect.value = currentMovie;
+    
+    // Update year dropdown
+    const currentYear = yearSelect.value;
+    yearSelect.innerHTML = '<option value="">All Years</option>';
+    years.forEach(y => {
+        yearSelect.innerHTML += `<option value="${y}">${y}</option>`;
+    });
+    yearSelect.value = currentYear;
+    
+    // Update camera dropdown
+    const cameraSelect = document.getElementById('galleryFilterCamera');
+    if (cameraSelect) {
+        const currentCamera = cameraSelect.value;
+        cameraSelect.innerHTML = '<option value="">All Cameras</option>';
+        config.gallery.knownCameras?.forEach(c => {
+            cameraSelect.innerHTML += `<option value="${c}">${c}</option>`;
+        });
+        cameraSelect.value = currentCamera;
+    }
+}
+
+// Update camera datalist suggestions
+function updateCameraSuggestions() {
+    const datalist = document.getElementById('galleryCameraSuggestions');
+    if (!datalist) return;
+    
+    datalist.innerHTML = '';
+    config.gallery.knownCameras?.forEach(camera => {
+        const option = document.createElement('option');
+        option.value = camera;
+        datalist.appendChild(option);
+    });
+}
+
+// Open add project modal
+function openAddGalleryProjectModal() {
+    window.editingGalleryProjectIndex = null;
+    document.getElementById('galleryProjectModalTitle').textContent = 'Add Gallery Project';
+    
+    // Clear all fields
+    document.getElementById('galleryProjectName').value = '';
+    document.getElementById('galleryProjectDirector').value = '';
+    document.getElementById('galleryProjectProducer').value = '';
+    document.getElementById('galleryProjectDop').value = '';
+    document.getElementById('galleryProjectType').value = '';
+    document.getElementById('galleryProjectCamera').value = '';
+    document.getElementById('galleryProjectYear').value = '';
+    document.getElementById('galleryProjectUpload').value = '';
+    
+    document.getElementById('galleryProjectModal').classList.add('active');
+}
+
+// Open edit project modal
+function editGalleryProject(index) {
+    const project = config.gallery.projects[index];
+    if (!project) return;
+    
+    window.editingGalleryProjectIndex = index;
+    document.getElementById('galleryProjectModalTitle').textContent = 'Edit Gallery Project';
+    
+    document.getElementById('galleryProjectName').value = project.name || '';
+    document.getElementById('galleryProjectDirector').value = project.director || '';
+    document.getElementById('galleryProjectProducer').value = project.producer || '';
+    document.getElementById('galleryProjectDop').value = project.dop || '';
+    document.getElementById('galleryProjectType').value = project.type || '';
+    document.getElementById('galleryProjectCamera').value = project.camera || '';
+    document.getElementById('galleryProjectYear').value = project.year || '';
+    document.getElementById('galleryProjectUpload').value = '';
+    
+    document.getElementById('galleryProjectModal').classList.add('active');
+}
+
+// Save gallery project
+function saveGalleryProject() {
+    const name = document.getElementById('galleryProjectName').value.trim();
+    if (!name) {
+        alert('Movie name is required');
+        return;
+    }
+    
+    const camera = document.getElementById('galleryProjectCamera').value.trim();
+    
+    // Add camera to known cameras if new
+    if (camera && !config.gallery.knownCameras.includes(camera)) {
+        config.gallery.knownCameras.push(camera);
+    }
+    
+    const project = {
+        id: 'gallery-project-' + Date.now(),
+        name,
+        director: document.getElementById('galleryProjectDirector').value.trim(),
+        producer: document.getElementById('galleryProjectProducer').value.trim(),
+        dop: document.getElementById('galleryProjectDop').value.trim(),
+        type: document.getElementById('galleryProjectType').value,
+        camera,
+        year: document.getElementById('galleryProjectYear').value,
+        stills: []
+    };
+    
+    // Handle file upload
+    const fileInput = document.getElementById('galleryProjectUpload');
+    if (fileInput.files.length > 0) {
+        const uploadPromises = Array.from(fileInput.files).map(file => {
+            const formData = new FormData();
+            formData.append('file', file);
+            return fetch('/api/upload', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${authToken}` },
+                body: formData
+            }).then(res => res.json()).then(data => ({
+                src: data.assetsPath || data.path,
+                alt: file.name
+            }));
+        });
+        
+        Promise.all(uploadPromises).then(uploadedStills => {
+            project.stills = uploadedStills;
+            saveProjectToConfig(project);
+        });
+    } else {
+        saveProjectToConfig(project);
+    }
+}
+
+function saveProjectToConfig(project) {
+    const index = window.editingGalleryProjectIndex;
+    if (index !== null && index !== undefined) {
+        // Update existing
+        config.gallery.projects[index] = { ...config.gallery.projects[index], ...project };
+    } else {
+        // Add new
+        config.gallery.projects.push(project);
+    }
+    
+    renderGalleryProjects();
+    renderGalleryStills();
+    updateFilterDropdowns();
+    updateCameraSuggestions();
+    closeGalleryProjectModal();
     markChanged();
 }
 
-function deleteGalleryImage() {
-    const index = window.editingGalleryIndex;
-    if (index === undefined) return;
-    
-    if (confirm('Delete this image?')) {
-        config.gallery.images.splice(index, 1);
-        renderGallery();
-        closeGalleryImageModal();
-        markChanged();
-    }
+function closeGalleryProjectModal() {
+    document.getElementById('galleryProjectModal').classList.remove('active');
 }
+
+function deleteGalleryProject(index) {
+    if (!confirm('Delete this project and all its stills?')) return;
+    config.gallery.projects.splice(index, 1);
+    renderGalleryProjects();
+    renderGalleryStills();
+    updateFilterDropdowns();
+    markChanged();
+}
+
+// View stills modal
+function openViewStillsModal(projectIndex) {
+    const project = config.gallery.projects[projectIndex];
+    if (!project) return;
+    
+    window.currentGalleryProjectIndex = projectIndex;
+    document.getElementById('viewStillsTitle').textContent = `${project.name} - Stills`;
+    
+    const grid = document.getElementById('viewStillsGrid');
+    grid.innerHTML = '';
+    
+    if (!project.stills || project.stills.length === 0) {
+        grid.innerHTML = '<p style="color: #86868b; grid-column: 1 / -1; text-align: center;">No stills yet. Upload some above!</p>';
+    } else {
+        project.stills.forEach((still, idx) => {
+            const div = document.createElement('div');
+            div.style.cssText = 'position: relative; border-radius: 8px; overflow: hidden;';
+            div.innerHTML = `
+                <img src="${still.src}" style="width: 100%; height: 180px; object-fit: cover; display: block;">
+                <button onclick="deleteStill(${projectIndex}, ${idx})" style="position: absolute; top: 0.5rem; right: 0.5rem; background: rgba(255,0,0,0.8); color: white; border: none; border-radius: 50%; width: 2rem; height: 2rem; cursor: pointer; font-size: 1rem;">×</button>
+            `;
+            grid.appendChild(div);
+        });
+    }
+    
+    // Setup upload handler
+    const uploadInput = document.getElementById('viewStillsUpload');
+    uploadInput.onchange = (e) => uploadStillsToProject(projectIndex, e);
+    
+    document.getElementById('viewStillsModal').classList.add('active');
+}
+
+function uploadStillsToProject(projectIndex, event) {
+    const files = event.target.files;
+    if (!files.length) return;
+    
+    const project = config.gallery.projects[projectIndex];
+    if (!project) return;
+    if (!project.stills) project.stills = [];
+    
+    const uploadPromises = Array.from(files).map(file => {
+        const formData = new FormData();
+        formData.append('file', file);
+        return fetch('/api/upload', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${authToken}` },
+            body: formData
+        }).then(res => res.json()).then(data => ({
+            src: data.assetsPath || data.path,
+            alt: file.name
+        }));
+    });
+    
+    Promise.all(uploadPromises).then(uploadedStills => {
+        project.stills.push(...uploadedStills);
+        renderGalleryProjects();
+        renderGalleryStills();
+        openViewStillsModal(projectIndex); // Refresh modal
+        markChanged();
+    });
+}
+
+function deleteStill(projectIndex, stillIndex) {
+    if (!confirm('Delete this still?')) return;
+    config.gallery.projects[projectIndex].stills.splice(stillIndex, 1);
+    renderGalleryProjects();
+    renderGalleryStills();
+    openViewStillsModal(projectIndex);
+    markChanged();
+}
+
+function promoteToSelectedWorks() {
+    const projectIndex = window.currentGalleryProjectIndex;
+    if (projectIndex === undefined) return;
+    
+    const project = config.gallery.projects[projectIndex];
+    if (!project) return;
+    
+    // Open Selected Works modal with pre-filled data
+    // This would need integration with the existing editProject function
+    // For now, we'll create a basic entry
+    const swProject = {
+        id: 'project-' + Date.now(),
+        title: project.name,
+        tagline: '',
+        role: project.dop || 'Cinematographer',
+        category: mapGalleryTypeToCategory(project.type),
+        trailerUrl: '',
+        imdbUrl: '',
+        year: project.year,
+        visible: true,
+        image: project.stills?.[0]?.src || '/assets/images/placeholder.png',
+        credits: {
+            director: project.director,
+            dop: project.dop,
+            producer: project.producer
+        }
+    };
+    
+    config.selectedWorks.push(swProject);
+    
+    // Mark as promoted
+    project.promoted = true;
+    project.selectedWorksId = swProject.id;
+    
+    renderProjects();
+    closeViewStillsModal();
+    markChanged();
+    
+    alert(`Promoted "${project.name}" to Selected Works! Edit the project in Selected Works to add full crew details.`);
+}
+
+function mapGalleryTypeToCategory(galleryType) {
+    const mapping = {
+        'Short Film': 'narrative',
+        'Feature': 'narrative',
+        'Documentary': 'documentary',
+        'Music Video': 'music video',
+        'Commercial': 'commercial'
+    };
+    return mapping[galleryType] || 'narrative';
+}
+
+function closeViewStillsModal() {
+    document.getElementById('viewStillsModal').classList.remove('active');
+}
+
+function clearGalleryFilters() {
+    document.getElementById('galleryFilterMovie').value = '';
+    document.getElementById('galleryFilterCamera').value = '';
+    document.getElementById('galleryFilterType').value = '';
+    document.getElementById('galleryFilterYear').value = '';
+    renderGalleryStills();
+}
+
+// Filter change handlers
+function setupGalleryFilters() {
+    ['galleryFilterMovie', 'galleryFilterCamera', 'galleryFilterType', 'galleryFilterYear'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('change', () => {
+                renderGalleryStills();
+                updateFilterBubbles();
+            });
+        }
+    });
+}
+
+function updateFilterBubbles() {
+    const container = document.getElementById('galleryFilterBubbles');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    const filters = [
+        { id: 'galleryFilterMovie', label: 'Movie' },
+        { id: 'galleryFilterCamera', label: 'Camera' },
+        { id: 'galleryFilterType', label: 'Type' },
+        { id: 'galleryFilterYear', label: 'Year' }
+    ];
+    
+    filters.forEach(filter => {
+        const value = document.getElementById(filter.id)?.value;
+        if (value) {
+            const bubble = document.createElement('span');
+            bubble.style.cssText = 'display: inline-flex; align-items: center; gap: 0.25rem; background: #0071e3; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem;';
+            bubble.innerHTML = `${filter.id === 'galleryFilterType' ? '🎬' : filter.id === 'galleryFilterYear' ? '📅' : filter.id === 'galleryFilterCamera' ? '📹' : '🎬'} ${value} <span style="cursor: pointer; margin-left: 0.25rem;" onclick="clearFilter('${filter.id}')">×</span>`;
+            container.appendChild(bubble);
+        }
+    });
+}
+
+function clearFilter(filterId) {
+    document.getElementById(filterId).value = '';
+    renderGalleryStills();
+    updateFilterBubbles();
+}
+
+// Initialize gallery on load
+// This will be called from initDashboard()
 
 // Vimeo preview
 function updateVimeoPreview() {
