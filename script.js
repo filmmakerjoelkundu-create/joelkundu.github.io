@@ -56,7 +56,9 @@ socialLinks: []
 };
 }
 
-// Update Hero section from config
+// ============================================
+// UPDATE ALL SECTIONS FROM CONFIG
+// ============================================
 function updateHeroFromConfig() {
 if (!siteConfig?.hero) return;
 
@@ -70,6 +72,163 @@ if (taglineEl) taglineEl.textContent = siteConfig.hero.tagline || 'Cinematograph
 if (aboutHeader) aboutHeader.textContent = siteConfig.about?.header || 'About Me';
 
 console.log('🎨 Hero section updated from config');
+
+// Update all sections
+updateSelectedWorks();
+updateGallery();
+updateContact();
+updateFooter();
+updateServices();
+updateShowreel();
+
+console.log('✅ All sections updated from config');
+}
+
+// Render Selected Works from config
+function updateSelectedWorks() {
+const carouselTrack = document.getElementById('carouselTrack');
+if (!carouselTrack || !siteConfig?.selectedWorks) return;
+
+// Clear existing cards (keep fallback if no config)
+if (siteConfig.selectedWorks.length > 0) {
+carouselTrack.innerHTML = '';
+
+siteConfig.selectedWorks.forEach(project => {
+if (project.visible === false) return; // Skip hidden projects
+
+const card = document.createElement('div');
+card.className = 'work-card retro-card';
+card.dataset.category = project.category || 'narrative';
+
+// Get first still or placeholder image
+const imageUrl = project.image || project.stills?.[0]?.src || 'assets/images/placeholder.png';
+
+// Build crew display - only show filled fields
+const crewDisplay = [];
+if (project.credits?.director) crewDisplay.push(`Director: ${project.credits.director}`);
+if (project.credits?.dop) crewDisplay.push(`DOP: ${project.credits.dop}`);
+if (project.credits?.producer) crewDisplay.push(`Producer: ${project.credits.producer}`);
+
+card.innerHTML = `
+<div class="work-image">
+<img src="${imageUrl}" alt="${project.title || 'Project'}">
+<div class="work-overlay">
+<h3>${project.title || 'Untitled'}</h3>
+<p>${project.role || 'Cinematographer'}</p>
+<button class="btn-view-stills retro-btn">Know More</button>
+</div>
+</div>
+<div class="work-info">
+<h3>${project.title || 'Untitled'}</h3>
+<p>${project.tagline || project.credits?.director ? `A film by ${project.credits.director}` : 'Coming soon'}</p>
+${crewDisplay.length > 0 ? `<small style="color: #86868b;">${crewDisplay.join(' • ')}</small>` : ''}
+</div>
+`;
+carouselTrack.appendChild(card);
+});
+}
+}
+
+// Render Gallery from config
+function updateGallery() {
+const galleryGrid = document.getElementById('galleryGrid');
+if (!galleryGrid || !siteConfig?.gallery?.projects) return;
+
+// Collect all stills from all projects
+const allStills = [];
+siteConfig.gallery.projects.forEach(project => {
+project.stills?.forEach(still => {
+allStills.push({
+...still,
+projectName: project.name
+});
+});
+});
+
+// Clear and render (keep fallback if no config)
+if (allStills.length > 0) {
+galleryGrid.innerHTML = '';
+allStills.forEach(still => {
+const div = document.createElement('div');
+div.className = 'gallery-item';
+div.innerHTML = `
+<img src="${still.src}" alt="${still.alt || still.projectName}">
+`;
+galleryGrid.appendChild(div);
+});
+}
+}
+
+// Render Contact section
+function updateContact() {
+if (!siteConfig?.contact) return;
+
+const emailEl = document.querySelector('.contact-email');
+const locationEl = document.querySelector('.contact-location');
+
+if (emailEl) emailEl.textContent = siteConfig.contact.email || '';
+if (locationEl && siteConfig.contact.location?.visible) {
+locationEl.textContent = siteConfig.contact.location.text || '';
+locationEl.style.display = 'block';
+}
+}
+
+// Render Footer
+function updateFooter() {
+if (!siteConfig?.footer) return;
+
+const taglineEl = document.querySelector('.footer-tagline');
+if (taglineEl) taglineEl.textContent = siteConfig.footer.tagline || '';
+
+// Render social links
+const socialList = document.querySelector('.social-links');
+if (socialList && siteConfig.footer.socialLinks) {
+socialList.innerHTML = '';
+siteConfig.footer.socialLinks.forEach(link => {
+if (link.visible !== false && link.url) {
+const a = document.createElement('a');
+a.href = link.url;
+a.target = '_blank';
+a.textContent = link.platform || 'Link';
+socialList.appendChild(a);
+}
+});
+}
+}
+
+// Render Services
+function updateServices() {
+const servicesSection = document.querySelector('.services-list');
+if (!servicesSection || !siteConfig?.services) return;
+
+if (siteConfig.services.length > 0) {
+servicesSection.innerHTML = '';
+siteConfig.services.forEach(service => {
+if (service.visible !== false) {
+const div = document.createElement('div');
+div.className = 'service-item';
+div.innerHTML = `
+<h3>${service.title}</h3>
+<p>${service.description}</p>
+`;
+servicesSection.appendChild(div);
+}
+});
+}
+}
+
+// Render Showreel
+function updateShowreel() {
+const showreelContainer = document.getElementById('showreelContainer');
+if (!showreelContainer || !siteConfig?.showreel) return;
+
+const vimeoUrl = siteConfig.showreel.vimeoUrl || siteConfig.showreel.url;
+if (vimeoUrl) {
+const vimeoId = vimeoUrl.match(/video\/(\d+)/)?.[1] || vimeoUrl.match(/vimeo\.com\/(\d+)/)?.[1];
+if (vimeoId) {
+showreelContainer.innerHTML = `<iframe src="https://player.vimeo.com/video/${vimeoId}" frameborder="0" allowfullscreen></iframe>`;
+}
+}
 }
 function isMobileDevice() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
