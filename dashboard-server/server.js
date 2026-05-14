@@ -179,23 +179,100 @@ app.post('/api/config', authenticateToken, (req, res) => {
 });
 
 app.post('/api/upload', authenticateToken, upload.single('file'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'No file uploaded' });
-  }
-  
-  const uploadPath = path.join(__dirname, '../uploads', req.file.filename);
-  const assetsPath = path.join(__dirname, '../assets/images', req.file.originalname);
-  
-  // Copy to assets folder for git
-  fs.copyFileSync(uploadPath, assetsPath);
-  
-  res.json({
-    success: true,
-    originalName: req.file.originalname,
-    filename: req.file.filename,
-    path: `/assets/images/${req.file.originalname}`,
-    assetsPath: `assets/images/${req.file.originalname}`
-  });
+if (!req.file) {
+return res.status(400).json({ error: 'No file uploaded' });
+}
+
+const uploadPath = path.join(__dirname, '../uploads', req.file.filename);
+const assetsPath = path.join(__dirname, '../assets/images', req.file.originalname);
+
+// Copy to assets folder for git
+fs.copyFileSync(uploadPath, assetsPath);
+
+res.json({
+success: true,
+originalName: req.file.originalname,
+filename: req.file.filename,
+path: `/assets/images/${req.file.originalname}`,
+assetsPath: `assets/images/${req.file.originalname}`
+});
+});
+
+// Build endpoint - copies config and assets to live site
+app.post('/api/build', authenticateToken, (req, res) => {
+try {
+const rootDir = path.join(__dirname, '..');
+const liveConfigDir = path.join(rootDir, 'config');
+const liveConfigFile = path.join(liveConfigDir, 'site-config.json');
+
+// Ensure live config directory exists
+if (!fs.existsSync(liveConfigDir)) {
+fs.mkdirSync(liveConfigDir, { recursive: true });
+}
+
+// Copy config file
+const currentConfig = JSON.stringify(siteConfig, null, 2);
+fs.writeFileSync(liveConfigFile, currentConfig, 'utf8');
+
+// Copy uploads to assets if needed
+const uploadsDir = path.join(__dirname, '../uploads');
+const assetsDir = path.join(__dirname, '../assets/images');
+if (fs.existsSync(uploadsDir)) {
+const uploadFiles = fs.readdirSync(uploadsDir);
+uploadFiles.forEach(file => {
+const src = path.join(uploadsDir, file);
+const dest = path.join(assetsDir, file);
+if (!fs.existsSync(dest)) {
+fs.copyFileSync(src, dest);
+}
+});
+}
+
+res.json({ success: true, message: 'Build completed successfully' });
+} catch (error) {
+console.error('Build error:', error);
+res.status(500).json({ error: error.message });
+}
+});
+
+// Push endpoint - commits and pushes to GitHub
+app.post('/api/push', authenticateToken, (req, res) => {
+const { message = 'Update from dashboard' } = req.body;
+const { exec } = require('child_process');
+const rootDir = path.join(__dirname, '..');
+
+// Check for changes
+exec('git status --porcelain', { cwd: rootDir }, (err, stdout) => {
+if (err) {
+return res.status(500).json({ error: 'Git status failed: ' + err.message });
+}
+
+if (!stdout.trim()) {
+// No changes to commit
+return res.json({ success: true, message: 'No changes to push' });
+}
+
+// Add all changes
+exec('git add -A', { cwd: rootDir }, (err) => {
+if (err) return res.status(500).json({ error: 'Git add failed: ' + err.message });
+
+// Commit
+exec(`git commit -m "${message}"`, { cwd: rootDir }, (err) => {
+if (err) {
+// Commit might fail if nothing to commit, which is OK
+console.log('Commit note:', err.message);
+}
+
+// Push to main
+exec('git push origin main', { cwd: rootDir }, (err, stdout, stderr) => {
+if (err) {
+return res.status(500).json({ error: 'Push failed: ' + stderr });
+}
+res.json({ success: true, message: 'Successfully pushed to GitHub!' });
+});
+});
+});
+});
 });
 
 // IMDB data fetch (using OMDB API)

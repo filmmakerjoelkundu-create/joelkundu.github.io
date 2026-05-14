@@ -366,11 +366,18 @@
         </main>
     </div>
 
-    <!-- Save Bar -->
-    <div class="save-bar" id="saveBar">
-        <button class="btn btn-primary" onclick="saveAll()">Save Changes</button>
-        <button class="btn btn-secondary" onclick="cancelChanges()">Cancel</button>
-    </div>
+<!-- Save Bar -->
+<div class="save-bar" id="saveBar">
+<button class="btn btn-primary" onclick="saveAll()">Save Changes</button>
+<button class="btn btn-secondary" onclick="cancelChanges()">Cancel</button>
+</div>
+
+<!-- Deploy Bar -->
+<div class="save-bar" id="deployBar" style="display: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+<span style="color: white; font-weight: 600; margin-right: 1rem;" id="deployStatus">Ready to deploy</span>
+<button class="btn" onclick="buildForDeploy()" style="background: white; color: #667eea; font-weight: 600;">🔨 Build</button>
+<button class="btn" onclick="pushToGitHub()" style="background: white; color: #764ba2; font-weight: 600;">🚀 Push to GitHub</button>
+</div>
 
     <!-- Project Modal -->
     <div class="modal-overlay" id="projectModal">
@@ -1918,11 +1925,12 @@ function getSocialIcon(platform) {
             });
         });
 
-        // Mark changes
-        function markChanged() {
-            hasChanges = true;
-            document.getElementById('saveBar').classList.add('active');
-        }
+// Mark changes
+function markChanged() {
+hasChanges = true;
+document.getElementById('saveBar').classList.add('active');
+document.getElementById('deployBar').style.display = 'flex';
+}
 
         // Save
         async function saveAll() {
@@ -1963,19 +1971,101 @@ function getSocialIcon(platform) {
             }
         }
 
-        function cancelChanges() {
-            hasChanges = false;
-            document.getElementById('saveBar').classList.remove('active');
-            loadConfig();
-        }
+function cancelChanges() {
+hasChanges = false;
+document.getElementById('saveBar').classList.remove('active');
+loadConfig();
+}
 
-        // Prevent navigation with unsaved changes
-        window.addEventListener('beforeunload', (e) => {
-            if (hasChanges) {
-                e.preventDefault();
-                e.returnValue = '';
-            }
-        });
+// Build for deployment
+async function buildForDeploy() {
+const deployBar = document.getElementById('deployBar');
+const statusEl = document.getElementById('deployStatus');
+
+if (!deployBar || !statusEl) return;
+
+try {
+statusEl.textContent = 'Building...';
+deployBar.style.display = 'flex';
+
+const response = await fetch('/api/build', {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json',
+'Authorization': `Bearer ${authToken}`
+}
+});
+
+const data = await response.json();
+
+if (data.success) {
+statusEl.textContent = '✅ Build complete!';
+setTimeout(() => {
+deployBar.style.display = 'none';
+}, 3000);
+} else {
+statusEl.textContent = '❌ Build failed: ' + data.error;
+}
+} catch (error) {
+console.error('Build error:', error);
+statusEl.textContent = '❌ Build error: ' + error.message;
+}
+}
+
+// Push to GitHub
+async function pushToGitHub() {
+const deployBar = document.getElementById('deployBar');
+const statusEl = document.getElementById('deployStatus');
+
+if (!deployBar || !statusEl) return;
+
+const message = prompt('Commit message:', 'Update from dashboard');
+if (!message) return;
+
+try {
+statusEl.textContent = 'Pushing to GitHub...';
+deployBar.style.display = 'flex';
+
+const response = await fetch('/api/push', {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json',
+'Authorization': `Bearer ${authToken}`
+},
+body: JSON.stringify({ message })
+});
+
+const data = await response.json();
+
+if (data.success) {
+statusEl.textContent = '✅ Pushed to GitHub!';
+setTimeout(() => {
+deployBar.style.display = 'none';
+}, 3000);
+} else {
+statusEl.textContent = '❌ Push failed: ' + data.error;
+}
+} catch (error) {
+console.error('Push error:', error);
+statusEl.textContent = '❌ Push error: ' + error.message;
+}
+}
+
+// Show deploy bar when there are changes
+function showDeployBar() {
+const deployBar = document.getElementById('deployBar');
+if (deployBar && hasChanges) {
+deployBar.style.display = 'flex';
+}
+}
+
+// Prevent navigation with unsaved changes
+window.addEventListener('beforeunload', (e) => {
+if (hasChanges) {
+e.preventDefault();
+e.returnValue = '';
+}
+});
     </script>
 </body>
 </html>
