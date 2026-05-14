@@ -1,0 +1,263 @@
+{
+  "hero": {
+    "name": "Joel Kundu",
+    "tagline": "Cinematographer & Director",
+    "themes": [
+      {
+        "id": "thriller",
+        "name": "Thriller",
+        "icon": "🎭",
+        "colors": {
+          "bgPrimary": "#0a0a0a",
+          "bgSecondary": "#1a1a1a",
+          "bgTertiary": "#2a2a2a",
+          "textPrimary": "#ffffff",
+          "textSecondary": "#cccccc",
+          "accent": "#C4A35A",
+          "accentHover": "#d4b36a"
+        }
+      },
+      {
+        "id": "drama",
+        "name": "Drama",
+        "icon": "🎬",
+        "colors": {
+          "bgPrimary": "#1a1a2e",
+          "bgSecondary": "#16213e",
+          "bgTertiary": "#0f3460",
+          "textPrimary": "#e8e8e8",
+          "textSecondary": "#b8b8b8",
+          "accent": "#e94560",
+          "accentHover": "#f05670"
+        }
+      },
+      {
+        "id": "horror",
+        "name": "Horror",
+        "icon": "👻",
+        "colors": {
+          "bgPrimary": "#0a0a0a",
+          "bgSecondary": "#1a0a0a",
+          "bgTertiary": "#2a0a0a",
+          "textPrimary": "#f5f5f5",
+          "textSecondary": "#d5d5d5",
+          "accent": "#8b0000",
+          "accentHover": "#a00000"
+        }
+      },
+      {
+        "id": "scifi",
+        "name": "Sci-Fi",
+        "icon": "🚀",
+        "colors": {
+          "bgPrimary": "#00001a",
+          "bgSecondary": "#001122",
+          "bgTertiary": "#002244",
+          "textPrimary": "#00ff00",
+          "textSecondary": "#88ff88",
+          "accent": "#9d00ff",
+          "accentHover": "#b000ff"
+        }
+      },
+      {
+        "id": "action",
+        "name": "Action",
+        "icon": "💥",
+        "colors": {
+          "bgPrimary": "#0a0a0a",
+          "bgSecondary": "#1a1a0a",
+          "bgTertiary": "#2a2a0a",
+          "textPrimary": "#ffffff",
+          "textSecondary": "#e0e0e0",
+          "accent": "#ff6600",
+          "accentHover": "#ff7700"
+        }
+      }
+    ],
+    "laurels": [
+      {
+        "id": "laurel-1",
+        "image": "/assets/logos/Laurel.png",
+        "alt": "MAMM Laurel"
+      }
+    ]
+  },
+  "about": {
+    "header": "About Me",
+    "tagline": "Cinematographer, Director, and Storyteller",
+    "paragraph": "I'm a cinematographer and director based in London, Ontario, with a passion for visual storytelling that blends technical precision with emotional depth. My work explores themes of identity, memory, and human connection through a cinematic lens.\n\nWith a background in Occupational Health and Safety Management, I bring a unique perspective to filmmaking—understanding that the safest sets are often the most creative ones. I believe in preparation, precision, and the magic that happens when everything comes together perfectly.\n\nFrom intimate character studies to sweeping visual narratives, I approach every project with the same commitment to craft and collaboration. My film philosophy is simple: every frame should serve the story, every light should reveal character, and every cut should propel the narrative forward.",
+    "stats": [
+      {
+        "number": "5+",
+        "text": "Years Experience"
+      },
+      {
+        "number": "15+",
+        "text": "Projects Completed"
+      },
+      {
+        "number": "3",
+        "text": "Festival Selections"
+      },
+      {
+        "number": "∞",
+        "text": "Coffee Consumed"
+      }
+    ]
+  },
+  "selectedWorks": [
+    {
+      "id": "e13m",
+      "title": "E13M",
+      "tagline": "A father's self-erasure as an act of love",
+      "role": "Director of Photography",
+      "category": "narrative",
+      "image": "assets/images/Screenshot (15).png",
+      "visible": true,
+      "details": {
+        "year": "2024",
+        "director": "",
+        "cinematographer": "Joel Kundu",
+        "genre": "Drama"
+      }
+    },
+    {
+      "id": "short2",
+      "title": "Untitled Short",
+      "tagline": "Coming soon",
+      "role": "Director",
+      "category": "narrative",
+      "image": "assets/images/Screenshot (16).png",
+      "visible": true,
+      "details": {
+        "year": "TBD",
+        "director": "Joel Kundu",
+        "cinematographer": "",
+        "genre": "Short Film"
+      }
+    },
+    {
+      "id": "doc1",
+      "title": "Documentary Project",
+      "tagline": "In development",
+      "role": "Cinematographer",
+      "category": "documentary",
+      "image": "assets/images/Screenshot (17).png",
+      "visible": true,
+      "details": {
+        "year": "TBD",
+        "director": "",
+        "cinematographer": "Joel Kundu",
+        "genre": "Documentary"
+      }
+    },
+    {
+      "id": "commercial1",
+      "title": "Commercial",
+      "tagline": "Brand storytelling",
+      "role": "DP/Director",
+      "category": "commercial",
+      "image": "assets/images/Screenshot (18).png",
+      "visible": true,
+      "details": {
+        "year": "2024",
+        "director": "Joel Kundu",
+        "cinematographer": "Joel Kundu",
+        "genre": "Commercial"
+      }
+    }
+  ],
+  "showreel": {
+    "vimeoUrl": "https://player.vimeo.com/video/1132983429?h=2a3b4c5d6e&title=0&byline=0&portrait=0",
+    "vimeoId": "1132983429"
+  },
+  "gallery": {
+    "projects": [],
+    "knownCameras": []
+  },
+  "services": [
+    {
+      "id": "service-1",
+      "title": "Cinematography",
+      "description": "Visual storytelling through lighting, composition, and camera movement. From narrative features to commercials.",
+      "visible": true,
+      "order": 1
+    },
+    {
+      "id": "service-2",
+      "title": "Directing",
+      "description": "Bringing scripts to life with vision, collaboration, and attention to every detail of the filmmaking process.",
+      "visible": true,
+      "order": 2
+    },
+    {
+      "id": "service-3",
+      "title": "Color Grading",
+      "description": "Enhancing mood and atmosphere through professional color correction and grading for any project.",
+      "visible": true,
+      "order": 3
+    },
+    {
+      "id": "service-4",
+      "title": "Editing",
+      "description": "Crafting the narrative rhythm and pacing through precise editing and storytelling techniques.",
+      "visible": true,
+      "order": 4
+    },
+    {
+      "id": "service-5",
+      "title": "Screenwriting",
+      "description": "Crafting compelling narratives with strong characters, meaningful themes, and cinematic potential.",
+      "visible": true,
+      "order": 5
+    },
+    {
+      "id": "service-6",
+      "title": "VFX",
+      "description": "Creating stunning visual effects that seamlessly integrate with live-action footage.",
+      "visible": true,
+      "order": 6
+    }
+  ],
+  "contact": {
+    "message": "\"Every project begins with a conversation. Whether you have a fully developed script or just a spark of an idea, I'm here to help bring your vision to life. Let's discuss how we can collaborate to create something truly exceptional.\"",
+    "email": "filmmaker.joelkundu@gmail.com",
+    "location": {
+      "text": "London, Ontario, Canada",
+      "visible": false
+    },
+    "website": {
+      "url": "",
+      "visible": false
+    }
+  },
+  "footer": {
+    "tagline": "Cinematographer & Director",
+    "socialLinks": [
+      {
+        "id": "instagram",
+        "platform": "Instagram",
+        "url": "",
+        "icon": "📷"
+      },
+      {
+        "id": "vimeo",
+        "platform": "Vimeo",
+        "url": "",
+        "icon": "🎬"
+      },
+      {
+        "id": "youtube",
+        "platform": "YouTube",
+        "url": "",
+        "icon": "▶️"
+      },
+      {
+        "id": "linkedin",
+        "platform": "LinkedIn",
+        "url": "",
+        "icon": "💼"
+      }
+    ]
+  }
+}

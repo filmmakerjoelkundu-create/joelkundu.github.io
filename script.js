@@ -2,7 +2,75 @@
 // CINEMATOGRAPHER PORTFOLIO - JOEL KUNDU
 // ============================================
 
-// Mobile detection - disable mouse tracking on mobile devices
+// ============================================
+// CONFIG LOADING - Fetch from dashboard-generated config
+// ============================================
+let siteConfig = null;
+
+async function loadSiteConfig() {
+try {
+const response = await fetch('config/site-config.json');
+if (!response.ok) throw new Error('Config not found');
+siteConfig = await response.json();
+console.log('✅ Config loaded successfully');
+updateHeroFromConfig();
+return true;
+} catch (error) {
+console.warn('⚠️ Using fallback config (config file not found or invalid)');
+siteConfig = getFallbackConfig();
+return false;
+}
+}
+
+function getFallbackConfig() {
+return {
+hero: {
+name: 'Joel Kundu',
+tagline: 'Cinematographer & Director',
+themes: [{
+id: 'thriller',
+name: 'Thriller',
+colors: {
+bgPrimary: '#0a0a0a',
+textPrimary: '#ffffff',
+accent: '#C4A35A'
+}
+}]
+},
+about: {
+header: 'About Me',
+tagline: 'Visual storyteller behind the lens',
+paragraph: '',
+stats: []
+},
+selectedWorks: [],
+gallery: { projects: [], knownCameras: [] },
+contact: {
+email: 'filmmaker.joelkundu@gmail.com',
+location: { text: 'London, Ontario, Canada', visible: true }
+},
+footer: {
+tagline: 'Capturing stories through the lens',
+socialLinks: []
+}
+};
+}
+
+// Update Hero section from config
+function updateHeroFromConfig() {
+if (!siteConfig?.hero) return;
+
+// Update title and tagline
+const titleEl = document.querySelector('.hero h1');
+const taglineEl = document.querySelector('.hero .tagline');
+const aboutHeader = document.querySelector('.about h2');
+
+if (titleEl) titleEl.textContent = siteConfig.hero.name || 'Joel Kundu';
+if (taglineEl) taglineEl.textContent = siteConfig.hero.tagline || 'Cinematographer & Director';
+if (aboutHeader) aboutHeader.textContent = siteConfig.about?.header || 'About Me';
+
+console.log('🎨 Hero section updated from config');
+}
 function isMobileDevice() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
            (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); // iPad on Safari
