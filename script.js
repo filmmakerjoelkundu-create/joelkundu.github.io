@@ -249,11 +249,11 @@ card.dataset.projectId = project.id || `project-${index}`; // Store project ID
 let imageUrl = 'assets/images/placeholder.png';
 if (project.image && project.image.includes('placeholder')) {
 // Use first still if poster is placeholder
-imageUrl = project.stills?.[0]?.src || 'assets/images/placeholder.png';
+imageUrl = resolvePath(project.stills?.[0]?.src || 'assets/images/placeholder.png');
 } else if (project.image) {
-imageUrl = project.image;
+imageUrl = resolvePath(project.image);
 } else if (project.stills?.[0]?.src) {
-imageUrl = project.stills[0].src;
+imageUrl = resolvePath(project.stills[0].src);
 }
 
 // Build crew display - only show filled fields
@@ -1556,9 +1556,9 @@ function addGalleryItems(items) {
     const randomDelay = Math.random() * 0.5;
     item.style.animationDelay = `${randomDelay}s`;
     
-    const img = document.createElement('img');
-    img.src = imgData.src;
-    img.alt = 'Gallery image';
+ const img = document.createElement('img');
+ img.src = resolvePath(imgData.src);
+ img.alt = 'Gallery image';
     img.draggable = false;
     
     // Add hover effect: move toward gallery center
@@ -1647,7 +1647,7 @@ function viewFullscreenImage(src, clickedItem) {
  `;
  
  const img = document.createElement('img');
- img.src = src;
+ img.src = resolvePath(src);
  img.style.cssText = `
  width: 115%; /* 15% bigger */
  max-height: 90vh;
@@ -2078,33 +2078,36 @@ function attachCardListeners() {
 }
 
 function scrollCarousel(direction) {
- const track = document.getElementById('carouselTrack');
- if (!track) return;
- 
- const cardWidth = 320; // Approx card width + gap
- const scrollAmount = cardWidth * direction;
- 
- carouselCurrentPosition += scrollAmount;
- track.style.transform = `translateX(${carouselCurrentPosition}px)`;
- 
- // Infinite loop detection
- const maxScroll = track.scrollWidth - track.parentElement.offsetWidth;
- if (Math.abs(carouselCurrentPosition) > maxScroll) {
- carouselCurrentPosition = 0;
- setTimeout(() => {
- track.style.transition = 'none';
- track.style.transform = 'translateX(0px)';
- }, 500);
- }
+  const track = document.getElementById('carouselTrack');
+  if (!track) return;
+  
+  const cardWidth = 320; // Approx card width + gap
+  const scrollAmount = cardWidth * direction;
+  
+  carouselCurrentPosition += scrollAmount;
+  track.style.transform = `translateX(${carouselCurrentPosition}px)`;
+  
+  // Infinite loop detection — reset seamlessly when reaching the end
+  const maxScroll = track.scrollWidth - track.parentElement.offsetWidth;
+  if (carouselCurrentPosition < -maxScroll || carouselCurrentPosition > 0) {
+    // For right-to-left: reset when we've scrolled past all original cards
+    carouselCurrentPosition = 0;
+    setTimeout(() => {
+      track.style.transition = 'none';
+      track.style.transform = 'translateX(0px)';
+      // Force reflow then restore transition
+      track.offsetHeight;
+    }, 500);
+  }
 }
 
 function startAutoScroll() {
- stopAutoScroll();
- carouselAutoScrollInterval = setInterval(() => {
- if (!carouselIsPaused) {
- scrollCarousel(-1);
- }
- }, 3000);
+  stopAutoScroll();
+  carouselAutoScrollInterval = setInterval(() => {
+    if (!carouselIsPaused) {
+      scrollCarousel(-1); // Negative = translateX goes negative = track moves left = items scroll right-to-left
+    }
+  }, 3000);
 }
 
 function stopAutoScroll() {
@@ -2115,577 +2118,798 @@ function stopAutoScroll() {
 }
 
 // ============================================
-// PROJECT MODAL - REDESIGNED
-// Two-column layout with all project data
+// PROJECT MODAL — CINEMATIC EDITORIAL
+// Design: RunwayML dark UI + Apple premium whitespace
+// Interface invisible, photography dominant
 // ============================================
 function openProjectModal(project) {
- // GUARD: Prevent multiple modals stacking
- const existingModal = document.querySelector('.project-modal');
- if (existingModal) return;
+  // GUARD: Prevent multiple modals stacking
+  const existingModal = document.querySelector('.project-modal');
+  if (existingModal) return;
 
- // Get gallery project for stills
- const galleryProject = siteConfig.gallery?.projects?.find(p => p.name === project.title);
- const stills = galleryProject?.stills || [];
- const productionStills = stills.filter(s => s.type === 'still' || !s.type);
- const btsStills = stills.filter(s => s.type === 'bts');
- 
- const modal = document.createElement('div');
- modal.className = 'project-modal';
+  // Get gallery project for stills
+  const galleryProject = siteConfig.gallery?.projects?.find(p => p.name === project.title);
+  const stills = galleryProject?.stills || [];
+  const productionStills = stills.filter(s => s.type === 'still' || !s.type);
+  const btsStills = stills.filter(s => s.type === 'bts');
+  let currentGalleryImages = stills; // Track currently displayed images for fullscreen nav
+  
+  const modal = document.createElement('div');
+  modal.className = 'project-modal';
 
- modal.style.cssText = `
- position: fixed;
- top: 0;
- left: 0;
- width: 100%;
- height: 100%;
- background: rgba(11, 20, 38, 0.95);
- backdrop-filter: blur(10px);
- z-index: 100000;
- display: flex;
- align-items: flex-start;
- justify-content: center;
- opacity: 0;
- transition: opacity 0.3s ease;
- padding: 0 2rem 2rem 2rem;
- overflow-y: auto;
- `;
- 
- const modalContent = document.createElement('div');
- modalContent.style.cssText = `
- display: grid;
- grid-template-columns: 40% 60%;
- gap: 2rem;
- max-width: 1400px;
- width: 100%;
- background: var(--color-bg-primary);
- border-radius: var(--radius-lg);
- padding: 2rem;
- position: relative;
- margin-top: 2rem;
- `;
- 
- // LEFT COLUMN - Poster
- const posterColumn = document.createElement('div');
- posterColumn.style.cssText = `
- display: flex;
- flex-direction: column;
- `;
- 
- const posterImg = document.createElement('img');
- posterImg.src = resolvePath(project.image || '/assets/images/placeholder.png');
- posterImg.style.cssText = `
- width: 100%;
- height: auto;
- border-radius: var(--radius-md);
- box-shadow: 0 20px 60px rgba(0,0,0,0.5);
- cursor: pointer;
- transition: transform 0.3s ease;
- `;
- posterImg.addEventListener('mouseenter', () => posterImg.style.transform = 'scale(1.02)');
- posterImg.addEventListener('mouseleave', () => posterImg.style.transform = 'scale(1)');
- 
- posterColumn.appendChild(posterImg);
- 
- // RIGHT COLUMN - Info
- const infoColumn = document.createElement('div');
- infoColumn.style.cssText = `
- display: flex;
- flex-direction: column;
- overflow-y: auto;
- `;
- 
- // Close button
- const closeBtn = document.createElement('button');
- closeBtn.innerHTML = '×';
- closeBtn.style.cssText = `
- position: absolute;
- top: 1rem;
- right: 1rem;
- width: 40px;
- height: 40px;
- border-radius: 50%;
- background: var(--color-accent);
- color: var(--color-bg-primary);
- border: none;
- font-size: 1.5rem;
- cursor: pointer;
- z-index: 10;
- `;
- closeBtn.addEventListener('click', closeModal);
+  // Backdrop — deep cinematic dark, blur for depth
+  modal.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 100000;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    padding: 2rem;
+    overflow-y: auto;
+  `;
+  
+  // Content container — Apple's centered precision, RunwayML's dark surface
+  const modalContent = document.createElement('div');
+  modalContent.style.cssText = `
+    display: grid;
+    grid-template-columns: 38% 1fr;
+    gap: 2.5rem;
+    max-width: 1200px;
+    width: 100%;
+    background: var(--color-bg-primary);
+    border: 1px solid var(--color-bg-tertiary, rgba(255,255,255,0.06));
+    border-radius: 8px;
+    padding: 2.5rem;
+    position: relative;
+    margin-top: 1rem;
+  `;
+  
+  // ---- LEFT COLUMN — Poster (cinematic, zero shadow) ----
+  const posterColumn = document.createElement('div');
+  posterColumn.style.cssText = `
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  `;
+  
+  const posterImg = document.createElement('img');
+  posterImg.src = resolvePath(project.image || '/assets/images/placeholder.png');
+  posterImg.alt = project.title || 'Project poster';
+  posterImg.style.cssText = `
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+    display: block;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  `;
+  posterImg.addEventListener('mouseenter', () => posterImg.style.transform = 'scale(1.015)');
+  posterImg.addEventListener('mouseleave', () => posterImg.style.transform = 'scale(1)');
+  posterColumn.appendChild(posterImg);
+  
+  // ---- RIGHT COLUMN — Info (editorial typography) ----
+  const infoColumn = document.createElement('div');
+  infoColumn.style.cssText = `
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  `;
+  
+  // Close button — subtle, Apple-style translucent
+  const closeBtn = document.createElement('button');
+  closeBtn.innerHTML = '×';
+  closeBtn.setAttribute('aria-label', 'Close modal');
+  closeBtn.style.cssText = `
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--color-text-secondary);
+    border: none;
+    font-size: 1.25rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  `;
+  closeBtn.addEventListener('mouseenter', () => {
+    closeBtn.style.background = 'rgba(255, 255, 255, 0.15)';
+    closeBtn.style.color = 'var(--color-text-primary)';
+  });
+  closeBtn.addEventListener('mouseleave', () => {
+    closeBtn.style.background = 'rgba(255, 255, 255, 0.08)';
+    closeBtn.style.color = 'var(--color-text-secondary)';
+  });
+  closeBtn.addEventListener('click', closeModal);
+  infoColumn.appendChild(closeBtn);
+  
+  // Title — tight, editorial, film-title presence
+  const title = document.createElement('h1');
+  title.textContent = project.title || 'Untitled';
+  title.style.cssText = `
+    font-size: 2rem;
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.5px;
+    margin: 0 0 0.5rem 0;
+    color: var(--color-text-primary);
+  `;
+  infoColumn.appendChild(title);
+  
+  // Tagline — accent color, italic, editorial
+  if (project.tagline) {
+    const tagline = document.createElement('p');
+    tagline.textContent = project.tagline;
+    tagline.style.cssText = `
+      font-size: 1.05rem;
+      color: var(--color-accent);
+      margin: 0 0 1.25rem 0;
+      font-style: italic;
+      line-height: 1.4;
+    `;
+    infoColumn.appendChild(tagline);
+  }
+  
+  // Metadata — uppercase labels, RunwayML editorial style
+  const metaRow = document.createElement('div');
+  metaRow.style.cssText = `
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  `;
+  
+  const metaItems = [];
+  if (project.year) metaItems.push({ label: 'YEAR', value: project.year });
+  if (project.category) metaItems.push({ label: 'GENRE', value: project.category.toUpperCase() });
+  if (project.duration) metaItems.push({ label: 'DURATION', value: project.duration });
+  if (project.role) metaItems.push({ label: 'ROLE', value: project.role });
+  
+  metaItems.forEach(item => {
+    const badge = document.createElement('div');
+    badge.style.cssText = `
+      padding: 0.4rem 0.75rem;
+      background: transparent;
+      border: 1px solid var(--color-bg-tertiary, rgba(255,255,255,0.08));
+      border-radius: 4px;
+      text-align: center;
+    `;
+    const label = document.createElement('div');
+    label.textContent = item.label;
+    label.style.cssText = `
+      font-size: 0.65rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--color-text-secondary);
+      margin-bottom: 0.15rem;
+    `;
+    const value = document.createElement('div');
+    value.textContent = item.value;
+    value.style.cssText = `
+      font-size: 0.85rem;
+      font-weight: 400;
+      color: var(--color-text-primary);
+      line-height: 1.2;
+    `;
+    badge.appendChild(label);
+    badge.appendChild(value);
+    metaRow.appendChild(badge);
+  });
+  
+  infoColumn.appendChild(metaRow);
+  
+  // Divider — subtle, editorial
+  const divider1 = document.createElement('div');
+  divider1.style.cssText = `
+    height: 1px;
+    background: var(--color-bg-tertiary, rgba(255,255,255,0.06));
+    margin-bottom: 1.25rem;
+  `;
+  infoColumn.appendChild(divider1);
+  
+  // Synopsis
+  if (project.synopsis) {
+    const synopsisSection = document.createElement('div');
+    synopsisSection.style.cssText = `margin-bottom: 1.25rem;`;
+    
+    const synopsisTitle = document.createElement('h3');
+    synopsisTitle.textContent = 'SYNOPSIS';
+    synopsisTitle.style.cssText = `
+      font-size: 0.7rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 0 0 0.5rem 0;
+      color: var(--color-text-secondary);
+    `;
+    synopsisSection.appendChild(synopsisTitle);
+    
+    const synopsisText = document.createElement('p');
+    synopsisText.textContent = project.synopsis;
+    synopsisText.style.cssText = `
+      color: var(--color-text-primary);
+      line-height: 1.55;
+      margin: 0;
+      font-size: 0.92rem;
+    `;
+    synopsisSection.appendChild(synopsisText);
+    infoColumn.appendChild(synopsisSection);
+  }
+  
+  // Crew — two-column grid, role/value pairs
+  if (project.credits) {
+    const crewSection = document.createElement('div');
+    crewSection.style.cssText = `margin-bottom: 1.25rem;`;
+    
+    const crewTitle = document.createElement('h3');
+    crewTitle.textContent = 'CREW';
+    crewTitle.style.cssText = `
+      font-size: 0.7rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 0 0 0.6rem 0;
+      color: var(--color-text-secondary);
+    `;
+    crewSection.appendChild(crewTitle);
+    
+    const crewList = document.createElement('div');
+    crewList.style.cssText = `
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.35rem 1.5rem;
+    `;
+    
+    const creditMap = {
+      director: 'Director',
+      dop: 'Cinematographer',
+      producer: 'Producer',
+      writer: 'Writer',
+      editor: 'Editor',
+      colorist: 'Colorist',
+      productionDesigner: 'Prod. Designer',
+      assistantDirector: '1st AD',
+      soundDesigner: 'Sound Designer',
+      composer: 'Composer'
+    };
+    
+    Object.entries(creditMap).forEach(([key, label]) => {
+      if (project.credits[key]) {
+        const row = document.createElement('div');
+        row.style.cssText = `display: flex; gap: 0.5rem; align-items: baseline;`;
+        
+        const roleEl = document.createElement('span');
+        roleEl.textContent = label;
+        roleEl.style.cssText = `
+          font-size: 0.8rem;
+          color: var(--color-text-secondary);
+          min-width: 90px;
+          flex-shrink: 0;
+        `;
+        
+        const nameEl = document.createElement('span');
+        nameEl.textContent = project.credits[key];
+        nameEl.style.cssText = `
+          font-size: 0.85rem;
+          color: var(--color-text-primary);
+          font-weight: 500;
+        `;
+        
+        row.appendChild(roleEl);
+        row.appendChild(nameEl);
+        crewList.appendChild(row);
+      }
+    });
+    
+    crewSection.appendChild(crewList);
+    infoColumn.appendChild(crewSection);
+  }
+  
+  // Camera specs
+  if (project.camera) {
+    const cameraSection = document.createElement('div');
+    cameraSection.style.cssText = `margin-bottom: 1.25rem;`;
+    
+    const cameraTitle = document.createElement('h3');
+    cameraTitle.textContent = 'CAMERA';
+    cameraTitle.style.cssText = `
+      font-size: 0.7rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 0 0 0.6rem 0;
+      color: var(--color-text-secondary);
+    `;
+    cameraSection.appendChild(cameraTitle);
+    
+    const cameraList = document.createElement('div');
+    cameraList.style.cssText = `
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.35rem 1.5rem;
+    `;
+    
+    const cameraMap = {
+      body: 'Body',
+      lens: 'Lens',
+      aspectRatio: 'Aspect Ratio'
+    };
+    
+    Object.entries(cameraMap).forEach(([key, label]) => {
+      if (project.camera[key]) {
+        const row = document.createElement('div');
+        row.style.cssText = `display: flex; gap: 0.5rem; align-items: baseline;`;
+        
+        const specEl = document.createElement('span');
+        specEl.textContent = label;
+        specEl.style.cssText = `
+          font-size: 0.8rem;
+          color: var(--color-text-secondary);
+          min-width: 90px;
+          flex-shrink: 0;
+        `;
+        
+        const valEl = document.createElement('span');
+        valEl.textContent = project.camera[key];
+        valEl.style.cssText = `
+          font-size: 0.85rem;
+          color: var(--color-text-primary);
+          font-weight: 500;
+        `;
+        
+        row.appendChild(specEl);
+        row.appendChild(valEl);
+        cameraList.appendChild(row);
+      }
+    });
+    
+    cameraSection.appendChild(cameraList);
+    infoColumn.appendChild(cameraSection);
+  }
+  
+  // Action buttons — Apple pill style
+  const hasTrailer = project.trailerUrl;
+  const hasImdb = project.imdbUrl;
+  
+  if (hasTrailer || hasImdb) {
+    const actionRow = document.createElement('div');
+    actionRow.style.cssText = `
+      display: flex;
+      gap: 0.75rem;
+      margin-top: auto;
+      padding-top: 1rem;
+    `;
+    
+    if (hasTrailer) {
+      const trailerBtn = document.createElement('a');
+      trailerBtn.href = project.trailerUrl;
+      trailerBtn.target = '_blank';
+      trailerBtn.textContent = '▶ Watch Trailer';
+      trailerBtn.style.cssText = `
+        padding: 0.5rem 1.25rem;
+        background: var(--color-accent);
+        color: var(--color-bg-primary);
+        border-radius: 980px;
+        text-decoration: none;
+        font-size: 0.85rem;
+        font-weight: 500;
+        letter-spacing: -0.2px;
+        transition: opacity 0.2s;
+      `;
+      trailerBtn.addEventListener('mouseenter', () => trailerBtn.style.opacity = '0.85');
+      trailerBtn.addEventListener('mouseleave', () => trailerBtn.style.opacity = '1');
+      actionRow.appendChild(trailerBtn);
+    }
+    
+    if (hasImdb) {
+      const imdbBtn = document.createElement('a');
+      imdbBtn.href = project.imdbUrl;
+      imdbBtn.target = '_blank';
+      imdbBtn.textContent = 'IMDb →';
+      imdbBtn.style.cssText = `
+        padding: 0.5rem 1.25rem;
+        background: transparent;
+        color: var(--color-text-primary);
+        border: 1px solid var(--color-bg-tertiary, rgba(255,255,255,0.12));
+        border-radius: 980px;
+        text-decoration: none;
+        font-size: 0.85rem;
+        font-weight: 500;
+        letter-spacing: -0.2px;
+        transition: background 0.2s;
+      `;
+      imdbBtn.addEventListener('mouseenter', () => imdbBtn.style.background = 'rgba(255,255,255,0.05)');
+      imdbBtn.addEventListener('mouseleave', () => imdbBtn.style.background = 'transparent');
+      actionRow.appendChild(imdbBtn);
+    }
+    
+    infoColumn.appendChild(actionRow);
+  }
+  
+  // ---- STILLS GALLERY — full width below columns ----
+  const gallerySection = document.createElement('div');
+  gallerySection.style.cssText = `
+    grid-column: 1 / -1;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-bg-tertiary, rgba(255,255,255,0.06));
+  `;
+  
+  const galleryHeader = document.createElement('div');
+  galleryHeader.style.cssText = `
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  `;
+  
+  const galleryTitle = document.createElement('h3');
+  galleryTitle.textContent = 'STILLS';
+  galleryTitle.style.cssText = `
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0;
+    color: var(--color-text-secondary);
+  `;
+  galleryHeader.appendChild(galleryTitle);
+  
+  // Gallery tabs — minimal underline style
+  const tabsContainer = document.createElement('div');
+  tabsContainer.style.cssText = `
+    display: flex;
+    gap: 0.25rem;
+  `;
+  
+  function createTab(text, images) {
+    const tab = document.createElement('button');
+    tab.textContent = text;
+    tab.className = 'modal-gallery-tab';
+    tab.style.cssText = `
+      padding: 0.35rem 0.75rem;
+      background: transparent;
+      color: var(--color-text-secondary);
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.78rem;
+      font-weight: 400;
+      transition: background 0.2s, color 0.2s;
+    `;
+    return tab;
+  }
+  
+  const allTab = createTab(`All ${stills.length}`, stills);
+  const stillsTab = createTab(`Stills ${productionStills.length}`, productionStills);
+  const btsTab = createTab(`BTS ${btsStills.length}`, btsStills);
+  
+  function setActiveTab(activeTab) {
+    [allTab, stillsTab, btsTab].forEach(tab => {
+      if (tab === activeTab) {
+        tab.style.background = 'var(--color-accent)';
+        tab.style.color = 'var(--color-bg-primary)';
+        tab.classList.add('active');
+      } else {
+        tab.style.background = 'transparent';
+        tab.style.color = 'var(--color-text-secondary)';
+        tab.classList.remove('active');
+      }
+    });
+  }
+  
+  // Set initial active
+  setActiveTab(allTab);
+  
+  tabsContainer.appendChild(allTab);
+  if (productionStills.length > 0) tabsContainer.appendChild(stillsTab);
+  if (btsStills.length > 0) tabsContainer.appendChild(btsTab);
+  galleryHeader.appendChild(tabsContainer);
+  gallerySection.appendChild(galleryHeader);
+  
+  // Gallery grid — varied sizes, editorial magazine layout
+  const galleryGrid = document.createElement('div');
+  galleryGrid.style.cssText = `
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 0.5rem;
+  `;
+  
+  function renderGallery(images) {
+    galleryGrid.innerHTML = '';
+    currentGalleryImages = images;
+    images.forEach((still, index) => {
+      const img = document.createElement('img');
+      img.src = resolvePath(still.src.startsWith('/') ? still.src : '/' + still.src);
+      img.alt = still.alt || 'Still';
+      img.loading = 'lazy';
+      img.style.cssText = `
+        width: 100%;
+        height: 140px;
+        object-fit: cover;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: opacity 0.3s, transform 0.3s;
+        opacity: 0;
+      `;
+      img.addEventListener('load', () => { img.style.opacity = '1'; });
+      img.addEventListener('mouseenter', () => { img.style.transform = 'scale(1.02)'; });
+      img.addEventListener('mouseleave', () => { img.style.transform = 'scale(1)'; });
+      img.addEventListener('click', () => openFullscreen(index));
+      galleryGrid.appendChild(img);
+    });
+  }
+  
+  renderGallery(stills);
+  
+  allTab.addEventListener('click', () => { renderGallery(stills); setActiveTab(allTab); });
+  stillsTab.addEventListener('click', () => { renderGallery(productionStills); setActiveTab(stillsTab); });
+  btsTab.addEventListener('click', () => { renderGallery(btsStills); setActiveTab(btsTab); });
+  
+  gallerySection.appendChild(galleryGrid);
+  
+  // Assemble modal
+  modalContent.appendChild(posterColumn);
+  modalContent.appendChild(infoColumn);
+  modalContent.appendChild(gallerySection);
+  modal.appendChild(modalContent);
+  document.body.appendChild(modal);
+  
+  // Fade in + lock body scroll
+  document.body.style.overflow = 'hidden';
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      modal.style.opacity = '1';
+    });
+  });
 
- infoColumn.appendChild(closeBtn);
- 
- // Title
- const title = document.createElement('h1');
- title.textContent = project.title || 'Untitled';
- title.style.cssText = `
- font-size: 2.5rem;
- margin: 0 0 0.5rem 0;
- color: var(--color-text-primary);
- `;
- infoColumn.appendChild(title);
- 
- // Tagline
- if (project.tagline) {
- const tagline = document.createElement('p');
- tagline.textContent = project.tagline;
- tagline.style.cssText = `
- font-size: 1.2rem;
- color: var(--color-accent);
- margin: 0 0 1rem 0;
- font-style: italic;
- `;
- infoColumn.appendChild(tagline);
- }
- 
- // Metadata badges
- const metaRow = document.createElement('div');
- metaRow.style.cssText = `
- display: flex;
- gap: 1rem;
- margin-bottom: 1.5rem;
- flex-wrap: wrap;
- `;
- 
- if (project.year) {
- const yearBadge = document.createElement('div');
- yearBadge.textContent = `📅 ${project.year}`;
- yearBadge.style.cssText = `
- padding: 0.5rem 1rem;
- background: var(--color-bg-secondary);
- border-radius: var(--radius-md);
- color: var(--color-text-primary);
- font-size: 0.9rem;
- `;
- metaRow.appendChild(yearBadge);
- }
- 
- if (project.category) {
- const categoryBadge = document.createElement('div');
- categoryBadge.textContent = `🎭 ${project.category}`;
- categoryBadge.style.cssText = `
- padding: 0.5rem 1rem;
- background: var(--color-bg-secondary);
- border-radius: var(--radius-md);
- color: var(--color-text-primary);
- font-size: 0.9rem;
- `;
- metaRow.appendChild(categoryBadge);
- }
- 
- if (project.role) {
- const roleBadge = document.createElement('div');
- roleBadge.textContent = project.role;
- roleBadge.style.cssText = `
- padding: 0.5rem 1rem;
- background: var(--color-bg-secondary);
- border-radius: var(--radius-md);
- color: var(--color-text-primary);
- font-size: 0.9rem;
- `;
- metaRow.appendChild(roleBadge);
- }
- 
- infoColumn.appendChild(metaRow);
- 
- // Synopsis (if available)
- if (project.synopsis) {
- const synopsisSection = document.createElement('div');
- synopsisSection.style.cssText = `
- margin-bottom: 1.5rem;
- `;
- 
- const synopsisTitle = document.createElement('h3');
- synopsisTitle.textContent = 'Synopsis';
- synopsisTitle.style.cssText = `
- font-size: 1.1rem;
- margin: 0 0 0.5rem 0;
- color: var(--color-accent);
- `;
- synopsisSection.appendChild(synopsisTitle);
- 
- const synopsisText = document.createElement('p');
- synopsisText.textContent = project.synopsis;
- synopsisText.style.cssText = `
- color: var(--color-text-secondary);
- line-height: 1.6;
- margin: 0;
- `;
- synopsisSection.appendChild(synopsisText);
- infoColumn.appendChild(synopsisSection);
- }
- 
- // Crew
- if (project.credits) {
- const crewSection = document.createElement('div');
- crewSection.style.cssText = `
- margin-bottom: 1.5rem;
- `;
- 
- const crewTitle = document.createElement('h3');
- crewTitle.textContent = '🎥 Key Crew';
- crewTitle.style.cssText = `
- font-size: 1.1rem;
- margin: 0 0 0.5rem 0;
- color: var(--color-accent);
- `;
- crewSection.appendChild(crewTitle);
- 
- const crewList = document.createElement('div');
- crewList.style.cssText = `
- display: grid;
- gap: 0.5rem;
- `;
- 
- if (project.credits.director) {
- const director = document.createElement('div');
- director.textContent = `Director: ${project.credits.director}`;
- director.style.cssText = `color: var(--color-text-primary);`;
- crewList.appendChild(director);
- }
- if (project.credits.dop) {
- const dop = document.createElement('div');
- dop.textContent = `Cinematographer: ${project.credits.dop}`;
- dop.style.cssText = `color: var(--color-text-primary);`;
- crewList.appendChild(dop);
- }
- if (project.credits.producer) {
- const producer = document.createElement('div');
- producer.textContent = `Producer: ${project.credits.producer}`;
- producer.style.cssText = `color: var(--color-text-primary);`;
- crewList.appendChild(producer);
- }
- if (project.credits.writer) {
- const writer = document.createElement('div');
- writer.textContent = `Writer: ${project.credits.writer}`;
- writer.style.cssText = `color: var(--color-text-primary);`;
- crewList.appendChild(writer);
- }
- if (project.credits.editor) {
- const editor = document.createElement('div');
- editor.textContent = `Editor: ${project.credits.editor}`;
- editor.style.cssText = `color: var(--color-text-primary);`;
- crewList.appendChild(editor);
- }
- if (project.credits.colorist) {
- const colorist = document.createElement('div');
- colorist.textContent = `Colorist: ${project.credits.colorist}`;
- colorist.style.cssText = `color: var(--color-text-primary);`;
- crewList.appendChild(colorist);
- }
- if (project.credits.productionDesigner) {
- const pd = document.createElement('div');
- pd.textContent = `Production Designer: ${project.credits.productionDesigner}`;
- pd.style.cssText = `color: var(--color-text-primary);`;
- crewList.appendChild(pd);
- }
- if (project.credits.assistantDirector) {
- const ad = document.createElement('div');
- ad.textContent = `1st Assistant Director: ${project.credits.assistantDirector}`;
- ad.style.cssText = `color: var(--color-text-primary);`;
- crewList.appendChild(ad);
- }
- if (project.credits.soundDesigner) {
- const sd = document.createElement('div');
- sd.textContent = `Sound Designer: ${project.credits.soundDesigner}`;
- sd.style.cssText = `color: var(--color-text-primary);`;
- crewList.appendChild(sd);
- }
- if (project.credits.composer) {
- const composer = document.createElement('div');
- composer.textContent = `Composer: ${project.credits.composer}`;
- composer.style.cssText = `color: var(--color-text-primary);`;
- crewList.appendChild(composer);
- }
- 
- crewSection.appendChild(crewList);
- infoColumn.appendChild(crewSection);
- }
- 
- // Camera specs
- if (project.camera) {
- const cameraSection = document.createElement('div');
- cameraSection.style.cssText = `
- margin-bottom: 1.5rem;
- `;
- 
- const cameraTitle = document.createElement('h3');
- cameraTitle.textContent = '📷 Camera & Lens';
- cameraTitle.style.cssText = `
- font-size: 1.1rem;
- margin: 0 0 0.5rem 0;
- color: var(--color-accent);
- `;
- cameraSection.appendChild(cameraTitle);
- 
- const cameraList = document.createElement('div');
- cameraList.style.cssText = `
- display: grid;
- gap: 0.5rem;
- `;
- 
- if (project.camera.body) {
- const body = document.createElement('div');
- body.textContent = `Body: ${project.camera.body}`;
- body.style.cssText = `color: var(--color-text-primary);`;
- cameraList.appendChild(body);
- }
- if (project.camera.lens) {
- const lens = document.createElement('div');
- lens.textContent = `Lens: ${project.camera.lens}`;
- lens.style.cssText = `color: var(--color-text-primary);`;
- cameraList.appendChild(lens);
- }
- if (project.camera.aspectRatio) {
- const ratio = document.createElement('div');
- ratio.textContent = `Aspect Ratio: ${project.camera.aspectRatio}`;
- ratio.style.cssText = `color: var(--color-text-primary);`;
- cameraList.appendChild(ratio);
- }
- 
- cameraSection.appendChild(cameraList);
- infoColumn.appendChild(cameraSection);
- }
- 
- // Action buttons (only render if at least one exists)
- let actionRow = null;
- const hasTrailer = project.trailerUrl;
- const hasImdb = project.imdbUrl;
- 
- if (hasTrailer || hasImdb) {
- actionRow = document.createElement('div');
- actionRow.style.cssText = `
- display: flex;
- gap: 1rem;
- margin-top: auto;
- padding-top: 1rem;
- `;
- 
- if (hasTrailer) {
- const trailerBtn = document.createElement('a');
- trailerBtn.href = project.trailerUrl;
- trailerBtn.target = '_blank';
- trailerBtn.textContent = '▶️ Watch Trailer';
- trailerBtn.style.cssText = `
- padding: 0.75rem 1.5rem;
- background: var(--color-accent);
- color: var(--color-bg-primary);
- border-radius: var(--radius-md);
- text-decoration: none;
- font-weight: bold;
- transition: transform 0.2s;
- `;
- trailerBtn.addEventListener('mouseenter', () => trailerBtn.style.transform = 'scale(1.05)');
- trailerBtn.addEventListener('mouseleave', () => trailerBtn.style.transform = 'scale(1)');
- actionRow.appendChild(trailerBtn);
- }
- 
- if (hasImdb) {
- const imdbBtn = document.createElement('a');
- imdbBtn.href = project.imdbUrl;
- imdbBtn.target = '_blank';
- imdbBtn.textContent = '📊 IMDb';
- imdbBtn.style.cssText = `
- padding: 0.75rem 1.5rem;
- background: var(--color-bg-secondary);
- color: var(--color-text-primary);
- border: 2px solid var(--color-border);
- border-radius: var(--radius-md);
- text-decoration: none;
- font-weight: bold;
- transition: transform 0.2s;
- `;
- imdbBtn.addEventListener('mouseenter', () => imdbBtn.style.transform = 'scale(1.05)');
- imdbBtn.addEventListener('mouseleave', () => imdbBtn.style.transform = 'scale(1)');
- actionRow.appendChild(imdbBtn);
- }
- 
- infoColumn.appendChild(actionRow);
- }
- 
- // Stills Gallery
- const gallerySection = document.createElement('div');
- gallerySection.style.cssText = `
- grid-column: 1 / -1;
- margin-top: 2rem;
- `;
- 
- const galleryTitle = document.createElement('h3');
- galleryTitle.textContent = '🎞️ Stills Gallery';
- galleryTitle.style.cssText = `
- font-size: 1.5rem;
- margin: 0 0 1rem 0;
- color: var(--color-accent);
- `;
- gallerySection.appendChild(galleryTitle);
- 
- // Gallery tabs
- const tabsContainer = document.createElement('div');
- tabsContainer.style.cssText = `
- display: flex;
- gap: 0.5rem;
- margin-bottom: 1rem;
- `;
- 
- const allTab = document.createElement('button');
- allTab.textContent = `All (${stills.length})`;
- allTab.className = 'modal-gallery-tab active';
- allTab.style.cssText = `
- padding: 0.5rem 1rem;
- background: var(--color-accent);
- color: var(--color-bg-primary);
- border: none;
- border-radius: var(--radius-md);
- cursor: pointer;
- transition: background 0.2s, color 0.2s;
- `;
- 
- const stillsTab = document.createElement('button');
- stillsTab.textContent = `Stills (${productionStills.length})`;
- stillsTab.className = 'modal-gallery-tab';
- stillsTab.style.cssText = `
- padding: 0.5rem 1rem;
- background: var(--color-bg-secondary);
- color: var(--color-text-primary);
- border: none;
- border-radius: var(--radius-md);
- cursor: pointer;
- transition: background 0.2s, color 0.2s;
- `;
- 
- const btsTab = document.createElement('button');
- btsTab.textContent = `BTS (${btsStills.length})`;
- btsTab.className = 'modal-gallery-tab';
- btsTab.style.cssText = `
- padding: 0.5rem 1rem;
- background: var(--color-bg-secondary);
- color: var(--color-text-primary);
- border: none;
- border-radius: var(--radius-md);
- cursor: pointer;
- transition: background 0.2s, color 0.2s;
- `;
+  function closeModal() {
+    modal.style.opacity = '0';
+    document.body.style.overflow = '';
+    document.removeEventListener('keydown', handleModalEscape);
+    setTimeout(() => modal.remove(), 350);
+  }
 
- // Tab active state toggle helper
- function setActiveTab(activeTab) {
- [allTab, stillsTab, btsTab].forEach(tab => {
- if (tab === activeTab) {
- tab.style.background = 'var(--color-accent)';
- tab.style.color = 'var(--color-bg-primary)';
- tab.classList.add('active');
- } else {
- tab.style.background = 'var(--color-bg-secondary)';
- tab.style.color = 'var(--color-text-primary)';
- tab.classList.remove('active');
- }
- });
- }
- 
- tabsContainer.appendChild(allTab);
- if (productionStills.length > 0) tabsContainer.appendChild(stillsTab);
- if (btsStills.length > 0) tabsContainer.appendChild(btsTab);
- 
- // Gallery grid
- const galleryGrid = document.createElement('div');
- galleryGrid.style.cssText = `
- display: grid;
- grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
- gap: 1rem;
- `;
- 
- function renderGallery(images) {
- galleryGrid.innerHTML = '';
- images.forEach(still => {
- const img = document.createElement('img');
- img.src = resolvePath(still.src.startsWith('/') ? still.src : '/' + still.src);
- img.alt = still.alt || 'Still';
- img.style.cssText = `
- width: 100%;
- height: 150px;
- object-fit: cover;
- border-radius: var(--radius-md);
- cursor: pointer;
- transition: transform 0.2s;
- `;
- img.addEventListener('mouseenter', () => img.style.transform = 'scale(1.05)');
- img.addEventListener('mouseleave', () => img.style.transform = 'scale(1)');
- img.addEventListener('click', () => openFullscreen(still.src));
- galleryGrid.appendChild(img);
- });
- }
- 
- renderGallery(stills);
- 
- allTab.addEventListener('click', () => { renderGallery(stills); setActiveTab(allTab); });
- stillsTab.addEventListener('click', () => { renderGallery(productionStills); setActiveTab(stillsTab); });
- btsTab.addEventListener('click', () => { renderGallery(btsStills); setActiveTab(btsTab); });
- 
- gallerySection.appendChild(tabsContainer);
- gallerySection.appendChild(galleryGrid);
- 
- modalContent.appendChild(posterColumn);
- modalContent.appendChild(infoColumn);
- modalContent.appendChild(gallerySection);
- modal.appendChild(modalContent);
- document.body.appendChild(modal);
- 
- // Fade in + lock body scroll
- document.body.style.overflow = 'hidden';
- setTimeout(() => {
- modal.style.opacity = '1';
- }, 10);
+  // ESC key handler — checks for fullscreen viewer first
+  function handleModalEscape(e) {
+    if (e.key === 'Escape') {
+      const fsViewer = document.querySelector('.project-fullscreen-viewer');
+      if (fsViewer) {
+        closeFullscreen();
+      } else {
+        closeModal();
+      }
+    }
+  }
+  document.addEventListener('keydown', handleModalEscape);
 
- function closeModal() {
- modal.style.opacity = '0';
- document.body.style.overflow = '';
- document.removeEventListener('keydown', handleEscape);
- setTimeout(() => modal.remove(), 300);
- }
-
- // ESC key handler
- function handleEscape(e) {
- if (e.key === 'Escape') {
- closeModal();
- }
- }
- document.addEventListener('keydown', handleEscape);
-
- // Click outside modal content to close
- modal.addEventListener('click', (e) => {
- if (e.target === modal) {
- closeModal();
- }
- });
- 
- function openFullscreen(src) {
- const fsModal = document.createElement('div');
- fsModal.style.cssText = `
- position: fixed;
- top: 0;
- left: 0;
- width: 100%;
- height: 100%;
- background: rgba(0,0,0,0.95);
- z-index: 100001;
- display: flex;
- align-items: center;
- justify-content: center;
- cursor: pointer;
- `;
- 
- const fsImg = document.createElement('img');
- fsImg.src = src;
- fsImg.style.cssText = `
- max-width: 90%;
- max-height: 90%;
- object-fit: contain;
- `;
- 
- fsModal.appendChild(fsImg);
- document.body.appendChild(fsModal);
- 
- fsModal.addEventListener('click', () => fsModal.remove());
- }
+  // Click outside modal content to close
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      closeModal();
+    }
+  });
+  
+  // ---- FULLSCREEN VIEWER — slideshow with arrows + keyboard ----
+  let fullscreenIndex = 0;
+  let fsViewer = null;
+  
+  function openFullscreen(startIndex) {
+    fullscreenIndex = startIndex;
+    
+    fsViewer = document.createElement('div');
+    fsViewer.className = 'project-fullscreen-viewer';
+    fsViewer.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.97);
+      z-index: 100001;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    `;
+    
+    // Image container
+    const imgContainer = document.createElement('div');
+    imgContainer.style.cssText = `
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      padding: 4rem;
+    `;
+    
+    // The image
+    const fsImg = document.createElement('img');
+    fsImg.className = 'fullscreen-image';
+    fsImg.src = resolvePath(currentGalleryImages[fullscreenIndex].src.startsWith('/') ? currentGalleryImages[fullscreenIndex].src : '/' + currentGalleryImages[fullscreenIndex].src);
+    fsImg.alt = currentGalleryImages[fullscreenIndex].alt || 'Still';
+    fsImg.style.cssText = `
+      max-width: 90%;
+      max-height: 85%;
+      object-fit: contain;
+      border-radius: 4px;
+      transition: opacity 0.2s;
+    `;
+    imgContainer.appendChild(fsImg);
+    
+    // Close button — top right
+    const fsCloseBtn = document.createElement('button');
+    fsCloseBtn.innerHTML = '×';
+    fsCloseBtn.setAttribute('aria-label', 'Close fullscreen');
+    fsCloseBtn.style.cssText = `
+      position: absolute;
+      top: 1rem;
+      right: 1.5rem;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.8);
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    `;
+    fsCloseBtn.addEventListener('mouseenter', () => fsCloseBtn.style.background = 'rgba(255,255,255,0.2)');
+    fsCloseBtn.addEventListener('mouseleave', () => fsCloseBtn.style.background = 'rgba(255,255,255,0.1)');
+    fsCloseBtn.addEventListener('click', closeFullscreen);
+    imgContainer.appendChild(fsCloseBtn);
+    
+    // Counter — top left
+    const counter = document.createElement('div');
+    counter.className = 'fullscreen-counter';
+    counter.textContent = `${fullscreenIndex + 1} / ${currentGalleryImages.length}`;
+    counter.style.cssText = `
+      position: absolute;
+      top: 1.25rem;
+      left: 1.5rem;
+      font-size: 0.78rem;
+      color: rgba(255, 255, 255, 0.5);
+      font-weight: 400;
+      letter-spacing: 0.5px;
+      z-index: 10;
+    `;
+    imgContainer.appendChild(counter);
+    
+    // Left arrow
+    const leftArrow = document.createElement('button');
+    leftArrow.innerHTML = '‹';
+    leftArrow.setAttribute('aria-label', 'Previous image');
+    leftArrow.style.cssText = `
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.7);
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    `;
+    leftArrow.addEventListener('mouseenter', () => leftArrow.style.background = 'rgba(255,255,255,0.15)');
+    leftArrow.addEventListener('mouseleave', () => leftArrow.style.background = 'rgba(255,255,255,0.08)');
+    leftArrow.addEventListener('click', (e) => { e.stopPropagation(); navigateFullscreen(-1); });
+    imgContainer.appendChild(leftArrow);
+    
+    // Right arrow
+    const rightArrow = document.createElement('button');
+    rightArrow.innerHTML = '›';
+    rightArrow.setAttribute('aria-label', 'Next image');
+    rightArrow.style.cssText = `
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.7);
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    `;
+    rightArrow.addEventListener('mouseenter', () => rightArrow.style.background = 'rgba(255,255,255,0.15)');
+    rightArrow.addEventListener('mouseleave', () => rightArrow.style.background = 'rgba(255,255,255,0.08)');
+    rightArrow.addEventListener('click', (e) => { e.stopPropagation(); navigateFullscreen(1); });
+    imgContainer.appendChild(rightArrow);
+    
+    // Keyboard navigation for fullscreen
+    function handleFullscreenKeys(e) {
+      if (e.key === 'ArrowLeft') navigateFullscreen(-1);
+      else if (e.key === 'ArrowRight') navigateFullscreen(1);
+      else if (e.key === 'Escape') closeFullscreen();
+    }
+    document.addEventListener('keydown', handleFullscreenKeys);
+    
+    // Store cleanup reference
+    fsViewer._cleanup = () => document.removeEventListener('keydown', handleFullscreenKeys);
+    fsViewer._updateImage = updateFullscreenImage;
+    fsViewer._counter = counter;
+    fsViewer._img = fsImg;
+    
+    fsViewer.appendChild(imgContainer);
+    document.body.appendChild(fsViewer);
+    
+    // Click outside image to close
+    imgContainer.addEventListener('click', (e) => {
+      if (e.target === imgContainer) closeFullscreen();
+    });
+    
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        fsViewer.style.opacity = '1';
+      });
+    });
+  }
+  
+  function updateFullscreenImage() {
+    const still = currentGalleryImages[fullscreenIndex];
+    fsViewer._img.style.opacity = '0.3';
+    setTimeout(() => {
+      fsViewer._img.src = resolvePath(still.src.startsWith('/') ? still.src : '/' + still.src);
+      fsViewer._img.alt = still.alt || 'Still';
+      fsViewer._img.style.opacity = '1';
+    }, 150);
+    fsViewer._counter.textContent = `${fullscreenIndex + 1} / ${currentGalleryImages.length}`;
+  }
+  
+  function navigateFullscreen(direction) {
+    const newIndex = fullscreenIndex + direction;
+    if (newIndex < 0) fullscreenIndex = currentGalleryImages.length - 1;
+    else if (newIndex >= currentGalleryImages.length) fullscreenIndex = 0;
+    else fullscreenIndex = newIndex;
+    updateFullscreenImage();
+  }
+  
+  function closeFullscreen() {
+    if (fsViewer) {
+      if (fsViewer._cleanup) fsViewer._cleanup();
+      fsViewer.style.opacity = '0';
+      const viewer = fsViewer;
+      setTimeout(() => viewer.remove(), 250);
+      fsViewer = null;
+    }
+  }
 }
 
 // ============================================

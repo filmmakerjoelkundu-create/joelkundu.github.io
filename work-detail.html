@@ -655,10 +655,27 @@
                 stills: [
                     'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=1200&h=675&fit=crop'
                 ]
-            }
-        };
-        
-        // Get work ID from URL
+ }
+ };
+
+// BASE PATH - Handles GitHub Pages subdirectory
+const BASE_PATH = (function() {
+ const path = window.location.pathname;
+ const match = path.match(/^(\/[^/]+\/)/);
+ if (match && match[1] !== '/') {
+ return match[1].replace(/\/$/, '');
+ }
+ return '';
+})();
+
+function resolvePath(path) {
+ if (!path) return path;
+ if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('//')) return path;
+ if (path.startsWith('/')) return BASE_PATH + path;
+ return path;
+}
+
+ // Get work ID from URL
         const urlParams = new URLSearchParams(window.location.search);
         const workId = urlParams.get('id');
         
@@ -676,7 +693,7 @@
             document.getElementById('workGenre').textContent = work.genre;
             document.getElementById('workRole').textContent = work.role;
             document.getElementById('workSynopsis').textContent = work.synopsis;
-            document.getElementById('workPoster').src = work.poster;
+            document.getElementById('workPoster').src = resolvePath(work.poster);
             
             // Load credits
             const creditList = document.getElementById('creditList');
@@ -697,7 +714,7 @@
                 const div = document.createElement('div');
                 div.className = 'still-item';
                 div.innerHTML = `
-                    <img src="${still}" alt="${work.title} Still ${index + 1}">
+                    <img src="${resolvePath(still)}" alt="${work.title} Still ${index + 1}">
                     <div class="still-overlay">
                         <span>🔍</span>
                     </div>
@@ -718,7 +735,7 @@
             const work = workData[workId];
             if (!work || !work.stills[index]) return;
             
-            slideshowImage.src = work.stills[index];
+            slideshowImage.src = resolvePath(work.stills[index]);
             slideshowCounter.textContent = `${index + 1} / ${work.stills.length}`;
             slideshow.classList.add('active');
             document.body.style.overflow = 'hidden';
@@ -737,7 +754,7 @@
             if (currentStillIndex < 0) currentStillIndex = work.stills.length - 1;
             if (currentStillIndex >= work.stills.length) currentStillIndex = 0;
             
-            slideshowImage.src = work.stills[currentStillIndex];
+            slideshowImage.src = resolvePath(work.stills[currentStillIndex]);
             slideshowCounter.textContent = `${currentStillIndex + 1} / ${work.stills.length}`;
         }
         
