@@ -2103,12 +2103,20 @@ function openProjectModal(project) {
  modal.className = 'project-modal';
 
  // Calculate the vertical position of the work carousel content
- // Use the carousel's viewport position so the modal opens at the same
- // vertical level the user is currently looking at
+ // Capture scroll position and carousel position BEFORE any DOM changes
+ const scrollY = window.scrollY;
  const carousel = document.querySelector('.work-carousel') || document.getElementById('work');
  const carouselRect = carousel ? carousel.getBoundingClientRect() : null;
- // Use the carousel top if it's in view, otherwise clamp to 0 (top)
+ // The modal overlay is position:fixed covering the whole viewport.
+ // We want the modal content to start at the same vertical viewport position
+ // as the carousel. getBoundingClientRect().top is already viewport-relative.
  const modalTop = carouselRect ? Math.max(0, Math.round(carouselRect.top)) : 0;
+
+ // Lock body scroll so the background doesn't jump when modal appears
+ document.body.style.overflow = 'hidden';
+ document.body.style.position = 'fixed';
+ document.body.style.top = `-${scrollY}px`;
+ document.body.style.width = '100%';
 
  modal.style.cssText = `
  position: fixed;
@@ -2125,8 +2133,7 @@ function openProjectModal(project) {
  opacity: 0;
  transition: opacity 0.3s ease;
  overflow-y: auto;
- padding-top: ${modalTop}px;
- padding-bottom: 2rem;
+ padding: 0 2rem 2rem 2rem;
  `;
  
  const modalContent = document.createElement('div');
@@ -2141,6 +2148,7 @@ function openProjectModal(project) {
  border-radius: var(--radius-lg);
  padding: 2rem;
  position: relative;
+ margin-top: ${modalTop}px;
  `;
  
  // LEFT COLUMN - Poster
@@ -2546,6 +2554,12 @@ function openProjectModal(project) {
  
  function closeModal() {
  modal.style.opacity = '0';
+ // Restore body scroll
+ document.body.style.overflow = '';
+ document.body.style.position = '';
+ document.body.style.top = '';
+ document.body.style.width = '';
+ window.scrollTo(0, scrollY);
  setTimeout(() => modal.remove(), 300);
  }
  
