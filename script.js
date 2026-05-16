@@ -744,34 +744,61 @@ localStorage.setItem(TIMESTAMP_KEY, now.toString());
 return selectedImages;
 }
 
-// No fallback - return empty array if config not loaded
-console.warn('No hero background stills in config');
+// Config not loaded yet — try localStorage cache
+if (storedImages) {
+try {
+    const parsed = JSON.parse(storedImages);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+    const age = now - parseInt(storedTimestamp || '0');
+    if (age < CACHE_DURATION) {
+        console.log('Using cached hero images while waiting for config');
+        return parsed;
+    }
+    }
+} catch (e) {
+    console.warn('Failed to parse cached hero images:', e);
+}
+}
+
+// No fallback - return empty array if config not loaded and no cache
+console.warn('No hero background stills in config or cache');
 return [];
 }
 
 // Populate hero slideshow with random images
 function populateHeroSlideshow() {
-    const heroSlideshow = document.getElementById('heroSlideshow');
-    if (!heroSlideshow) return;
-    
-    const heroImages = getHeroImages();
-    
-    // Clear existing slides
-    heroSlideshow.innerHTML = '';
-    
-    // Create new slides
-    heroImages.forEach((imageSrc, index) => {
-        const slide = document.createElement('div');
-        slide.className = `hero-slide ${index === 0 ? 'active' : ''}`;
-        
-        const img = document.createElement('img');
-        img.src = resolvePath(imageSrc);
-        img.alt = 'Cinematic Background';
-        img.className = 'parallax-image';
-        
-        slide.appendChild(img);
+ const heroSlideshow = document.getElementById('heroSlideshow');
+ if (!heroSlideshow) return;
+ 
+ const heroImages = getHeroImages();
+ 
+ // Clear existing slides
+ heroSlideshow.innerHTML = '';
+ 
+ // Reset slide index when rebuilding
+ currentHeroSlide = 0;
+ 
+ // Create new slides
+ heroImages.forEach((imageSrc, index) => {
+ const slide = document.createElement('div');
+ slide.className = `hero-slide ${index === 0 ? 'active' : ''}`;
+ 
+ const img = document.createElement('img');
+ img.src = resolvePath(imageSrc);
+ img.alt = 'Cinematic Background';
+ img.className = 'parallax-image';
+ 
+ slide.appendChild(img);
 heroSlideshow.appendChild(slide);
 });
+
+// Update the global heroSlides reference
+heroSlides = document.querySelectorAll('.hero-slide');
+
+// Start cycling if we have multiple slides and no interval yet
+if (heroSlides.length > 1 && !window._heroSlideInterval) {
+window._heroSlideInterval = setInterval(cycleHeroSlide, 8000);
+}
 }
 
 // Hero slideshow is initialized from updateHeroFromConfig() after config loads
@@ -2950,8 +2977,16 @@ clientLogger.info('Infinite carousel enabled');
 
 // Load dynamic config from dashboard
 // updateHeroFromConfig() is called inside loadSiteConfig() after config is loaded
+
+// Pre-populate hero slideshow immediately using localStorage cache (if available)
+// This prevents the blank hero on first load while config is fetching
+// populateHeroSlideshow() will also auto-start the cycling interval
+populateHeroSlideshow();
+
 loadSiteConfig().then(() => {
 clientLogger.info('Dynamic config loaded and applied!');
+// updateHeroFromConfig() -> populateHeroSlideshow() will update slides with fresh config data
+// and restart the interval if needed
 // Initialize gallery after config is loaded (default: 'all' filter)
 initGallery('all');
 }).catch(err => {
