@@ -131,7 +131,40 @@
   color: white !important;
   border: 1px solid rgba(255,255,255,0.3) !important;
 }
-    </style>
+    
+.preview-item {
+ position: relative;
+ border-radius: 8px;
+ overflow: hidden;
+ box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+ transition: transform 0.2s;
+}
+.preview-item:hover {
+ transform: scale(1.05);
+}
+.preview-item .delete-btn {
+ position: absolute;
+ top: 8px;
+ right: 8px;
+ width: 32px;
+ height: 32px;
+ background: rgba(255, 59, 48, 0.9);
+ color: white;
+ border: 2px solid white;
+ border-radius: 50%;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ cursor: pointer;
+ font-size: 1.25rem;
+ opacity: 0;
+ transition: opacity 0.2s;
+}
+.preview-item:hover .delete-btn {
+ opacity: 1;
+}
+
+</style>
 </head>
 <body>
     <!-- Login -->
@@ -212,7 +245,7 @@
 <button class="btn btn-secondary" onclick="deselectAllStills()">Deselect All</button>
 </div>
 <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; font-size: 0.875rem; color: #86868b;">
-<span id="selectedCount">0</span> selected out of <span id="totalCount">0</span> available stills
+<span id="heroSelectedCount">0</span> selected out of <span id="totalCount">0</span> available stills
 </div>
 <div class="still-grid" id="stillGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem; max-height: 600px; overflow-y: auto; padding: 1rem; background: #f5f5f7; border-radius: 8px;">
 <!-- Stills will be populated here -->
@@ -220,23 +253,51 @@
 </div>
 </div>
 
-            <!-- About Section -->
-            <div id="about" class="section">
-                <div class="card">
-                    <h3>About Me</h3>
-                    <div class="form-group">
-                        <label>Header</label>
-                        <input type="text" id="aboutHeader" value="">
-                    </div>
-                    <div class="form-group">
-                        <label>Tagline</label>
-                        <input type="text" id="aboutTagline" value="">
-                    </div>
-                    <div class="form-group">
-                        <label>Paragraph</label>
-                        <textarea id="aboutParagraph"></textarea>
-                    </div>
-                </div>
+ <!-- About Section -->
+ <div id="about" class="section">
+ <div class="card">
+ <h3>About Me</h3>
+ <div class="form-group">
+ <label>Header</label>
+ <input type="text" id="aboutHeader" value="">
+ </div>
+ <div class="form-group">
+ <label>Tagline</label>
+ <input type="text" id="aboutTagline" value="">
+ </div>
+ <div class="form-group">
+ <label>Paragraph (Rich Text)</label>
+ <div style="border: 2px solid #d2d2d7; border-radius: 8px; overflow: hidden; margin-bottom: 0.5rem;">
+ <!-- Toolbar -->
+ <div style="display: flex; gap: 0.25rem; padding: 0.5rem; background: #f9f9fb; border-bottom: 2px solid #d2d2d7; flex-wrap: wrap; align-items: center;">
+ <button type="button" onclick="formatText('bold')" style="padding: 0.25rem 0.5rem; background: white; border: 1px solid #d2d2d7; border-radius: 4px; cursor: pointer;" title="Bold"><b>B</b></button>
+ <button type="button" onclick="formatText('italic')" style="padding: 0.25rem 0.5rem; background: white; border: 1px solid #d2d2d7; border-radius: 4px; cursor: pointer;" title="Italic"><i>I</i></button>
+ <button type="button" onclick="formatText('underline')" style="padding: 0.25rem 0.5rem; background: white; border: 1px solid #d2d2d7; border-radius: 4px; cursor: pointer;" title="Underline"><u>U</u></button>
+ <button type="button" onclick="formatText('formatBlock', 'p')" style="padding: 0.25rem 0.5rem; background: white; border: 1px solid #d2d2d7; border-radius: 4px; cursor: pointer;" title="Paragraph">P</button>
+ <!-- Font Size Dropdown -->
+ <select onchange="formatText('fontSize', this.value); this.value='';" style="padding: 0.25rem 0.5rem; background: white; border: 1px solid #d2d2d7; border-radius: 4px; cursor: pointer; min-width: 100px;" title="Font Size">
+ <option value="">Size...</option>
+ <option value="1">1 - Tiny</option>
+ <option value="2">2 - Small</option>
+ <option value="3" selected>3 - Normal</option>
+ <option value="4">4 - Large</option>
+ <option value="5">5 - Extra Large</option>
+ <option value="6">6 - Huge</option>
+ <option value="7">7 - Giant</option>
+ </select>
+ <button type="button" onclick="insertLink()" style="padding: 0.25rem 0.5rem; background: white; border: 1px solid #d2d2d7; border-radius: 4px; cursor: pointer;" title="Insert Link">🔗</button>
+ <button type="button" onclick="formatText('formatBlock', 'blockquote')" style="padding: 0.25rem 0.5rem; background: white; border: 1px solid #d2d2d7; border-radius: 4px; cursor: pointer;" title="Quote">"</button>
+ <div style="flex: 1;"></div>
+ <button type="button" onclick="toggleEditor()" style="padding: 0.25rem 0.5rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;" title="Toggle HTML view">&lt;/&gt;</button>
+ </div>
+ <!-- Editable area -->
+ <div id="aboutEditor" contenteditable="true" style="min-height: 200px; padding: 1rem; background: white; outline: none;" oninput="updateTextarea()"></div>
+ </div>
+ <!-- Hidden textarea for storage -->
+ <textarea id="aboutParagraph" style="display: none;"></textarea>
+ <p style="color: #86868b; font-size: 0.75rem; margin-top: 0.5rem;">Use the toolbar to format text. Click &lt;/&gt; to view/edit raw HTML.</p>
+ </div>
+ </div>
                 <div class="card">
                     <h3>Stats</h3>
                     <div class="stats-grid" id="statsGrid"></div>
@@ -295,31 +356,71 @@
             <div id="gallery" class="section">
                 <div class="card">
                     <h3>Gallery Management</h3>
-                    <p style="color: #86868b; margin-bottom: 1rem;">Organize stills by project. Upload images to a project, filter by movie, camera, type, or year.</p>
+                    <p style="color: #86868b; margin-bottom: 1rem;">Organize stills by project. Upload images to a project and filter by movie name.</p>
                     
-                    <!-- Filter Bar -->
-                    <div class="gallery-filters-bar" style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-bottom: 1rem;">
-                        <select id="galleryFilterMovie" style="flex: 1; min-width: 150px; padding: 0.5rem; border: 1px solid #d2d2d7; border-radius: 8px;">
-                            <option value="">All Projects</option>
-                        </select>
-                        <select id="galleryFilterCamera" style="flex: 1; min-width: 150px; padding: 0.5rem; border: 1px solid #d2d2d7; border-radius: 8px;">
-                            <option value="">All Cameras</option>
-                        </select>
-                        <select id="galleryFilterType" style="flex: 1; min-width: 150px; padding: 0.5rem; border: 1px solid #d2d2d7; border-radius: 8px;">
-                            <option value="">All Types</option>
-                            <option value="Short Film">Short Film</option>
-                            <option value="Feature">Feature</option>
-                            <option value="Documentary">Documentary</option>
-                            <option value="Music Video">Music Video</option>
-                            <option value="Commercial">Commercial</option>
-                        </select>
-                        <select id="galleryFilterYear" style="flex: 1; min-width: 150px; padding: 0.5rem; border: 1px solid #d2d2d7; border-radius: 8px;">
-                            <option value="">All Years</option>
-                        </select>
-                        <button class="btn btn-secondary" onclick="clearGalleryFilters()" style="white-space: nowrap;">Clear Filters</button>
-                    </div>
+<!-- Filter Bar -->
+<div class="gallery-filters-bar" style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-bottom: 1rem;">
+<select id="galleryFilterMovie" style="flex: 1; min-width: 150px; padding: 0.5rem; border: 1px solid #d2d2d7; border-radius: 8px;">
+<option value="">All Projects</option>
+</select>
+<button class="btn btn-secondary" onclick="clearGalleryFilters()" style="white-space: nowrap;">Clear Filters</button>
+</div>
                     
-                    <!-- Active Filter Bubbles -->
+                    
+<!-- Upload Stills Section -->
+<div class="card" style="margin-bottom: 1.5rem;">
+ <h3>📸 Upload Stills</h3>
+ <p style="color: #86868b; margin-bottom: 1rem;">Upload stills or BTS images to your gallery projects.</p>
+ 
+ <div style="display: flex; gap: 1rem; align-items: flex-start; flex-wrap: wrap;">
+ <!-- File Upload Area -->
+ <div style="flex: 1; min-width: 300px;">
+ <label style="display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem;">Select Project</label>
+ <select id="uploadProjectSelect" style="width: 100%; padding: 0.75rem; border: 2px solid #d2d2d7; border-radius: 8px; font-size: 1rem;">
+ <option value="">Choose a project...</option>
+ </select>
+ </div>
+ 
+ <div style="flex: 1; min-width: 300px;">
+ <label style="display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem;">Image Type</label>
+ <div style="display: flex; gap: 1rem;">
+ <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+ <input type="radio" name="uploadType" value="still" checked>
+ <span>🎬 Still</span>
+ </label>
+ <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+ <input type="radio" name="uploadType" value="bts">
+ <span>🎭 BTS</span>
+ </label>
+ </div>
+ </div>
+ </div>
+ 
+ <!-- Drag & Drop Area -->
+ <div id="uploadDropZone" style="margin-top: 1.5rem; border: 2px dashed #0071e3; border-radius: 12px; padding: 3rem; text-align: center; cursor: pointer; transition: all 0.3s; background: #f9f9fb;" 
+ ondragover="event.preventDefault(); this.style.borderColor='#005bb5'; this.style.background='#e8f4ff';" 
+ ondragleave="this.style.borderColor='#0071e3'; this.style.background='#f9f9fb';" 
+ ondrop="handleUploadDrop(event)">
+ <input type="file" id="uploadFileInput" multiple accept="image/*" style="display: none;" onchange="handleFilesSelected(this.files)">
+ <div style="font-size: 3rem; margin-bottom: 1rem;">📁</div>
+ <p style="font-size: 1.125rem; margin-bottom: 0.5rem;"><strong>Drag & drop images here</strong></p>
+ <p style="color: #86868b; margin-bottom: 1rem;">or click to browse</p>
+ <button class="btn btn-secondary" onclick="document.getElementById('uploadFileInput').click()">Choose Files</button>
+ <p style="font-size: 0.75rem; color: #86868b; margin-top: 1rem;">Supports: JPG, PNG, WebP. Max 10MB per file.</p>
+ </div>
+ 
+ <!-- Preview Area -->
+ <div id="uploadPreview" style="margin-top: 1.5rem; display: none;">
+ <h4 style="margin-bottom: 0.75rem;">Preview (<span id="uploadPreviewCount">0</span> images)</h4>
+ <div id="uploadPreviewGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem;"></div>
+ <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+ <button class="btn btn-primary" onclick="confirmUpload()">✅ Upload to Gallery</button>
+ <button class="btn btn-secondary" onclick="cancelUpload()">Cancel</button>
+ </div>
+ </div>
+</div>
+
+<!-- Active Filter Bubbles -->
                     <div id="galleryFilterBubbles" style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; min-height: 2rem;"></div>
                     
                     <!-- Project Cards Row -->
@@ -445,58 +546,96 @@
 </div>
 
     <!-- Project Modal -->
-    <div class="modal-overlay" id="projectModal">
-        <div class="modal" style="max-width: 800px;">
-            <h3 id="projectModalTitle">Add Project</h3>
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                <div>
-                    <h4 style="margin-bottom: 0.75rem;">Basic Info</h4>
-                    <div class="form-group">
-                        <label>Title *</label>
-                        <input type="text" id="projectTitle" placeholder="e.g. E13M">
-                    </div>
-                    <div class="form-group">
-                        <label>Tagline</label>
-                        <textarea id="projectTagline" placeholder="Short description" rows="2"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Category</label>
-                        <select id="projectCategory">
-                            <option value="narrative">Narrative</option>
-                            <option value="documentary">Documentary</option>
-                            <option value="commercial">Commercial</option>
-                            <option value="music video">Music Video</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Poster Image</label>
-                        <input type="file" id="projectImage" accept="image/*">
-                    </div>
-                    <div class="form-group">
-                        <label>Visible on site</label>
-                        <div class="toggle" id="projectVisible" onclick="toggleProjectVisible()"></div>
-                    </div>
-                </div>
-                
-                <div>
-                    <h4 style="margin-bottom: 0.75rem;">Your Role</h4>
-                    <div class="form-group">
-                        <label>Primary Role</label>
-                        <input type="text" id="projectRole" placeholder="e.g. Cinematographer & Director">
-                    </div>
-                    <div class="form-group">
-                        <label>Vimeo / Trailer URL</label>
-                        <input type="text" id="projectTrailerUrl" placeholder="https://vimeo.com/...">
-                    </div>
-                    <div class="form-group">
-                        <label>IMDb URL</label>
-                        <input type="text" id="projectImdbUrl" placeholder="https://www.imdb.com/title/tt...">
-                    </div>
-                    <div class="form-group">
-                        <label>Release Year</label>
-                        <input type="number" id="projectYear" placeholder="e.g. 2025" min="1900" max="2099">
-                    </div>
+ <div class="modal-overlay" id="projectModal">
+ <div class="modal" style="max-width: 900px;">
+ <h3 id="projectModalTitle">Add Project</h3>
+ 
+ <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+ <div>
+ <h4 style="margin-bottom: 0.75rem;">Basic Info</h4>
+ <div class="form-group">
+ <label>Title *</label>
+ <input type="text" id="projectTitle" placeholder="e.g. E13M">
+ </div>
+ <div class="form-group">
+ <label>Tagline</label>
+ <textarea id="projectTagline" placeholder="Short description" rows="2"></textarea>
+ </div>
+ <div class="form-group">
+ <label>Category</label>
+ <select id="projectCategory">
+ <option value="narrative">Narrative</option>
+ <option value="documentary">Documentary</option>
+ <option value="commercial">Commercial</option>
+ <option value="music video">Music Video</option>
+ </select>
+ </div>
+ <div class="form-group">
+ <label>Poster Image</label>
+ <div id="projectPosterPreview" style="margin-bottom: 0.5rem; display: none;">
+ <img id="projectPosterPreviewImg" src="" alt="Current Poster" style="width: 100%; max-width: 300px; border-radius: 8px; border: 2px solid #d2d2d7;">
+ <p style="font-size: 0.75rem; color: #86868b; margin-top: 0.25rem;">Current poster</p>
+ </div>
+ <input type="file" id="projectImage" accept="image/*" onchange="handlePosterUpload(this)">
+ <p style="font-size: 0.75rem; color: #86868b; margin-top: 0.25rem;">Upload new poster to replace current one</p>
+ </div>
+ <div class="form-group">
+ <label>Visible on site</label>
+ <div class="toggle" id="projectVisible" onclick="toggleProjectVisible()"></div>
+ </div>
+ </div>
+ 
+ <div>
+ <h4 style="margin-bottom: 0.75rem;">🎥 Camera Equipment</h4>
+ <div class="form-group">
+ <label>Camera Body</label>
+ <input type="text" id="projectCameraBody" placeholder="e.g. ARRI Alexa Mini LF">
+ </div>
+ <div class="form-group">
+ <label>Lens</label>
+ <input type="text" id="projectCameraLens" placeholder="e.g. Cooke S7/i Prime Lenses">
+ </div>
+ <div class="form-group">
+ <label>Film Stock / Sensor</label>
+ <input type="text" id="projectFilmStock" placeholder="e.g. Digital 4K or Kodak 5219">
+ </div>
+ <div class="form-group">
+ <label>Aspect Ratio</label>
+ <input type="text" id="projectAspectRatio" placeholder="e.g. 2.39:1 or 16:9">
+ </div>
+ <div class="form-group">
+ <label>Special Equipment</label>
+ <textarea id="projectSpecialEquipment" placeholder="e.g. DJI Ronin 2, Tilta gimbal, etc." rows="2"></textarea>
+ </div>
+ </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+ <div>
+ <h4 style="margin-bottom: 0.75rem;">Your Role</h4>
+ <div class="form-group">
+ <label>Primary Role</label>
+ <input type="text" id="projectRole" placeholder="e.g. Cinematographer & Director">
+ </div>
+ <div class="form-group">
+ <label>Vimeo / Trailer URL</label>
+ <input type="text" id="projectTrailerUrl" placeholder="https://vimeo.com/...">
+ </div>
+ <div class="form-group">
+ <label>IMDb URL</label>
+ <input type="text" id="projectImdbUrl" placeholder="https://www.imdb.com/title/tt...">
+ </div>
+ <div class="form-group">
+ <label>Release Year</label>
+ <input type="number" id="projectYear" placeholder="e.g. 2025" min="1900" max="2099">
+ </div>
+</div>
+
+<div>
+ <h4 style="margin-bottom: 0.75rem;">🎬 Current Stills</h4>
+ <div id="projectStillsCurrent" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.5rem; max-height: 300px; overflow-y: auto; padding: 0.5rem; background: #f9f9fb; border-radius: 8px;">
+ <p style="color: #86868b; font-size: 0.875rem;">No stills uploaded yet</p>
+ </div>
 </div>
 </div>
 
@@ -649,24 +788,27 @@
     </div>
 
     <!-- View Stills Modal (replaces old galleryImageModal) -->
-    <div class="modal-overlay" id="viewStillsModal">
-        <div class="modal" style="max-width: 900px;">
-            <h3 id="viewStillsTitle">Project Stills</h3>
-            
-            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1rem;">
-                <input type="file" id="viewStillsUpload" accept="image/*" multiple>
-                <button class="btn btn-secondary" onclick="promoteToSelectedWorks()" id="promoteToSelectedBtn">⭐ Promote to Selected Works</button>
-            </div>
-            
-            <div id="viewStillsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; min-height: 100px; padding: 0.5rem;">
-                <p style="color: #86868b; grid-column: 1 / -1; text-align: center;">No stills yet. Upload some above!</p>
-            </div>
-            
-            <div class="modal-actions" style="margin-top: 1.5rem;">
-                <button class="btn btn-secondary" onclick="closeViewStillsModal()">Close</button>
-            </div>
-        </div>
-    </div>
+<div class="modal-overlay" id="viewStillsModal">
+<div class="modal" style="max-width: 900px;">
+<h3 id="viewStillsTitle">Project Stills</h3>
+
+<div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1rem; align-items: center;">
+<input type="file" id="viewStillsUpload" accept="image/*" multiple>
+<button class="btn btn-secondary" onclick="promoteToSelectedWorks()" id="promoteToSelectedBtn">⭐ Promote to Selected Works</button>
+<div style="flex: 1;"></div>
+<button class="btn btn-secondary" onclick="window.toggleSelectAll()" id="toggleSelectBtn">Select All</button>
+<button class="btn btn-danger" onclick="window.deleteSelected()" id="deleteSelectedBtn" disabled>Delete Selected (<span id="modalSelectedCount">0</span>)</button>
+</div>
+
+<div id="viewStillsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; min-height: 100px; padding: 0.5rem;">
+<p style="color: #86868b; grid-column: 1 / -1; text-align: center;">No stills yet. Upload some above!</p>
+</div>
+
+<div class="modal-actions" style="margin-top: 1.5rem;">
+<button class="btn btn-secondary" onclick="closeViewStillsModal()">Close</button>
+</div>
+</div>
+</div>
 
 <!-- Service Edit Modal -->
 <div class="modal-overlay" id="serviceModal">
@@ -732,10 +874,16 @@
     </div>
 </div>
 
-    <script>
-        let config = {};
-        let authToken = '';
-        let hasChanges = false;
+ <script>
+ let config = {};
+ let authToken = '';
+ let hasChanges = false;
+ 
+ // Temporary upload cache - prevents blob URL issues
+ window.pendingUploads = {
+ poster: null,  // { file, previewUrl, tempId }
+ stills: []     // Array of { file, previewUrl, tempId, type }
+ };
 
         // Login
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -776,6 +924,8 @@ const response = await fetch('/api/config', {
 headers: { 'Authorization': `Bearer ${authToken}` }
 });
 config = await response.json();
+ // Populate upload project select
+ if (typeof populateProjectSelect === 'function') populateProjectSelect();
 populateForms();
 setupFormListeners();
 } catch (error) {
@@ -797,7 +947,14 @@ renderHeroStillsSelector();
 // About
 document.getElementById('aboutHeader').value = config.about?.header || '';
 document.getElementById('aboutTagline').value = config.about?.tagline || '';
-document.getElementById('aboutParagraph').value = config.about?.paragraph || '';
+const aboutParagraph = config.about?.paragraph || '';
+document.getElementById('aboutParagraph').value = aboutParagraph;
+// Initialize rich text editor
+const editor = document.getElementById('aboutEditor');
+if (editor) {
+editor.innerHTML = aboutParagraph; // Set HTML content
+updateTextarea(); // Sync textarea
+}
 renderStats();
 
     // Works - rendered in table
@@ -835,17 +992,77 @@ document.getElementById('contactFormEnabled').className = `toggle ${formEnabled 
     renderSocialLinks();
 }
 
-        // Render functions
-        function renderLaurels() {
-            const grid = document.getElementById('laurelGrid');
-            grid.innerHTML = '';
-            config.hero?.laurels?.forEach((laurel, index) => {
-                const item = document.createElement('div');
-                item.className = 'laurel-item';
-                item.innerHTML = `<img src="${laurel.image}" alt="${laurel.alt}"><div class="remove" onclick="removeLaurel(${index})">×</div>`;
-                grid.appendChild(item);
-            });
-        }
+// Render functions
+function renderLaurels() {
+  const grid = document.getElementById('laurelGrid');
+  if (!grid) {
+    console.log('Laurel grid not found (commented out or not loaded)');
+    return; // Laurel grid is commented out, skip rendering
+  }
+  grid.innerHTML = '';
+  config.hero?.laurels?.forEach((laurel, index) => {
+    const item = document.createElement('div');
+    item.className = 'laurel-item';
+    item.innerHTML = `<img src="${laurel.image}" alt="${laurel.alt}"><div class="remove" onclick="removeLaurel(${index})">×</div>`;
+    grid.appendChild(item);
+  });
+}
+
+// Rich Text Editor Functions
+function formatText(command, value = null) {
+document.execCommand(command, false, value);
+updateTextarea();
+}
+
+function insertLink() {
+const url = prompt('Enter URL:', 'https://');
+if (url) {
+document.execCommand('createLink', false, url);
+updateTextarea();
+}
+}
+
+function updateTextarea() {
+const editor = document.getElementById('aboutEditor');
+const textarea = document.getElementById('aboutParagraph');
+if (editor && textarea) {
+textarea.value = editor.innerHTML;
+}
+}
+
+function toggleEditor() {
+const editor = document.getElementById('aboutEditor');
+const textarea = document.getElementById('aboutParagraph');
+if (!editor || !textarea) return;
+
+if (editor.style.display === 'none') {
+// Show editor, hide raw HTML
+editor.style.display = 'block';
+editor.innerHTML = textarea.value;
+} else {
+// Show raw HTML in editor
+updateTextarea();
+const html = textarea.value;
+editor.style.display = 'none';
+// Create a temporary textarea to show HTML
+const htmlTextarea = document.createElement('textarea');
+htmlTextarea.style.cssText = 'min-height: 200px; padding: 1rem; width: 100%; box-sizing: border-box;';
+htmlTextarea.value = html;
+htmlTextarea.oninput = () => {
+editor.innerHTML = htmlTextarea.value;
+updateTextarea();
+};
+editor.parentNode.insertBefore(htmlTextarea, editor.nextSibling);
+htmlTextarea.focus();
+// Replace back on blur after delay
+setTimeout(() => {
+htmlTextarea.onblur = () => {
+htmlTextarea.remove();
+editor.style.display = 'block';
+};
+}, 100);
+}
+}
 
 function renderStats() {
 const grid = document.getElementById('statsGrid');
@@ -856,6 +1073,29 @@ card.className = 'stat-card';
 card.innerHTML = `<div class="stat-number">${stat.number}</div><div class="stat-text">${stat.text}</div>`;
 grid.appendChild(card);
 });
+}
+
+// Normalize still path for comparison: strip leading slash AND project prefixes
+// e.g. "/assets/images/Dear Cancer_Screenshot (205).png" → "assets/images/Screenshot (205).png"
+// e.g. "/assets/images/FGT_Screenshot (40).png" → "assets/images/Screenshot (40).png"
+// e.g. "assets/images/Screenshot (205).png" → "assets/images/Screenshot (205).png" (no change)
+// e.g. "assets/images/ac5fb705-xxxx.png" → "assets/images/ac5fb705-xxxx.png" (no underscore prefix)
+function normalizeStillPath(path) {
+let p = path.replace(/^\//, '');
+// Strip project prefix from filename: "ProjectName_filename.ext" → "filename.ext"
+// Only strip if the prefix part looks like a project name (no parentheses/dates/extensions)
+// Project prefixes: "Dear Cancer", "FGT", "Sanjeevani", "The Last Convo", "What the FCK", "What's that Noise"
+// These don't contain "(", date patterns, or image extensions
+const match = p.match(/^assets\/images\/([^/]+?)_([^/]+\.(?:png|jpg|jpeg|webp|gif))$/);
+if (match) {
+const prefix = match[1];
+// Only strip prefix if it doesn't look like part of the actual filename
+// Filenames contain: parentheses with numbers, dates (YYYY-MM-DD), UUID patterns
+if (!/^\d+$/.test(prefix) && !/\(\d+\)/.test(prefix) && !/^\d{4}-\d{2}-\d{2}/.test(prefix) && !/^[a-f0-9]{8}-/.test(prefix)) {
+p = 'assets/images/' + match[2];
+}
+}
+return p;
 }
 
 // Render Hero Background Stills Selector
@@ -882,7 +1122,8 @@ projectName: project.name
 console.log('Hero BG Selector:', allStills.length, 'stills found');
 
 // Get currently selected stills (from hero.backgroundStills)
-const selectedIds = config.hero?.backgroundStills || [];
+// Normalize paths: strip leading slash AND project prefixes for comparison
+const selectedIds = (config.hero?.backgroundStills || []).map(s => normalizeStillPath(s));
 
 document.getElementById('totalCount').textContent = allStills.length;
 
@@ -892,7 +1133,8 @@ return;
 }
 
 allStills.forEach((still, index) => {
-const isSelected = selectedIds.includes(still.src);
+const normalizedSrc = normalizeStillPath(still.src);
+const isSelected = selectedIds.includes(normalizedSrc);
 const card = document.createElement('div');
 card.className = `still-card ${isSelected ? 'selected' : ''}`;
 card.style.cssText = `
@@ -900,38 +1142,50 @@ position: relative;
 border-radius: 8px;
 overflow: hidden;
 cursor: pointer;
-border: 3px solid ${isSelected ? '#0071e3' : 'transparent'};
-transition: all 0.2s;
+border: 3px solid ${isSelected ? '#22c55e' : '#ef4444'};
+transition: all 0.25s ease;
+box-shadow: ${isSelected ? '0 4px 16px rgba(34, 197, 94, 0.5)' : '0 2px 8px rgba(239, 68, 68, 0.3)'};
 `;
 
 // Ensure path has leading slash
 const stillPath = still.src.startsWith('/') ? still.src : '/' + still.src;
 
 card.innerHTML = `
-<img src="${stillPath}" alt="${still.alt || 'Still'}" style="width: 100%; height: 100px; object-fit: cover;">
-<div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; opacity: ${isSelected ? 1 : 0}; transition: opacity 0.2s;">
-<span style="color: white; font-size: 1.5rem;">✓</span>
+<img src="${stillPath}" alt="${still.alt || 'Still'}" style="width: 100%; height: 100px; object-fit: cover; filter: ${isSelected ? 'none' : 'grayscale(0.8) brightness(0.7)'};">
+<div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: ${isSelected ? 'rgba(34, 197, 94, 0.35)' : 'rgba(220, 38, 38, 0.35)'}; display: flex; align-items: center; justify-content: center; transition: opacity 0.2s;">
+<span style="color: white; font-size: 1.5rem; font-weight: bold; text-shadow: 0 2px 6px rgba(0,0,0,0.7);">${isSelected ? '✓' : '✕'}</span>
 </div>
-<div style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.7); color: white; padding: 0.25rem 0.5rem; font-size: 0.75rem;">
+<div style="position: absolute; top: 4px; right: 4px; background: ${isSelected ? 'rgba(22, 163, 74, 0.9)' : 'rgba(185, 28, 28, 0.9)'}; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: 600;">${isSelected ? 'SELECTED' : 'OFF'}</div>
+<div style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.8); color: white; padding: 0.25rem 0.5rem; font-size: 0.75rem;">
 ${still.projectName || 'Unknown'}
 </div>
 `;
 
-card.addEventListener('click', () => toggleStillSelection(still.src));
+card.addEventListener('mouseenter', () => {
+card.style.transform = 'scale(1.05)';
+card.style.zIndex = '1';
+});
+card.addEventListener('mouseleave', () => {
+card.style.transform = 'scale(1)';
+card.style.zIndex = '';
+});
+
+card.addEventListener('click', () => toggleHeroStillSelection(still.src));
 grid.appendChild(card);
 });
 
 updateSelectedCount();
 }
 
-function toggleStillSelection(stillSrc) {
-let selected = config.hero?.backgroundStills || [];
-const index = selected.indexOf(stillSrc);
+function toggleHeroStillSelection(stillSrc) {
+let selected = (config.hero?.backgroundStills || []).map(s => normalizeStillPath(s));
+const normalizedSrc = normalizeStillPath(stillSrc);
+const index = selected.indexOf(normalizedSrc);
 
 if (index > -1) {
 selected.splice(index, 1);
 } else {
-selected.push(stillSrc);
+selected.push(normalizedSrc);
 }
 
 if (!config.hero) config.hero = {};
@@ -944,7 +1198,7 @@ function selectAllStills() {
 const allStills = [];
 config.gallery?.projects?.forEach(project => {
 project.stills?.forEach(still => {
-allStills.push(still.src);
+allStills.push(normalizeStillPath(still.src));
 });
 });
 
@@ -961,7 +1215,7 @@ renderHeroStillsSelector();
 
 function updateSelectedCount() {
 const selected = config.hero?.backgroundStills?.length || 0;
-document.getElementById('selectedCount').textContent = selected;
+document.getElementById('heroSelectedCount').textContent = selected;
 }
 
 function renderProjects() {
@@ -1007,25 +1261,43 @@ function renderProjects() {
             });
         }
 
+function getSocialIconSVG(platform) {
+  const icons = {
+    'vimeo': '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.948 8.003c-.118-.786-.51-1.355-1.175-1.707-.666-.352-1.559-.47-2.68-.353-1.117.118-2.079.588-2.886 1.412-.803.818-1.205 1.845-1.205 3.08 0 1.234.411 2.318 1.234 3.25.823.93 1.864 1.395 3.122 1.395 1.258 0 2.289-.49 3.093-1.47.803-.98 1.205-2.176 1.205-3.59 0-1.425-.235-2.689-.705-4.017ZM5.69 17.478c.392 1.51 1.057 2.698 1.998 3.565.94.867 2.079 1.307 3.416 1.307 1.337 0 2.474-.44 3.415-1.307.941-.867 1.606-2.055 1.998-3.565.391-1.51.587-3.151.587-4.923 0-1.771-.196-3.412-.587-4.922-.392-1.51-1.057-2.699-1.998-3.566C13.578.6 12.441.16 11.104.16c-1.337 0-2.474.44-3.415 1.307-.941.867-1.606 2.056-1.998 3.566C5.299 6.545 5.103 8.186 5.103 9.957c0 1.772.196 3.413.587 4.923Z"/></svg>',
+    'instagram': '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069ZM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.667.014 15.259 0 12 0Zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324ZM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8Zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881Z"/></svg>',
+    'linkedin': '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.474-.9 1.637-1.85 3.374-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286ZM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065Zm1.782 13.019H3.555V9h3.564v11.452ZM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003Z"/></svg>',
+    'youtube': '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814ZM9.545 15.568V8.432L15.818 12l-6.273 3.568Z"/></svg>',
+    'facebook': '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v3.129H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073Z"/></svg>',
+    'twitter': '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>',
+    'tiktok': '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.08-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.75-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.53-2.25-.35-3.02.46-.38.41-.64.94-.71 1.5-.14 1.21.24 2.47 1.07 3.37.83.9 2.12 1.31 3.33 1.07 1.21-.24 2.26-1.1 2.72-2.23.27-.65.35-1.37.33-2.07.01-4.5 0-9.01 0-13.51z"/></svg>',
+    'imdb': '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M10.5 13.5c.83 0 1.5.67 1.5 1.5v6c0 .83-.67 1.5-1.5 1.5h-3c-.83 0-1.5-.67-1.5-1.5v-6c0-.83.67-1.5 1.5-1.5h3zm6 0c.83 0 1.5.67 1.5 1.5v6c0 .83-.67 1.5-1.5 1.5h-3c-.83 0-1.5-.67-1.5-1.5v-6c0-.83.67-1.5 1.5-1.5h3zm6 0c.83 0 1.5.67 1.5 1.5v6c0 .83-.67 1.5-1.5 1.5h-3c-.83 0-1.5-.67-1.5-1.5v-6c0-.83.67-1.5 1.5-1.5h3zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/></svg>',
+    'letterboxd': '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.5 3.5C2.5 3.5 6.5 2 12 2s10 1.5 10 1.5v17s-4 1.5-10 1.5S2 20.5 2 20.5V3.5zm2 2.5v12c1.5.5 4 1 7.5 1s6-.5 7.5-1V6c-1.5-.5-4-1-7.5-1s-6 .5-7.5 1z"/></svg>',
+    'threads': '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18c-4.411 0-8-3.589-8-8 0-2.109.827-4.023 2.172-5.458.736.982 2.034 1.663 3.486 1.663 2.063 0 3.75-1.5 4.125-3.469C15.336 5.25 16.636 4.5 18 4.5c.344 0 .68.047 1 .133V12c0 4.411-3.589 8-8 8zm0-16c-2.209 0-4 1.791-4 4s1.791 4 4 4 4-1.791 4-4-1.791-4-4-4z"/></svg>'
+  };
+  
+  const key = platform.toLowerCase().replace(/\s+/g, '');
+  return icons[key] || icons['vimeo'];
+}
+
 function renderSocialLinks() {
-    const list = document.getElementById('socialList');
-    list.innerHTML = '';
-    config.footer?.socialLinks?.forEach((link, index) => {
-        const li = document.createElement('li');
-        li.className = 'social-item';
-        li.style.cssText = 'display: flex; align-items: center; gap: 1rem; padding: 1rem; background: #f5f5f7; border-radius: 8px; margin-bottom: 0.75rem;';
-        li.innerHTML = `
-            <span class="social-icon" style="font-size: 1.5rem;">${link.icon || '🔗'}</span>
-            <div class="social-info" style="flex: 1;">
-                <strong>${link.platform}</strong><br>
-                <small style="color: #86868b;">${link.url || 'No URL'}</small><br>
-                <small style="color: ${link.visible !== false ? '#34c759' : '#ff3b30'};">${link.visible !== false ? '✓ Visible' : '✗ Hidden'}</small>
-            </div>
-            <button class="btn btn-secondary" onclick="editSocial(${index})">Edit</button>
-            <button class="btn btn-danger" onclick="deleteSocial(${index})">Delete</button>
-        `;
-        list.appendChild(li);
-    });
+const list = document.getElementById('socialList');
+list.innerHTML = '';
+config.footer?.socialLinks?.forEach((link, index) => {
+const li = document.createElement('li');
+li.className = 'social-item';
+li.style.cssText = 'display: flex; align-items: center; gap: 1rem; padding: 1rem; background: #f5f5f7; border-radius: 8px; margin-bottom: 0.75rem;';
+li.innerHTML = `
+<span class="social-icon" style="width: 24px; height: 24px;">${getSocialIconSVG(link.platform)}</span>
+<div class="social-info" style="flex: 1;">
+<strong>${link.platform || link.customName || ''}</strong><br>
+<small style="color: #86868b;">${link.url || 'No URL'}</small><br>
+<small style="color: ${link.visible !== false ? '#34c759' : '#ff3b30'};">${link.visible !== false ? '✓ Visible' : '✗ Hidden'}</small>
+</div>
+<button class="btn btn-secondary" onclick="editSocial(${index})">Edit</button>
+<button class="btn btn-danger" onclick="deleteSocial(${index})">Delete</button>
+`;
+list.appendChild(li);
+});
 }
 
         // Toggle functions
@@ -1132,154 +1404,364 @@ reader.readAsDataURL(file);
 });
 }
 
-function addProject() {
-    // Open project modal in add mode
-    window.editingProjectIndex = null;
-    document.getElementById('projectModalTitle').textContent = 'Add Project';
-    document.getElementById('projectTitle').value = '';
-    document.getElementById('projectTagline').value = '';
-    document.getElementById('projectRole').value = '';
-    document.getElementById('projectCategory').value = 'narrative';
-    document.getElementById('projectTrailerUrl').value = '';
-    document.getElementById('projectImdbUrl').value = '';
-    document.getElementById('projectYear').value = '';
-    document.getElementById('projectDirector').value = '';
-    document.getElementById('projectDop').value = '';
-    document.getElementById('projectProducer').value = '';
-    document.getElementById('projectPd').value = '';
-    document.getElementById('projectEditor').value = '';
-    document.getElementById('projectAd').value = '';
-    document.getElementById('projectWriter').value = '';
-    document.getElementById('projectComposer').value = '';
-    document.getElementById('projectSound').value = '';
-    document.getElementById('projectColorist').value = '';
-    document.getElementById('projectVfx').value = '';
-    document.getElementById('projectCostume').value = '';
-    document.getElementById('projectMakeup').value = '';
-    document.getElementById('projectGaffer').value = '';
-    document.getElementById('projectKeyGrip').value = '';
-    document.getElementById('projectAdditionalCrew').value = '';
-    document.getElementById('projectVisible').className = 'toggle active';
-    document.getElementById('projectModal').classList.add('active');
+// Handle poster upload - stores in pending cache with data URL
+async function handlePosterUpload(input) {
+const file = input.files[0];
+if (!file) return;
+
+// Validate file type
+if (!file.type.startsWith('image/')) {
+alert('Please upload an image file');
+input.value = '';
+return;
 }
 
+// Generate unique temp ID
+const tempId = 'poster-' + Date.now();
+
+// Create data URL for preview only
+const reader = new FileReader();
+reader.onload = e => {
+// Show preview only (don't store data URL in pending)
+const posterPreview = document.getElementById('projectPosterPreview');
+const posterPreviewImg = document.getElementById('projectPosterPreviewImg');
+if (posterPreview && posterPreviewImg) {
+posterPreview.style.display = 'block';
+posterPreviewImg.src = e.target.result;
+}
+};
+reader.readAsDataURL(file);
+
+// Upload file immediately and store the path
+const formData = new FormData();
+formData.append('file', file);
+try {
+const response = await fetch('/api/upload', {
+method: 'POST',
+headers: { 'Authorization': `Bearer ${authToken}` },
+body: formData
+});
+const data = await response.json();
+if (data.success) {
+// Store the file path (not data URL)
+window.pendingUploads.poster = {
+previewUrl: data.path, // File path from server
+tempId: tempId,
+name: file.name
+};
+} else {
+alert('Upload failed: ' + (data.error || 'Unknown error'));
+input.value = '';
+}
+} catch (error) {
+console.error('Upload error:', error);
+alert('Upload failed: ' + error.message);
+input.value = '';
+}
+}
+
+function addProject() {
+// Open project modal in add mode
+window.editingProjectIndex = null;
+document.getElementById('projectModalTitle').textContent = 'Add Project';
+document.getElementById('projectTitle').value = '';
+document.getElementById('projectTagline').value = '';
+document.getElementById('projectRole').value = '';
+document.getElementById('projectCategory').value = 'narrative';
+document.getElementById('projectTrailerUrl').value = '';
+document.getElementById('projectImdbUrl').value = '';
+document.getElementById('projectYear').value = '';
+document.getElementById('projectDirector').value = '';
+document.getElementById('projectDop').value = '';
+document.getElementById('projectProducer').value = '';
+document.getElementById('projectPd').value = '';
+document.getElementById('projectEditor').value = '';
+document.getElementById('projectAd').value = '';
+document.getElementById('projectWriter').value = '';
+document.getElementById('projectComposer').value = '';
+document.getElementById('projectSound').value = '';
+document.getElementById('projectColorist').value = '';
+document.getElementById('projectVfx').value = '';
+document.getElementById('projectCostume').value = '';
+document.getElementById('projectMakeup').value = '';
+document.getElementById('projectGaffer').value = '';
+document.getElementById('projectKeyGrip').value = '';
+document.getElementById('projectAdditionalCrew').value = '';
+
+// Camera equipment fields
+document.getElementById('projectCameraBody').value = '';
+document.getElementById('projectCameraLens').value = '';
+document.getElementById('projectFilmStock').value = '';
+document.getElementById('projectAspectRatio').value = '';
+document.getElementById('projectSpecialEquipment').value = '';
+
+// Clear poster preview completely
+const posterPreview = document.getElementById('projectPosterPreview');
+const posterPreviewImg = document.getElementById('projectPosterPreviewImg');
+if (posterPreview) posterPreview.style.display = 'none';
+if (posterPreviewImg) posterPreviewImg.src = '';
+
+// Clear file input
+const imageInput = document.getElementById('projectImage');
+if (imageInput) imageInput.value = '';
+
+// Clear pending uploads
+window.pendingUploads.poster = null;
+window.pendingUploads.stills = [];
+
+document.getElementById('projectVisible').className = 'toggle active';
+
+// Clear stills display
+const stillsContainer = document.getElementById('projectStillsCurrent');
+if (stillsContainer) {
+stillsContainer.innerHTML = '<p style="color: #86868b; font-size: 0.875rem;">No stills uploaded yet</p>';
+}
+
+// Clear stills preview
+const stillsPreview = document.getElementById('projectStillsPreview');
+if (stillsPreview) stillsPreview.innerHTML = '';
+
+document.getElementById('projectModal').classList.add('active');
+}
+
+
 function editProject(index) {
-    // Open project modal in edit mode
-    const project = config.selectedWorks[index];
-    document.getElementById('projectModalTitle').textContent = 'Edit Project';
-    document.getElementById('projectTitle').value = project.title || '';
-    document.getElementById('projectTagline').value = project.tagline || '';
-    document.getElementById('projectRole').value = project.role || '';
-    document.getElementById('projectCategory').value = project.category || 'narrative';
-    document.getElementById('projectTrailerUrl').value = project.trailerUrl || '';
-    document.getElementById('projectImdbUrl').value = project.imdbUrl || '';
-    document.getElementById('projectYear').value = project.year || '';
-    
-    const c = project.credits || {};
-    document.getElementById('projectDirector').value = c.director || '';
-    document.getElementById('projectDop').value = c.dop || '';
-    document.getElementById('projectProducer').value = c.producer || '';
-    document.getElementById('projectPd').value = c.productionDesigner || '';
-    document.getElementById('projectEditor').value = c.editor || '';
-    document.getElementById('projectAd').value = c.assistantDirector || '';
-    document.getElementById('projectWriter').value = c.writer || '';
-    document.getElementById('projectComposer').value = c.composer || '';
-    document.getElementById('projectSound').value = c.soundDesigner || '';
-    document.getElementById('projectColorist').value = c.colorist || '';
-    document.getElementById('projectVfx').value = c.vfxSupervisor || '';
-    document.getElementById('projectCostume').value = c.costumeDesigner || '';
-    document.getElementById('projectMakeup').value = c.makeup || '';
-    document.getElementById('projectGaffer').value = c.gaffer || '';
-    document.getElementById('projectKeyGrip').value = c.keyGrip || '';
-    
-    // Convert additionalCrew object back to textarea lines
-    const additional = c.additional || {};
-    const lines = Object.entries(additional).map(([role, name]) => `${role}: ${name}`);
-    document.getElementById('projectAdditionalCrew').value = lines.join('\n');
-    
-    document.getElementById('projectVisible').className = `toggle ${project.visible !== false ? 'active' : ''}`;
-    window.editingProjectIndex = index;
-    document.getElementById('projectModal').classList.add('active');
+// Clear any pending uploads first
+window.pendingUploads.poster = null;
+window.pendingUploads.stills = [];
+
+// Open project modal in edit mode
+const project = config.selectedWorks[index];
+document.getElementById('projectModalTitle').textContent = 'Edit Project';
+document.getElementById('projectTitle').value = project.title || '';
+document.getElementById('projectTagline').value = project.tagline || '';
+document.getElementById('projectRole').value = project.role || '';
+document.getElementById('projectCategory').value = project.category || 'narrative';
+document.getElementById('projectTrailerUrl').value = project.trailerUrl || '';
+document.getElementById('projectImdbUrl').value = project.imdbUrl || '';
+document.getElementById('projectYear').value = project.year || '';
+
+// Camera equipment
+document.getElementById('projectCameraBody').value = project.camera?.body || '';
+document.getElementById('projectCameraLens').value = project.camera?.lens || '';
+document.getElementById('projectFilmStock').value = project.camera?.filmStock || '';
+document.getElementById('projectAspectRatio').value = project.camera?.aspectRatio || '';
+document.getElementById('projectSpecialEquipment').value = project.camera?.specialEquipment || '';
+
+// Show poster preview if exists
+const posterPreview = document.getElementById('projectPosterPreview');
+const posterPreviewImg = document.getElementById('projectPosterPreviewImg');
+if (project.image && project.image !== '') {
+posterPreview.style.display = 'block';
+posterPreviewImg.src = project.image.startsWith('/') ? project.image : '/' + project.image;
+} else {
+posterPreview.style.display = 'none';
+posterPreviewImg.src = '';
+}
+
+// Clear file input
+const imageInput = document.getElementById('projectImage');
+if (imageInput) imageInput.value = '';
+ 
+ const c = project.credits || {};
+ document.getElementById('projectDirector').value = c.director || '';
+ document.getElementById('projectDop').value = c.dop || '';
+ document.getElementById('projectProducer').value = c.producer || '';
+ document.getElementById('projectPd').value = c.productionDesigner || '';
+ document.getElementById('projectEditor').value = c.editor || '';
+ document.getElementById('projectAd').value = c.assistantDirector || '';
+ document.getElementById('projectWriter').value = c.writer || '';
+ document.getElementById('projectComposer').value = c.composer || '';
+ document.getElementById('projectSound').value = c.soundDesigner || '';
+ document.getElementById('projectColorist').value = c.colorist || '';
+ document.getElementById('projectVfx').value = c.vfxSupervisor || '';
+ document.getElementById('projectCostume').value = c.costumeDesigner || '';
+ document.getElementById('projectMakeup').value = c.makeup || '';
+ document.getElementById('projectGaffer').value = c.gaffer || '';
+ document.getElementById('projectKeyGrip').value = c.keyGrip || '';
+ 
+ // Convert additionalCrew object back to textarea lines
+ const additional = c.additional || {};
+ const lines = Object.entries(additional).map(([role, name]) => `${role}: ${name}`);
+ document.getElementById('projectAdditionalCrew').value = lines.join('\n');
+ 
+ document.getElementById('projectVisible').className = `toggle ${project.visible !== false ? 'active' : ''}`;
+ 
+ // Show current stills
+ displayCurrentStills(index);
+ 
+ window.editingProjectIndex = index;
+ document.getElementById('projectModal').classList.add('active');
 }
 
 function closeProjectModal() {
-    document.getElementById('projectModal').classList.remove('active');
-    window.editingProjectIndex = null;
+// Clear pending uploads
+window.pendingUploads.poster = null;
+window.pendingUploads.stills = [];
+
+// Clear file inputs
+const imageInput = document.getElementById('projectImage');
+if (imageInput) imageInput.value = '';
+
+const stillsInput = document.getElementById('projectStills');
+if (stillsInput) stillsInput.value = '';
+
+// Clear previews
+const posterPreview = document.getElementById('projectPosterPreview');
+const posterPreviewImg = document.getElementById('projectPosterPreviewImg');
+if (posterPreview) posterPreview.style.display = 'none';
+if (posterPreviewImg) posterPreviewImg.src = '';
+
+const stillsPreview = document.getElementById('projectStillsPreview');
+if (stillsPreview) stillsPreview.innerHTML = '';
+
+document.getElementById('projectModal').classList.remove('active');
+window.editingProjectIndex = null;
 }
 
+// Display current stills for a project
+function displayCurrentStills(projectIndex) {
+const container = document.getElementById('projectStillsCurrent');
+if (!container) return;
+
+const project = config.selectedWorks[projectIndex];
+if (!project) {
+container.innerHTML = '<p style="color: #86868b; font-size: 0.875rem; grid-column: 1/-1;">No stills uploaded yet</p>';
+return;
+}
+
+// Find matching gallery project by name
+const galleryProject = config.gallery?.projects?.find(p => p.name === project.title);
+const stills = galleryProject?.stills || [];
+
+if (stills.length === 0) {
+container.innerHTML = '<p style="color: #86868b; font-size: 0.875rem; grid-column: 1/-1;">No stills uploaded yet</p>';
+return;
+}
+
+container.innerHTML = '';
+stills.forEach((still, index) => {
+const img = document.createElement('div');
+img.style.position = 'relative';
+img.style.borderRadius = '8px';
+img.style.overflow = 'hidden';
+img.style.border = '2px solid #d2d2d7';
+
+const stillPath = still.src.startsWith('/') ? still.src : '/' + still.src;
+
+img.innerHTML = `
+<img src="${stillPath}" alt="${still.alt || 'Still ' + (index + 1)}" style="width: 100%; height: 100px; object-fit: cover;">
+<div style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.7); padding: 4px; font-size: 10px; color: white; display: flex; justify-content: space-between; align-items: center;">
+<span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;">${still.alt || 'Still ' + (index + 1)}</span>
+</div>
+`;
+
+container.appendChild(img);
+});
+}
+
+// Delete a still from project
+window.deleteStill = function(projectIndex, stillIndex) {
+ const project = config.selectedWorks[projectIndex];
+ if (!project || !project.stills) return;
+ 
+ if (confirm('Delete this still?')) {
+ project.stills.splice(stillIndex, 1);
+ displayCurrentStills(projectIndex);
+ markChanged();
+ }
+};
+
 function saveProject() {
-    // Grab the image from the image input, or keep existing one
-    const imageInput = document.getElementById('projectImage');
-    const existingImage = window.editingProjectIndex !== null ? config.selectedWorks[window.editingProjectIndex].image : null;
-    const image = imageInput?.files?.[0] ? URL.createObjectURL(imageInput.files[0]) : (existingImage || '/assets/images/placeholder.png');
-    
-    function val(id) { return (document.getElementById(id)?.value || '').trim(); }
-    
-    // Collect crew fields — only truthy values get stored
-    const credits = {};
-    const crewFields = {
-        director: val('projectDirector'),
-        dop: val('projectDop'),
-        producer: val('projectProducer'),
-        productionDesigner: val('projectPd'),
-        editor: val('projectEditor'),
-        assistantDirector: val('projectAd'),
-        writer: val('projectWriter'),
-        composer: val('projectComposer'),
-        soundDesigner: val('projectSound'),
-        colorist: val('projectColorist'),
-        vfxSupervisor: val('projectVfx'),
-        costumeDesigner: val('projectCostume'),
-        makeup: val('projectMakeup'),
-        gaffer: val('projectGaffer'),
-        keyGrip: val('projectKeyGrip')
-    };
-    for (const [key, value] of Object.entries(crewFields)) {
-        if (value) credits[key] = value;
-    }
-    
-    // Parse additional crew from textarea (Role: Name per line)
-    const addLines = val('projectAdditionalCrew').split('\n').filter(Boolean);
-    const additional = {};
-    for (const line of addLines) {
-        const colonIdx = line.indexOf(':');
-        if (colonIdx > 0) {
-            const role = line.slice(0, colonIdx).trim();
-            const name = line.slice(colonIdx + 1).trim();
-            if (role && name) additional[role] = name;
-        }
-    }
-    if (Object.keys(additional).length > 0) credits.additional = additional;
-    
-    const project = {
-        id: window.editingProjectIndex !== null ? config.selectedWorks[window.editingProjectIndex].id : 'project-' + Date.now(),
-        title: val('projectTitle'),
-        tagline: val('projectTagline'),
-        role: val('projectRole'),
-        category: val('projectCategory') || 'narrative',
-        trailerUrl: val('projectTrailerUrl'),
-        imdbUrl: val('projectImdbUrl'),
-        year: val('projectYear'),
-        visible: document.getElementById('projectVisible')?.classList.contains('active') ?? true,
-        image,
-        credits: Object.keys(credits).length > 0 ? credits : undefined
-    };
-    
-    // Remove empty optional fields to keep config clean
-    if (!project.trailerUrl) delete project.trailerUrl;
-    if (!project.imdbUrl) delete project.imdbUrl;
-    if (!project.year) delete project.year;
-    if (!project.credits) delete project.credits;
-    
-    if (window.editingProjectIndex !== null) {
-        config.selectedWorks[window.editingProjectIndex] = project;
-    } else {
-        config.selectedWorks.push(project);
-    }
-    
-    renderProjects();
-    closeProjectModal();
-    markChanged();
+// Use pending upload poster if available, otherwise use existing image
+let image = '/assets/images/placeholder.png';
+
+if (window.pendingUploads.poster) {
+// Use the file path from pending upload
+image = window.pendingUploads.poster.previewUrl;
+} else if (window.editingProjectIndex !== null && config.selectedWorks[window.editingProjectIndex]) {
+// Keep existing image
+image = config.selectedWorks[window.editingProjectIndex].image || '/assets/images/placeholder.png';
+}
+
+function val(id) { return (document.getElementById(id)?.value || '').trim(); }
+ 
+ // Collect crew fields — only truthy values get stored
+ const credits = {};
+ const crewFields = {
+ director: val('projectDirector'),
+ dop: val('projectDop'),
+ producer: val('projectProducer'),
+ productionDesigner: val('projectPd'),
+ editor: val('projectEditor'),
+ assistantDirector: val('projectAd'),
+ writer: val('projectWriter'),
+ composer: val('projectComposer'),
+ soundDesigner: val('projectSound'),
+ colorist: val('projectColorist'),
+ vfxSupervisor: val('projectVfx'),
+ costumeDesigner: val('projectCostume'),
+ makeup: val('projectMakeup'),
+ gaffer: val('projectGaffer'),
+ keyGrip: val('projectKeyGrip')
+ };
+ for (const [key, value] of Object.entries(crewFields)) {
+ if (value) credits[key] = value;
+ }
+ 
+ // Parse additional crew from textarea (Role: Name per line)
+ const addLines = val('projectAdditionalCrew').split('\n').filter(Boolean);
+ const additional = {};
+ for (const line of addLines) {
+ const colonIdx = line.indexOf(':');
+ if (colonIdx > 0) {
+ const role = line.slice(0, colonIdx).trim();
+ const name = line.slice(colonIdx + 1).trim();
+ if (role && name) additional[role] = name;
+ }
+ }
+ if (Object.keys(additional).length > 0) credits.additional = additional;
+ 
+ // Camera equipment
+ const camera = {
+ body: val('projectCameraBody'),
+ lens: val('projectCameraLens'),
+ filmStock: val('projectFilmStock'),
+ aspectRatio: val('projectAspectRatio'),
+ specialEquipment: val('projectSpecialEquipment')
+ };
+ 
+ const project = {
+ id: window.editingProjectIndex !== null ? config.selectedWorks[window.editingProjectIndex].id : 'project-' + Date.now(),
+ title: val('projectTitle'),
+ tagline: val('projectTagline'),
+ role: val('projectRole'),
+ category: val('projectCategory') || 'narrative',
+ trailerUrl: val('projectTrailerUrl'),
+ imdbUrl: val('projectImdbUrl'),
+ year: val('projectYear'),
+ visible: document.getElementById('projectVisible')?.classList.contains('active') ?? true,
+ image,
+ credits: Object.keys(credits).length > 0 ? credits : undefined,
+ camera: Object.values(camera).some(v => v) ? camera : undefined
+ };
+ 
+ // Remove empty optional fields to keep config clean
+ if (!project.trailerUrl) delete project.trailerUrl;
+ if (!project.imdbUrl) delete project.imdbUrl;
+ if (!project.year) delete project.year;
+ if (!project.credits) delete project.credits;
+ if (!project.camera) delete project.camera;
+ 
+ if (window.editingProjectIndex !== null) {
+ config.selectedWorks[window.editingProjectIndex] = project;
+ } else {
+ config.selectedWorks.push(project);
+ }
+ 
+ renderProjects();
+ closeProjectModal();
+ markChanged();
 }
 
 function toggleProjectVisible() {
@@ -1643,77 +2125,44 @@ function renderGalleryStills() {
 
 // Get filtered stills based on active filters
 function getFilteredStills() {
-    const movieFilter = document.getElementById('galleryFilterMovie')?.value || '';
-    const cameraFilter = document.getElementById('galleryFilterCamera')?.value || '';
-    const typeFilter = document.getElementById('galleryFilterType')?.value || '';
-    const yearFilter = document.getElementById('galleryFilterYear')?.value || '';
-    
-    const allStills = [];
-    
-    config.gallery.projects?.forEach((project, pIdx) => {
-        if (movieFilter && project.name !== movieFilter) return;
-        if (cameraFilter && project.camera !== cameraFilter) return;
-        if (typeFilter && project.type !== typeFilter) return;
-        if (yearFilter && project.year !== yearFilter) return;
-        
-        project.stills?.forEach((still, sIdx) => {
-            allStills.push({
-                ...still,
-                projectIndex: pIdx,
-                stillIndex: sIdx,
-                projectName: project.name
-            });
-        });
-    });
-    
-    return allStills;
+const movieFilter = document.getElementById('galleryFilterMovie')?.value || '';
+
+const allStills = [];
+
+config.gallery.projects?.forEach((project, pIdx) => {
+if (movieFilter && project.name !== movieFilter) return;
+
+project.stills?.forEach((still, sIdx) => {
+allStills.push({
+...still,
+projectIndex: pIdx,
+stillIndex: sIdx,
+projectName: project.name
+});
+});
+});
+
+return allStills;
 }
 
 // Update filter dropdowns
 function updateFilterDropdowns() {
-    const movieSelect = document.getElementById('galleryFilterMovie');
-    const yearSelect = document.getElementById('galleryFilterYear');
-    if (!movieSelect || !yearSelect) return;
-    
-    // Get unique values
-    const movies = new Set();
-    const years = new Set();
-    const cameras = new Set();
-    const types = new Set();
-    
-    config.gallery.projects?.forEach(p => {
-        if (p.name) movies.add(p.name);
-        if (p.year) years.add(p.year);
-        if (p.camera) cameras.add(p.camera);
-        if (p.type) types.add(p.type);
-    });
-    
-    // Update movie dropdown
-    const currentMovie = movieSelect.value;
-    movieSelect.innerHTML = '<option value="">All Projects</option>';
-    movies.forEach(m => {
-        movieSelect.innerHTML += `<option value="${m}">${m}</option>`;
-    });
-    movieSelect.value = currentMovie;
-    
-    // Update year dropdown
-    const currentYear = yearSelect.value;
-    yearSelect.innerHTML = '<option value="">All Years</option>';
-    years.forEach(y => {
-        yearSelect.innerHTML += `<option value="${y}">${y}</option>`;
-    });
-    yearSelect.value = currentYear;
-    
-    // Update camera dropdown
-    const cameraSelect = document.getElementById('galleryFilterCamera');
-    if (cameraSelect) {
-        const currentCamera = cameraSelect.value;
-        cameraSelect.innerHTML = '<option value="">All Cameras</option>';
-        config.gallery.knownCameras?.forEach(c => {
-            cameraSelect.innerHTML += `<option value="${c}">${c}</option>`;
-        });
-        cameraSelect.value = currentCamera;
-    }
+const movieSelect = document.getElementById('galleryFilterMovie');
+if (!movieSelect) return;
+
+// Get unique movie names
+const movies = new Set();
+config.gallery.projects?.forEach(p => {
+if (p.name) movies.add(p.name);
+});
+
+// Update movie dropdown
+const currentMovie = movieSelect.value;
+movieSelect.innerHTML = '<option value="">All Projects</option>';
+[...movies].sort().forEach(m => {
+movieSelect.innerHTML += `<option value="${m.replace(/"/g, '&quot;')}">${m}</option>`;
+});
+movieSelect.value = currentMovie;
 }
 
 // Update camera datalist suggestions
@@ -1851,75 +2300,295 @@ function deleteGalleryProject(index) {
 }
 
 // View stills modal
-function openViewStillsModal(projectIndex) {
-    const project = config.gallery.projects[projectIndex];
-    if (!project) return;
-    
-    window.currentGalleryProjectIndex = projectIndex;
-    document.getElementById('viewStillsTitle').textContent = `${project.name} - Stills`;
-    
-    const grid = document.getElementById('viewStillsGrid');
-    grid.innerHTML = '';
-    
-    if (!project.stills || project.stills.length === 0) {
-        grid.innerHTML = '<p style="color: #86868b; grid-column: 1 / -1; text-align: center;">No stills yet. Upload some above!</p>';
-    } else {
-        project.stills.forEach((still, idx) => {
-            const div = document.createElement('div');
-            div.style.cssText = 'position: relative; border-radius: 8px; overflow: hidden;';
-            div.innerHTML = `
-                <img src="${still.src}" style="width: 100%; height: 180px; object-fit: cover; display: block;">
-                <button onclick="deleteStill(${projectIndex}, ${idx})" style="position: absolute; top: 0.5rem; right: 0.5rem; background: rgba(255,0,0,0.8); color: white; border: none; border-radius: 50%; width: 2rem; height: 2rem; cursor: pointer; font-size: 1rem;">×</button>
-            `;
-            grid.appendChild(div);
-        });
-    }
-    
-    // Setup upload handler
-    const uploadInput = document.getElementById('viewStillsUpload');
-    uploadInput.onchange = (e) => uploadStillsToProject(projectIndex, e);
-    
-    document.getElementById('viewStillsModal').classList.add('active');
+window.currentGalleryProjectIndex = null;
+window.selectedStills = new Set(); // Track selected still indices
+window.draggedStillIndex = null; // Track dragged item
+
+function openViewStillsModal(projectIndex, skipClear = false) {
+const project = config.gallery.projects[projectIndex];
+if (!project) return;
+
+window.currentGalleryProjectIndex = projectIndex;
+if (!skipClear) {
+window.selectedStills.clear();
+window.draggedStillIndex = null;
+}
+
+// Update modal selection UI
+const countEl = document.getElementById('modalSelectedCount');
+if (countEl) countEl.textContent = window.selectedStills.size;
+const btn = document.getElementById('deleteSelectedBtn');
+if (btn) {
+if (window.selectedStills.size === 0) {
+btn.disabled = true; btn.style.opacity = '0.5';
+} else {
+btn.disabled = false; btn.style.opacity = '1';
+}
+}
+const toggleBtn = document.getElementById('toggleSelectBtn');
+if (toggleBtn && project.stills) {
+toggleBtn.textContent = window.selectedStills.size === project.stills.length ? 'Deselect All' : 'Select All';
+}
+
+document.getElementById('viewStillsTitle').textContent = `${project.name} - Stills`;
+
+const grid = document.getElementById('viewStillsGrid');
+grid.innerHTML = '';
+
+if (!project.stills || project.stills.length === 0) {
+grid.innerHTML = '<p style="color: #86868b; grid-column: 1 / -1; text-align: center;">No stills yet. Upload some above!</p>';
+} else {
+// Add drag & drop instructions
+const instructions = document.createElement('div');
+instructions.style.cssText = 'grid-column: 1 / -1; color: #86868b; font-size: 0.875rem; margin-bottom: 0.5rem; text-align: center;';
+instructions.textContent = '💡 Drag images to reorder • Click checkbox to select';
+grid.appendChild(instructions);
+
+project.stills.forEach((still, idx) => {
+const div = document.createElement('div');
+div.style.cssText = 'position: relative; border-radius: 8px; overflow: hidden; border: 3px solid transparent; transition: border-color 0.2s; cursor: grab;';
+if (window.selectedStills.has(idx)) {
+div.style.borderColor = '#0071e3';
+}
+div.draggable = true;
+div.dataset.index = idx;
+
+// Drag events
+div.ondragstart = (e) => {
+window.draggedStillIndex = idx;
+div.style.opacity = '0.5';
+e.dataTransfer.effectAllowed = 'move';
+};
+div.ondragend = () => {
+div.style.opacity = '1';
+window.draggedStillIndex = null;
+};
+div.ondragover = (e) => {
+e.preventDefault();
+e.dataTransfer.dropEffect = 'move';
+};
+div.ondrop = (e) => {
+e.preventDefault();
+const targetIndex = idx;
+if (window.draggedStillIndex !== null && window.draggedStillIndex !== targetIndex) {
+// Reorder array
+const stillToMove = project.stills[window.draggedStillIndex];
+project.stills.splice(window.draggedStillIndex, 1);
+project.stills.splice(targetIndex, 0, stillToMove);
+// Refresh modal (clear selection since indices shifted)
+openViewStillsModal(window.currentGalleryProjectIndex);
+markChanged();
+}
+};
+
+div.innerHTML = `
+<div style="position: absolute; top: 0.5rem; left: 0.5rem; z-index: 10;">
+<input type="checkbox" onchange="toggleModalStillSelection(${idx})" ${window.selectedStills.has(idx) ? 'checked' : ''} style="cursor: pointer; width: 18px; height: 18px;">
+</div>
+<img src="${still.src}" style="width: 100%; height: 180px; object-fit: cover; display: block;" onclick="toggleModalStillSelection(${idx})">
+<div style="position: absolute; bottom: 0.5rem; left: 0.5rem; background: rgba(0,0,0,0.7); color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px;">#${idx + 1}</div>
+`;
+grid.appendChild(div);
+});
+}
+
+// Setup upload handler
+const uploadInput = document.getElementById('viewStillsUpload');
+uploadInput.onchange = (e) => uploadStillsToProject(projectIndex, e);
+
+document.getElementById('viewStillsModal').classList.add('active');
 }
 
 function uploadStillsToProject(projectIndex, event) {
-    const files = event.target.files;
-    if (!files.length) return;
-    
-    const project = config.gallery.projects[projectIndex];
-    if (!project) return;
-    if (!project.stills) project.stills = [];
-    
-    const uploadPromises = Array.from(files).map(file => {
-        const formData = new FormData();
-        formData.append('file', file);
-        return fetch('/api/upload', {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${authToken}` },
-            body: formData
-        }).then(res => res.json()).then(data => ({
-            src: data.assetsPath || data.path,
-            alt: file.name
-        }));
-    });
-    
-    Promise.all(uploadPromises).then(uploadedStills => {
-        project.stills.push(...uploadedStills);
-        renderGalleryProjects();
-        renderGalleryStills();
-        openViewStillsModal(projectIndex); // Refresh modal
-        markChanged();
-    });
+const files = event.target.files;
+if (!files.length) return;
+
+const project = config.gallery.projects[projectIndex];
+if (!project) return;
+if (!project.stills) project.stills = [];
+
+// Create upload status modal
+const uploadModal = document.createElement('div');
+uploadModal.className = 'modal-overlay';
+uploadModal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; align-items: center; justify-content: center;';
+uploadModal.innerHTML = `
+<div style="background: white; padding: 2rem; border-radius: 12px; max-width: 500px; width: 90%;">
+<h3 style="margin-bottom: 1rem;">Uploading ${files.length} file${files.length > 1 ? 's' : ''}...</h3>
+<div style="background: #f0f0f0; border-radius: 8px; height: 24px; margin-bottom: 1rem; overflow: hidden;">
+<div id="uploadProgress" style="background: #0071e3; height: 100%; width: 0%; transition: width 0.3s;"></div>
+</div>
+<div style="display: flex; justify-content: space-between; color: #666; font-size: 0.875rem;">
+<span id="uploadStatus">Starting...</span>
+<span id="uploadCount">0 / ${files.length}</span>
+</div>
+<div id="uploadErrors" style="margin-top: 1rem; color: #dc2626; font-size: 0.875rem; display: none;"></div>
+</div>
+`;
+document.body.appendChild(uploadModal);
+
+let uploaded = 0;
+let failed = 0;
+const errors = [];
+
+const uploadPromises = Array.from(files).map((file, fileIndex) => {
+const formData = new FormData();
+formData.append('file', file);
+
+return fetch('/api/upload', {
+method: 'POST',
+headers: { 'Authorization': `Bearer ${authToken}` },
+body: formData
+})
+.then(res => {
+if (!res.ok) throw new Error(`HTTP ${res.status}`);
+return res.json();
+})
+.then(data => {
+uploaded++;
+updateProgress(fileIndex + 1);
+return {
+src: data.assetsPath || data.path,
+alt: file.name,
+uploaded: true
+};
+})
+.catch(error => {
+failed++;
+errors.push(`${file.name}: ${error.message}`);
+return null;
+});
+});
+
+function updateProgress(current) {
+const percent = Math.round((current / files.length) * 100);
+document.getElementById('uploadProgress').style.width = percent + '%';
+document.getElementById('uploadCount').textContent = `${current} / ${files.length}`;
+document.getElementById('uploadStatus').textContent = `Uploaded ${current} of ${files.length}`;
+}
+
+Promise.all(uploadPromises).then(results => {
+// Filter out failed uploads
+const uploadedStills = results.filter(r => r !== null);
+
+// Add successful uploads to project
+project.stills.push(...uploadedStills);
+
+// Show errors if any
+if (errors.length > 0) {
+const errorDiv = document.getElementById('uploadErrors');
+errorDiv.style.display = 'block';
+errorDiv.innerHTML = '<strong>Failed:</strong><br>' + errors.join('<br>');
+}
+
+// Wait a moment then close modal and refresh
+setTimeout(() => {
+document.body.removeChild(uploadModal);
+renderGalleryProjects();
+renderGalleryStills();
+openViewStillsModal(projectIndex);
+markChanged();
+}, errors.length > 0 ? 3000 : 500);
+});
 }
 
 function deleteStill(projectIndex, stillIndex) {
-    if (!confirm('Delete this still?')) return;
-    config.gallery.projects[projectIndex].stills.splice(stillIndex, 1);
-    renderGalleryProjects();
-    renderGalleryStills();
-    openViewStillsModal(projectIndex);
-    markChanged();
+if (!confirm('Delete this still?')) return;
+config.gallery.projects[projectIndex].stills.splice(stillIndex, 1);
+renderGalleryProjects();
+renderGalleryStills();
+openViewStillsModal(projectIndex);
+markChanged();
 }
+
+// Make functions globally accessible
+window.toggleModalStillSelection = function(stillIndex) {
+if (window.selectedStills.has(stillIndex)) {
+window.selectedStills.delete(stillIndex);
+} else {
+window.selectedStills.add(stillIndex);
+}
+// Update UI immediately
+const countEl = document.getElementById('modalSelectedCount');
+if (countEl) countEl.textContent = window.selectedStills.size;
+
+const btn = document.getElementById('deleteSelectedBtn');
+if (btn) {
+if (window.selectedStills.size === 0) {
+btn.disabled = true;
+btn.style.opacity = '0.5';
+} else {
+btn.disabled = false;
+btn.style.opacity = '1';
+}
+}
+
+// Update toggle button text
+const toggleBtn = document.getElementById('toggleSelectBtn');
+const project = config.gallery.projects[window.currentGalleryProjectIndex];
+if (toggleBtn && project && project.stills) {
+toggleBtn.textContent = window.selectedStills.size === project.stills.length ? 'Deselect All' : 'Select All';
+}
+
+// Re-render to show checkbox state and border
+openViewStillsModal(window.currentGalleryProjectIndex, true);
+};
+
+// Toggle select all
+window.toggleSelectAll = function() {
+const project = config.gallery.projects[window.currentGalleryProjectIndex];
+if (!project || !project.stills) return;
+
+if (window.selectedStills.size === project.stills.length) {
+// Deselect all
+window.selectedStills.clear();
+} else {
+// Select all
+project.stills.forEach((_, idx) => window.selectedStills.add(idx));
+}
+// Update modal selection UI
+const countEl = document.getElementById('modalSelectedCount');
+if (countEl) countEl.textContent = window.selectedStills.size;
+const btn = document.getElementById('deleteSelectedBtn');
+if (btn) {
+if (window.selectedStills.size === 0) {
+btn.disabled = true; btn.style.opacity = '0.5';
+} else {
+btn.disabled = false; btn.style.opacity = '1';
+}
+}
+const toggleBtn = document.getElementById('toggleSelectBtn');
+if (toggleBtn) {
+toggleBtn.textContent = window.selectedStills.size === project.stills.length ? 'Deselect All' : 'Select All';
+}
+// Re-render modal (preserve selection state)
+openViewStillsModal(window.currentGalleryProjectIndex, true);
+};
+
+// Delete selected stills
+window.deleteSelected = function() {
+const project = config.gallery.projects[window.currentGalleryProjectIndex];
+if (!project || !project.stills) return;
+if (window.selectedStills.size === 0) return;
+
+// Get sorted indices (descending to avoid index shifting)
+const indices = Array.from(window.selectedStills).sort((a, b) => b - a);
+
+// Confirm deletion
+const count = indices.length;
+if (!confirm(`Delete ${count} selected still${count > 1 ? 's' : ''}? This cannot be undone.`)) return;
+
+// Delete selected stills
+indices.forEach(idx => {
+project.stills.splice(idx, 1);
+});
+
+// Clear selection and refresh
+window.selectedStills.clear();
+renderGalleryProjects();
+renderGalleryStills();
+openViewStillsModal(window.currentGalleryProjectIndex);
+markChanged();
+};
 
 function promoteToSelectedWorks() {
     const projectIndex = window.currentGalleryProjectIndex;
@@ -1978,20 +2647,19 @@ function closeViewStillsModal() {
 }
 
 function clearGalleryFilters() {
-    document.getElementById('galleryFilterMovie').value = '';
-    document.getElementById('galleryFilterCamera').value = '';
-    document.getElementById('galleryFilterType').value = '';
-    document.getElementById('galleryFilterYear').value = '';
-    renderGalleryStills();
+const movieSelect = document.getElementById('galleryFilterMovie');
+if (movieSelect) movieSelect.value = '';
+
+renderGalleryStills();
 }
 
 // Filter change handlers
 function setupGalleryFilters() {
-    ['galleryFilterMovie', 'galleryFilterCamera', 'galleryFilterType', 'galleryFilterYear'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-            el.addEventListener('change', () => {
-                renderGalleryStills();
+['galleryFilterMovie'].forEach(id => {
+const el = document.getElementById(id);
+if (el) {
+el.addEventListener('change', () => {
+renderGalleryStills();
                 updateFilterBubbles();
             });
         }
@@ -1999,33 +2667,30 @@ function setupGalleryFilters() {
 }
 
 function updateFilterBubbles() {
-    const container = document.getElementById('galleryFilterBubbles');
-    if (!container) return;
-    
-    container.innerHTML = '';
-    
-    const filters = [
-        { id: 'galleryFilterMovie', label: 'Movie' },
-        { id: 'galleryFilterCamera', label: 'Camera' },
-        { id: 'galleryFilterType', label: 'Type' },
-        { id: 'galleryFilterYear', label: 'Year' }
-    ];
-    
-    filters.forEach(filter => {
-        const value = document.getElementById(filter.id)?.value;
-        if (value) {
-            const bubble = document.createElement('span');
-            bubble.style.cssText = 'display: inline-flex; align-items: center; gap: 0.25rem; background: #0071e3; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem;';
-            bubble.innerHTML = `${filter.id === 'galleryFilterType' ? '🎬' : filter.id === 'galleryFilterYear' ? '📅' : filter.id === 'galleryFilterCamera' ? '📹' : '🎬'} ${value} <span style="cursor: pointer; margin-left: 0.25rem;" onclick="clearFilter('${filter.id}')">×</span>`;
-            container.appendChild(bubble);
-        }
-    });
+const container = document.getElementById('galleryFilterBubbles');
+if (!container) return;
+
+container.innerHTML = '';
+
+const filters = [
+{ id: 'galleryFilterMovie', label: 'Movie' }
+];
+
+filters.forEach(filter => {
+const value = document.getElementById(filter.id)?.value;
+if (value) {
+const bubble = document.createElement('span');
+bubble.style.cssText = 'display: inline-flex; align-items: center; gap: 0.25rem; background: #0071e3; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem;';
+bubble.innerHTML = `🎬 ${value} <span style="cursor: pointer; margin-left: 0.25rem;" onclick="clearFilter('${filter.id}')">×</span>`;
+container.appendChild(bubble);
+}
+});
 }
 
 function clearFilter(filterId) {
-    document.getElementById(filterId).value = '';
-    renderGalleryStills();
-    updateFilterBubbles();
+document.getElementById(filterId).value = '';
+renderGalleryStills();
+updateFilterBubbles();
 }
 
 // Initialize gallery on load
@@ -2147,7 +2812,11 @@ function getSocialIcon(platform) {
             });
         });
 
-// Mark changes - REMOVED: bars always visible now
+// Mark changes - bars always visible now
+function markChanged() {
+  // Function kept for backward compatibility
+  console.log('Changes saved');
+}
 
 // Save
 async function saveAll() {
@@ -2372,6 +3041,190 @@ toast.style.transform = 'translateX(120%)';
 setTimeout(() => toast.remove(), 300);
 }, 3000);
 }
-    </script>
+    
+// Upload handlers
+let pendingUploads = [];
+
+function handleUploadDrop(event) {
+ event.preventDefault();
+ const dropZone = document.getElementById('uploadDropZone');
+ dropZone.style.borderColor = '#0071e3';
+ dropZone.style.background = '#f9f9fb';
+ handleFilesSelected(event.dataTransfer.files);
+}
+
+function handleFilesSelected(files) {
+ const projectSelect = document.getElementById('uploadProjectSelect');
+ const selectedProject = projectSelect.value;
+ 
+ if (!selectedProject) {
+ alert('⚠️ Please select a project first');
+ return;
+ }
+ 
+ // Get type
+ const typeRadios = document.querySelectorAll('input[name="uploadType"]');
+ let uploadType = 'still';
+ typeRadios.forEach(radio => {
+ if (radio.checked) uploadType = radio.value;
+ });
+ 
+ // Validate and preview
+ pendingUploads = [];
+ const previewGrid = document.getElementById('uploadPreviewGrid');
+ const previewCount = document.getElementById('uploadPreviewCount');
+ const previewArea = document.getElementById('uploadPreview');
+ 
+ previewGrid.innerHTML = '';
+ 
+ let validFiles = 0;
+ Array.from(files).forEach(file => {
+ // Check file size (10MB limit)
+ if (file.size > 10 * 1024 * 1024) {
+ alert(`⚠️ File ${file.name} is too large. Max 10MB.`);
+ return;
+ }
+ 
+ // Check file type
+ if (!file.type.startsWith('image/')) {
+ alert(`⚠️ File ${file.name} is not an image.`);
+ return;
+ }
+ 
+ validFiles++;
+ pendingUploads.push({ file, project: selectedProject, type: uploadType });
+ 
+ // Create preview
+ const reader = new FileReader();
+ reader.onload = (e) => {
+ const div = document.createElement('div');
+ div.style.cssText = 'position: relative; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);';
+ div.innerHTML = `
+ <img src="${e.target.result}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px;">
+ <div style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.8); color: white; padding: 0.5rem; font-size: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+ <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70%;">${file.name}</span>
+ <span style="margin-left: 0.5rem;">${uploadType === 'still' ? '🎬' : '🎭'}</span>
+ </div>
+ `;
+ previewGrid.appendChild(div);
+ previewCount.textContent = pendingUploads.length;
+ };
+ reader.readAsDataURL(file);
+ });
+ 
+ if (pendingUploads.length > 0) {
+ previewArea.style.display = 'block';
+ // Scroll to preview
+ previewArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+ }
+}
+
+function cancelUpload() {
+ pendingUploads = [];
+ document.getElementById('uploadPreview').style.display = 'none';
+ document.getElementById('uploadFileInput').value = '';
+}
+
+async function confirmUpload() {
+ if (pendingUploads.length === 0) return;
+ 
+ const uploadBtn = document.querySelector('button[onclick="confirmUpload()"]');
+ const originalText = uploadBtn.textContent;
+ uploadBtn.textContent = 'Uploading...';
+ uploadBtn.disabled = true;
+ 
+ let successCount = 0;
+ 
+ for (const { file, project, type } of pendingUploads) {
+ const formData = new FormData();
+ formData.append('file', file);
+ formData.append('project', project);
+ formData.append('type', type);
+ 
+ try {
+ const response = await fetch('/api/upload', {
+ method: 'POST',
+ headers: { 'Authorization': `Bearer ${authToken}` },
+ body: formData
+ });
+ 
+ const result = await response.json();
+ 
+ if (result.success || result.path) {
+ successCount++;
+ // Add to config
+ if (!config.gallery.projects.find(p => p.id === project)) {
+ // Create project if it doesn't exist
+ config.gallery.projects.push({ id: project, name: project, stills: [] });
+ }
+ 
+ const projectObj = config.gallery.projects.find(p => p.id === project);
+ if (!projectObj.stills) projectObj.stills = [];
+ 
+ projectObj.stills.push({
+ src: result.path.replace('assets/images/', '/assets/images/'),
+ alt: file.name.replace(/\.[^/.]+$/, ''),
+ type: type,
+ uploadedAt: new Date().toISOString()
+ });
+ 
+ hasChanges = true;
+ } else {
+ alert(`Failed to upload ${file.name}: ${result.error || 'Unknown error'}`);
+ }
+ } catch (error) {
+ alert(`Error uploading ${file.name}: ${error.message}`);
+ }
+ }
+ 
+ // Reset
+ cancelUpload();
+ uploadBtn.textContent = originalText;
+ uploadBtn.disabled = false;
+ 
+ if (successCount > 0) {
+ alert(`✅ Successfully uploaded ${successCount} image(s)! Don't forget to save changes.`);
+ // Refresh gallery view
+ renderGalleryProjects();
+ }
+}
+
+// Populate project select dropdown
+function populateProjectSelect() {
+ const select = document.getElementById('uploadProjectSelect');
+ if (!select) return;
+ 
+ // Get existing options
+ const existingOptions = config.gallery.projects.map(p => p.id || p.name);
+ 
+ // Clear current options (keep first)
+ select.innerHTML = '<option value="">Choose a project...</option>';
+ 
+ // Add options
+ config.gallery.projects.forEach(project => {
+ const option = document.createElement('option');
+ option.value = project.id || project.name;
+ option.textContent = project.name || project.id;
+ select.appendChild(option);
+ });
+}
+
+
+function removePendingUpload(button, fileName) {
+ const item = button.closest('.preview-item');
+ if (item) {
+ item.remove();
+ pendingUploads = pendingUploads.filter(p => p.file.name !== fileName);
+ const previewCount = document.getElementById('uploadPreviewCount');
+ if (previewCount) {
+ previewCount.textContent = pendingUploads.length;
+ }
+ if (pendingUploads.length === 0) {
+ cancelUpload();
+ }
+ }
+}
+
+</script>
 </body>
 </html>

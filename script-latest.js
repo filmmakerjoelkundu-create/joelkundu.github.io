@@ -40,13 +40,11 @@ clientLogger.debug('Config response status:', response.status, response.ok);
 if (!response.ok) throw new Error('Config not found: ' + response.status);
 siteConfig = await response.json();
 clientLogger.debug('Config loaded successfully, selectedWorks:', siteConfig.selectedWorks?.length || 0);
-updateHeroFromConfig();
 return true;
 } catch (error) {
 clientLogger.error('Config fetch failed:', error.message);
 clientLogger.warn('Using fallback config (config file not found or invalid)');
 siteConfig = getFallbackConfig();
-updateHeroFromConfig();
 return false;
 }
 }
@@ -116,7 +114,7 @@ clientLogger.debug('Hero section updated from config');
 // Update all sections
 updateAbout();
 updateSelectedWorks();
-// Note: updateGallery() removed — gallery is handled by populateGalleryFromConfig() + initGallery()
+updateGallery();
 updateContact();
 updateFooter();
 updateServices();
@@ -518,15 +516,7 @@ return false;
 return true;
 }
 
-// Password protection — DISABLED for development
-// To re-enable, uncomment the DOMContentLoaded listener below
-document.addEventListener('DOMContentLoaded', () => {
-const passwordOverlay = document.getElementById('passwordOverlay');
-if (passwordOverlay) passwordOverlay.classList.add('hidden');
-document.body.style.overflow = '';
-});
-
-/* ORIGINAL PASSWORD CODE — DISABLED
+// Initialize password protection when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
 const passwordOverlay = document.getElementById('passwordOverlay');
 const passwordInput = document.getElementById('passwordInput');
@@ -534,6 +524,7 @@ const passwordSubmit = document.getElementById('passwordSubmit');
 const passwordError = document.getElementById('passwordError');
 const passwordContainer = document.querySelector('.password-container');
 
+// Position password container on hero section
 function positionPasswordOnHero() {
 const heroSection = document.querySelector('.hero');
 if (heroSection && passwordContainer) {
@@ -548,14 +539,17 @@ passwordContainer.style.transform = 'translate(-50%, -50%)';
 }
 }
 
+// Check if already authenticated
 if (isAuthValid()) {
 if (passwordOverlay) passwordOverlay.classList.add('hidden');
 document.body.style.overflow = '';
 } else {
+// Lock scroll and position on hero
 document.body.style.overflow = 'hidden';
 positionPasswordOnHero();
 }
 
+// Reposition on window resize
 window.addEventListener('resize', positionPasswordOnHero);
 
 if (passwordSubmit) {
@@ -577,14 +571,13 @@ if (inputHash === PASSWORD_HASH) {
 	sessionStorage.setItem(AUTH_TIMESTAMP_KEY, Date.now().toString());
 	if (passwordOverlay) passwordOverlay.classList.add('hidden');
 	if (passwordError) passwordError.classList.remove('show');
-	document.body.style.overflow = '';
+	document.body.style.overflow = ''; // Unlock scroll
 } else {
 	if (passwordError) passwordError.classList.add('show');
 	passwordInput.value = '';
 }
 }
 });
-END ORIGINAL PASSWORD CODE */
 
 // ============================================
 // THEME SWITCHING
@@ -774,8 +767,7 @@ function cycleHeroSlide() {
 }
 
 // Change hero slide every 8 seconds
-// Old hero slideshow - DISABLED (using config-based version now)
-// setInterval(cycleHeroSlide, 8000);
+setInterval(cycleHeroSlide, 8000);
 
 // ============================================
 // 3D MOUSE EFFECTS - PER-ELEMENT TRACKING
@@ -2076,7 +2068,7 @@ function startAutoScroll() {
  stopAutoScroll();
  carouselAutoScrollInterval = setInterval(() => {
  if (!carouselIsPaused) {
- scrollCarousel(-1);
+ scrollCarousel(1);
  }
  }, 3000);
 }
@@ -2101,15 +2093,6 @@ function openProjectModal(project) {
  
  const modal = document.createElement('div');
  modal.className = 'project-modal';
-
- // Calculate the vertical position of the work carousel content
- // Use the carousel's viewport position so the modal opens at the same
- // vertical level the user is currently looking at
- const carousel = document.querySelector('.work-carousel') || document.getElementById('work');
- const carouselRect = carousel ? carousel.getBoundingClientRect() : null;
- // Use the carousel top if it's in view, otherwise clamp to 0 (top)
- const modalTop = carouselRect ? Math.max(0, Math.round(carouselRect.top)) : 0;
-
  modal.style.cssText = `
  position: fixed;
  top: 0;
@@ -2120,13 +2103,12 @@ function openProjectModal(project) {
  backdrop-filter: blur(10px);
  z-index: 100000;
  display: flex;
- align-items: flex-start;
+ align-items: center;
  justify-content: center;
  opacity: 0;
  transition: opacity 0.3s ease;
  overflow-y: auto;
- padding-top: ${modalTop}px;
- padding-bottom: 2rem;
+ padding: 2rem;
  `;
  
  const modalContent = document.createElement('div');
@@ -2649,31 +2631,20 @@ window.addEventListener('load', () => {
 // ============================================
 // INITIALIZE ALL
 // ============================================
-function initializeApp() {
-clientLogger.info('Portfolio initialized successfully!');
-clientLogger.info('Joel Kundu - Cinematographer & Director');
-clientLogger.info(`Theme: ${savedTheme || themeToUse}`);
-clientLogger.info('3D effects enabled');
-clientLogger.info('Image protection enabled');
-clientLogger.info('Password protection enabled');
-clientLogger.info('Infinite carousel enabled');
-
+document.addEventListener('DOMContentLoaded', () => {
+ clientLogger.info('Portfolio initialized successfully!');
+ clientLogger.info('Joel Kundu - Cinematographer & Director');
+ clientLogger.info(`Theme: ${savedTheme || themeToUse}`);
+ clientLogger.info('3D effects enabled');
+ clientLogger.info('Image protection enabled');
+ clientLogger.info('Password protection enabled');
+ clientLogger.info('Infinite carousel enabled');
+ 
 // Load dynamic config from dashboard
-// updateHeroFromConfig() is called inside loadSiteConfig() after config is loaded
 loadSiteConfig().then(() => {
-clientLogger.info('Dynamic config loaded and applied!');
-// Initialize gallery after config is loaded (default: 'all' filter)
-initGallery('all');
-}).catch(err => {
-clientLogger.error('Failed to load config:', err.message);
+ clientLogger.info('Dynamic config loaded and applied!');
+ // Initialize gallery after config is loaded (default: 'all' filter)
+ initGallery('all');
 });
-}
-
-// Run when DOM is ready, or immediately if already loaded
-if (document.readyState === 'loading') {
- document.addEventListener('DOMContentLoaded', initializeApp);
-} else {
- // DOM already loaded, run immediately
- initializeApp();
-}
+});
 // Cache buster: 1778895341

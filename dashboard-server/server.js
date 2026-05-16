@@ -13,7 +13,7 @@ const { createLogger } = require('./logger');
 const logger = createLogger('Server', { level: 'debug' });
 
 const app = express();
-const PORT = 5001;
+const PORT = process.env.PORT || 5001;
 const JWT_SECRET = 'joel-portfolio-secret-key-change-in-production';
 
 // Paths - defined before middleware so express.static can use them
@@ -24,7 +24,15 @@ const IMAGES_DIR = path.join(ROOT_DIR, 'assets/images');
 
 // Middleware
 app.use(cors());
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+// Disable caching for development
+app.use((req, res, next) => {
+ res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+ res.setHeader('Pragma', 'no-cache');
+ res.setHeader('Expires', '0');
+ next();
+});
 app.use(express.static(ROOT_DIR));
 app.use('/dashboard', express.static(__dirname));
 
@@ -118,11 +126,24 @@ function loadConfig() {
 }
 
 function saveConfig(config) {
-  fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2), 'utf8');
+try {
+// Ensure config directory exists
+if (!fs.existsSync(CONFIG_DIR)) {
+fs.mkdirSync(CONFIG_DIR, { recursive: true });
+}
+// Write config with proper formatting
+fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2), 'utf8');
+logger.debug('Config saved to', CONFIG_FILE);
+} catch (error) {
+logger.error('Failed to save config:', { error: error.message });
+throw error;
+}
 }
 
 // Initialize config
 let siteConfig = loadConfig();
+console.log('[DEBUG] Config loaded. About header:', siteConfig?.about?.header, 'BG stills:', siteConfig?.hero?.backgroundStills?.length);
+console.log('[DEBUG] CONFIG_FILE path:', CONFIG_FILE);
 
 // Multer setup for file uploads
 const storage = multer.diskStorage({
@@ -175,13 +196,20 @@ app.post('/api/login', (req, res) => {
 });
 
 app.get('/api/config', authenticateToken, (req, res) => {
-  res.json(siteConfig);
+console.log('[DEBUG GET /api/config] About header:', siteConfig?.about?.header, 'BG stills:', siteConfig?.hero?.backgroundStills?.length);
+res.json(siteConfig);
 });
 
 app.post('/api/config', authenticateToken, (req, res) => {
-  siteConfig = req.body;
-  saveConfig(siteConfig);
-  res.json({ success: true, config: siteConfig });
+try {
+siteConfig = req.body;
+saveConfig(siteConfig);
+logger.info('Config saved successfully');
+res.json({ success: true, config: siteConfig });
+} catch (error) {
+logger.error('Failed to save config:', { error: error.message, stack: error.stack });
+res.status(500).json({ error: 'Failed to save config', details: error.message });
+}
 });
 
 app.post('/api/upload', authenticateToken, upload.single('file'), (req, res) => {
@@ -200,7 +228,7 @@ success: true,
 originalName: req.file.originalname,
 filename: req.file.filename,
 path: `/assets/images/${req.file.originalname}`,
-assetsPath: `assets/images/${req.file.originalname}`
+assetsPath: `/assets/images/${req.file.originalname}`
 });
 });
 

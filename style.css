@@ -1346,18 +1346,64 @@ SELECTED WORKS SECTION - INFINITE CAROUSEL
  white-space: nowrap;
 }
 
-.carousel-track,
-.carousel-track.duplicate {
+/* Navigation Arrows */
+.carousel-nav-arrows {
+ position: absolute;
+ top: 50%;
+ left: 0;
+ right: 0;
+ transform: translateY(-50%);
+ z-index: 10;
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ pointer-events: none;
+ padding: 0 2vw;
+}
+
+/* Arrows always visible */
+.carousel-arrow {
+ pointer-events: auto;
+ width: 50px;
+ height: 50px;
+ border-radius: 50%;
+ background: rgba(11, 20, 38, 0.8);
+ border: 2px solid var(--color-accent, #C4A35A);
+ color: var(--color-accent, #C4A35A);
+ cursor: pointer;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ transition: all 0.3s ease;
+ opacity: 1; /* Always visible */
+ transform: scale(1); /* Always at full size */
+}
+
+.carousel-arrow svg {
+ width: 24px;
+ height: 24px;
+}
+
+.carousel-arrow:hover {
+ background: var(--color-accent, #C4A35A);
+ color: var(--color-bg-primary, #0B1426);
+ transform: scale(1.1);
+}
+
+/* Hide arrows on mobile */
+@media (max-width: 768px) {
+ .carousel-nav-arrows {
+  display: none;
+ }
+}
+
+.carousel-track {
  display: inline-flex;
  flex-wrap: nowrap;
  gap: clamp(2rem, 4vw, 4rem);
  padding: 0 5vw;
- animation: scroll-left 80s linear infinite;
  will-change: transform;
-}
-
-.carousel-track.duplicate {
- /* No separate animation - inherits from base */
+ transition: transform 0.5s ease-in-out;
 }
 
 /* Fade effects on edges */
@@ -1380,15 +1426,6 @@ SELECTED WORKS SECTION - INFINITE CAROUSEL
 .work-carousel::after {
  right: 0;
  background: linear-gradient(to left, var(--color-bg-primary) 0%, transparent 100%);
-}
-
-@keyframes scroll-left {
- 0% {
- transform: translateX(0);
- }
- 100% {
- transform: translateX(-50%);
- }
 }
 
 .work-card {
@@ -1462,17 +1499,26 @@ SELECTED WORKS SECTION - INFINITE CAROUSEL
 }
 
 .work-overlay h3 {
-    font-family: var(--font-display);
-    font-size: 1.5rem;
-    color: var(--color-text-primary);
-    margin-bottom: 0.5rem;
+font-family: var(--font-display);
+font-size: 1.5rem;
+color: var(--color-text-primary);
+margin-bottom: 0.5rem;
+white-space: normal; /* Allow text wrapping */
+word-wrap: break-word; /* Break long words */
+overflow-wrap: break-word; /* Modern property */
+max-width: 100%; /* Prevent overflow */
+line-height: 1.3; /* Better readability */
 }
 
 .work-overlay p {
-    font-family: var(--font-sans);
-    font-size: 0.875rem;
-    color: var(--color-text-secondary);
-    margin-bottom: 1rem;
+font-family: var(--font-sans);
+font-size: 0.875rem;
+color: var(--color-text-secondary);
+margin-bottom: 1rem;
+white-space: normal; /* Allow text wrapping */
+word-wrap: break-word; /* Break long words */
+overflow-wrap: break-word; /* Modern property */
+max-width: 100%; /* Prevent overflow */
 }
 
 .btn-view-stills {
@@ -1498,16 +1544,17 @@ SELECTED WORKS SECTION - INFINITE CAROUSEL
 }
 
 .work-info {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    padding: 1.5rem;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
-    transform: translateZ(10px);
-    z-index: 1;
-    pointer-events: none;
-    transition: opacity 0.3s ease, transform 0.3s ease;
+position: absolute;
+bottom: 0;
+left: 0;
+width: 100%;
+padding: 1.5rem;
+background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+transform: translateZ(10px);
+z-index: 1;
+pointer-events: none;
+transition: opacity 0.3s ease, transform 0.3s ease;
+box-sizing: border-box; /* Include padding in width */
 }
 
 .work-card:hover .work-info {
@@ -1523,10 +1570,24 @@ SELECTED WORKS SECTION - INFINITE CAROUSEL
 }
 
 .work-info p {
-    font-family: var(--font-serif);
-    font-size: 0.875rem;
-    color: var(--color-text-secondary);
-    font-style: italic;
+font-family: var(--font-sans);
+font-size: 0.875rem;
+color: var(--color-text-secondary);
+margin-bottom: 1rem;
+white-space: normal;
+word-wrap: break-word;
+overflow-wrap: break-word;
+max-width: 100%;
+}
+
+/* Fix text overflow in work-info small tag */
+.work-info small {
+display: block;
+white-space: normal;
+word-wrap: break-word;
+overflow-wrap: break-word;
+max-width: 100%;
+line-height: 1.4;
 }
 
 /* ============================================
@@ -1534,27 +1595,30 @@ SELECTED WORKS SECTION - INFINITE CAROUSEL
    ============================================ */
 
 .reel {
-    position: relative;
-    transform-style: preserve-3d;
+ position: relative;
+ transform-style: preserve-3d;
 }
 
 .reel-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    transform-style: preserve-3d;
+ perspective: 1000px; /* Add perspective for 3D tilt effect */
+ max-width: 1200px;
+ margin: 0 auto;
+ transform-style: preserve-3d;
+ min-height: 500px; /* Ensure container has height */
 }
 
 .reel-frame {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 16/9;
-    background: var(--color-bg-secondary);
-    border: 3px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    box-shadow: var(--shadow-xl);
-    transform: translateZ(30px);
-    transition: var(--transition-normal);
+position: relative;
+width: 100%;
+aspect-ratio: 16/9;
+background: var(--color-bg-secondary);
+border: 3px solid var(--color-border);
+border-radius: var(--radius-lg);
+overflow: hidden;
+box-shadow: var(--shadow-xl);
+transform: translateZ(30px);
+transition: var(--transition-normal);
+transform-style: preserve-3d;
 }
 
 .reel-frame.frame-hovered {

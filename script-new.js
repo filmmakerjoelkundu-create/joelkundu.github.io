@@ -33,20 +33,15 @@ let siteConfig = null;
 
 async function loadSiteConfig() {
 try {
-const configUrl = '/config/site-config.json?t=' + Date.now();
-clientLogger.debug('Fetching config from:', configUrl);
-const response = await fetch(configUrl);
-clientLogger.debug('Config response status:', response.status, response.ok);
-if (!response.ok) throw new Error('Config not found: ' + response.status);
+const response = await fetch('config/site-config.json?t=' + Date.now());
+if (!response.ok) throw new Error('Config not found');
 siteConfig = await response.json();
-clientLogger.debug('Config loaded successfully, selectedWorks:', siteConfig.selectedWorks?.length || 0);
+clientLogger.debug('Config loaded successfully');
 updateHeroFromConfig();
 return true;
 } catch (error) {
-clientLogger.error('Config fetch failed:', error.message);
 clientLogger.warn('Using fallback config (config file not found or invalid)');
 siteConfig = getFallbackConfig();
-updateHeroFromConfig();
 return false;
 }
 }
@@ -116,17 +111,13 @@ clientLogger.debug('Hero section updated from config');
 // Update all sections
 updateAbout();
 updateSelectedWorks();
-// Note: updateGallery() removed — gallery is handled by populateGalleryFromConfig() + initGallery()
+updateGallery();
 updateContact();
 updateFooter();
 updateServices();
 updateShowreel();
 
-// Expose to window for debugging
-window.initInfiniteCarousel = initInfiniteCarousel;
-window.openProjectModal = openProjectModal;
-
-// Initialize carousel
+// Initialize carousel AFTER works are rendered
 initInfiniteCarousel();
 initCarouselMouseTracking();
 
@@ -252,7 +243,8 @@ ${crewDisplay.length > 0 ? `<small style="color: #86868b;">${crewDisplay.join(' 
 carouselTrack.appendChild(card);
 });
 
-// Event listeners will be initialized by initInfiniteCarousel()
+// Re-initialize "Know More" button handlers after cards are rendered
+initViewStillsButtons();
 }
 
 // Initialize "Know More" button click handlers
@@ -293,7 +285,104 @@ stillsModal.classList.add('active');
 }
 }
 
-// ============================================
+// Filter gallery by project
+function filterGallery(filterValue) {
+const galleryGrid = document.getElementById('galleryGrid');
+if (!galleryGrid) return;
+
+const items = galleryGrid.querySelectorAll('.gallery-item');
+items.forEach(item => {
+const projectMatch = item.dataset.project === filterValue;
+const showAll = filterValue === 'all';
+item.style.display = (showAll || projectMatch) ? 'block' : 'none';
+});
+}
+
+// Render Gallery from config
+function updateGallery() {
+const galleryGrid = document.getElementById('galleryGrid');
+if (!galleryGrid || !siteConfig?.gallery?.projects) return;
+
+// Dynamically populate filter buttons from config projects
+const filtersContainer = document.querySelector('.gallery-filters');
+if (filtersContainer && siteConfig.gallery.projects.length > 0) {
+// Keep "All Projects" button, remove the rest
+const allBtn = filtersContainer.querySelector('[data-filter="all"]');
+filtersContainer.innerHTML = '';
+if (allBtn) {
+allBtn.classList.add('active');
+filtersContainer.appendChild(allBtn);
+}
+
+// Add a button for each project
+siteConfig.gallery.projects.forEach(project => {
+if (project.stills?.length > 0) {
+const btn = document.createElement('button');
+btn.className = 'filter-btn';
+btn.dataset.filter = project.id || project.name.toLowerCase().replace(/\s+/g, '-');
+btn.textContent = project.name;
+filtersContainer.appendChild(btn);
+}
+});
+
+// Add click handlers to filter buttons
+filtersContainer.querySelectorAll('.filter-btn').forEach(btn => {
+btn.addEventListener('click', () => {
+// Remove active class from all
+filtersContainer.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+// Add active to clicked
+btn.classList.add('active');
+// Filter gallery
+const filterValue = btn.dataset.filter;
+filterGallery(filterValue);
+});
+});
+}
+
+// Collect all stills from all projects
+const allStills = [];
+siteConfig.gallery.projects.forEach(project => {
+project.stills?.forEach(still => {
+allStills.push({
+...still,
+projectName: project.name,
+projectId: project.id || project.name.toLowerCase().replace(/\s+/g, '-')
+});
+});
+});
+
+// Clear and render (keep fallback if no config)
+if (allStills.length > 0) {
+galleryGrid.innerHTML = '';
+allStills.forEach(still => {
+const div = document.createElement('div');
+div.className = 'gallery-item';
+div.dataset.project = still.projectId || '';
+div.innerHTML = `
+<img src="${still.src}" alt="${still.alt || still.projectName}">
+`;
+galleryGrid.appendChild(div);
+});
+
+// Re-attach filter click handlers
+filtersContainer?.querySelectorAll('.filter-btn').forEach(btn => {
+btn.addEventListener('click', () => {
+filtersContainer.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+btn.classList.add('active');
+const filter = btn.dataset.filter;
+galleryGrid.querySelectorAll('.gallery-item').forEach(item => {
+if (filter === 'all' || item.dataset.project === filter) {
+item.style.display = '';
+} else {
+item.style.display = 'none';
+}
+});
+});
+});
+}
+}
+
+// Render Contact section
 function updateContact() {
 if (!siteConfig?.contact) return;
 
@@ -518,15 +607,7 @@ return false;
 return true;
 }
 
-// Password protection — DISABLED for development
-// To re-enable, uncomment the DOMContentLoaded listener below
-document.addEventListener('DOMContentLoaded', () => {
-const passwordOverlay = document.getElementById('passwordOverlay');
-if (passwordOverlay) passwordOverlay.classList.add('hidden');
-document.body.style.overflow = '';
-});
-
-/* ORIGINAL PASSWORD CODE — DISABLED
+// Initialize password protection when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
 const passwordOverlay = document.getElementById('passwordOverlay');
 const passwordInput = document.getElementById('passwordInput');
@@ -534,6 +615,7 @@ const passwordSubmit = document.getElementById('passwordSubmit');
 const passwordError = document.getElementById('passwordError');
 const passwordContainer = document.querySelector('.password-container');
 
+// Position password container on hero section
 function positionPasswordOnHero() {
 const heroSection = document.querySelector('.hero');
 if (heroSection && passwordContainer) {
@@ -548,14 +630,17 @@ passwordContainer.style.transform = 'translate(-50%, -50%)';
 }
 }
 
+// Check if already authenticated
 if (isAuthValid()) {
 if (passwordOverlay) passwordOverlay.classList.add('hidden');
 document.body.style.overflow = '';
 } else {
+// Lock scroll and position on hero
 document.body.style.overflow = 'hidden';
 positionPasswordOnHero();
 }
 
+// Reposition on window resize
 window.addEventListener('resize', positionPasswordOnHero);
 
 if (passwordSubmit) {
@@ -577,14 +662,13 @@ if (inputHash === PASSWORD_HASH) {
 	sessionStorage.setItem(AUTH_TIMESTAMP_KEY, Date.now().toString());
 	if (passwordOverlay) passwordOverlay.classList.add('hidden');
 	if (passwordError) passwordError.classList.remove('show');
-	document.body.style.overflow = '';
+	document.body.style.overflow = ''; // Unlock scroll
 } else {
 	if (passwordError) passwordError.classList.add('show');
 	passwordInput.value = '';
 }
 }
 });
-END ORIGINAL PASSWORD CODE */
 
 // ============================================
 // THEME SWITCHING
@@ -774,8 +858,7 @@ function cycleHeroSlide() {
 }
 
 // Change hero slide every 8 seconds
-// Old hero slideshow - DISABLED (using config-based version now)
-// setInterval(cycleHeroSlide, 8000);
+setInterval(cycleHeroSlide, 8000);
 
 // ============================================
 // 3D MOUSE EFFECTS - PER-ELEMENT TRACKING
@@ -931,66 +1014,133 @@ function init3DEffects() {
 // Section headers - tilt with parallax depth layers
 
 // ============================================
-// ============================================
 // SHOWREEL TILT EFFECT
+// - Tilt ON: mouse in section but NOT over video frame
+// - Tilt OFF: mouse directly over video frame  
+// - Tilt OFF: video is playing
 // ============================================
+
+// Wait for full page load including images/styles
 window.addEventListener('load', () => {
-  const reelSection = document.querySelector('.reel');
-  const reelFrame = document.querySelector('.reel-frame');
-  
-  if (!reelSection || !reelFrame) return;
-  
-  setTimeout(() => {
-    const rect = reelFrame.getBoundingClientRect();
-    console.log('🎬 Showreel initialized:', rect.width, 'x', rect.height);
-    
-    let isVideoPlaying = false;
-    
-    function isMouseOverFrame(e) {
-      const r = reelFrame.getBoundingClientRect();
-      const x = e.clientX - r.left;
-      const y = e.clientY - r.top;
-      return x >= 0 && x <= r.width && y >= 0 && y <= r.height;
-    }
-    
-    function applyTilt(e, shouldTilt) {
-      if (!shouldTilt) {
-        reelFrame.style.transition = 'var(--transition-normal)';
-        reelFrame.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(30px)';
-        return;
-      }
-      const r = reelFrame.getBoundingClientRect();
-      const x = e.clientX - r.left;
-      const y = e.clientY - r.top;
-      const rotateX = (r.height/2 - y) / 30;
-      const rotateY = (x - r.width/2) / 30;
-      reelFrame.style.transition = 'none';
-      reelFrame.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(30px)`;
-    }
-    
-    reelSection.addEventListener('mousemove', (e) => {
-      if (isVideoPlaying) { applyTilt(e, false); return; }
-      if (isMouseOverFrame(e)) { applyTilt(e, false); return; }
-      applyTilt(e, true);
-    });
-    
-    reelSection.addEventListener('mouseleave', () => {
-      applyTilt(null, false);
-    });
-    
-    const iframe = reelFrame.querySelector('iframe');
-    if (iframe) {
-      const shield = document.createElement('div');
-      shield.style.cssText = 'position:absolute;inset:0;z-index:2;cursor:pointer;';
-      reelFrame.appendChild(shield);
-      shield.addEventListener('click', () => {
-        isVideoPlaying = true;
-        shield.style.display = 'none';
-        applyTilt(null, false);
-      });
-    }
-  }, 500);
-});
+ const reelSection = document.querySelector('.reel');
+ const reelFrame = document.querySelector('.reel-frame');
+ 
+ if (!reelSection || !reelFrame) {
+   console.warn('Showreel section or frame not found');
+   return;
+ }
+ 
+ // Double-check dimensions after a short delay
+ setTimeout(() => {
+   const rect = reelFrame.getBoundingClientRect();
+   console.log('🎬 Showreel tilt effect initialized');
+   console.log('reelFrame dimensions:', rect.width, 'x', rect.height);
+   
+   if (rect.width === 0 || rect.height === 0) {
+     console.warn('reelFrame has no dimensions - checking periodically...');
+     // Keep checking until we get dimensions
+     const checkInterval = setInterval(() => {
+       const checkRect = reelFrame.getBoundingClientRect();
+       if (checkRect.width > 0 && checkRect.height > 0) {
+         console.log('reelFrame now has dimensions:', checkRect.width, 'x', checkRect.height);
+         clearInterval(checkInterval);
+         initTilt();
+       }
+     }, 100);
+     // Give up after 5 seconds
+     setTimeout(() => clearInterval(checkInterval), 5000);
+     return;
+   }
+   
+   initTilt();
+ }, 500);
+ 
+ function initTilt() {
+ let isVideoPlaying = false;
+ 
+ // Check if mouse is directly over the video frame
+ function isMouseOverFrame(e) {
+ const frameRect = reelFrame.getBoundingClientRect();
+ const x = e.clientX - frameRect.left;
+ const y = e.clientY - frameRect.top;
+ const inside = x >= 0 && x <= frameRect.width && y >= 0 && y <= frameRect.height;
+ return inside;
+ }
+
+ // Apply tilt transform
+ function applyTilt(e, shouldTilt) {
+ console.log('applyTilt called with shouldTilt:', shouldTilt);
+ if (!shouldTilt) {
+ reelFrame.style.transition = 'var(--transition-normal)';
+ reelFrame.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(30px)';
+ console.log('Tilt OFF - transform set to none');
+ return;
+ }
+ 
+ const rect = reelFrame.getBoundingClientRect();
+ const x = e.clientX - rect.left;
+ const y = e.clientY - rect.top;
+ const centerX = rect.width / 2;
+ const centerY = rect.height / 2;
+ 
+ const rotateX = (centerY - y) / 30;
+ const rotateY = (x - centerX) / 30;
+ 
+ console.log('Tilt ON - rotateX:', rotateX, 'rotateY:', rotateY);
+ reelFrame.style.transition = 'none';
+ reelFrame.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(30px)`;
+ }
+
+ // Track mouse movement in the section
+ reelSection.addEventListener('mousemove', (e) => {
+ // If video is playing, no tilt
+ if (isVideoPlaying) {
+ applyTilt(e, false);
+ return;
+ }
+ 
+ // If mouse IS over the frame, no tilt (let user interact)
+ if (isMouseOverFrame(e)) {
+ applyTilt(e, false);
+ return;
+ }
+ 
+ // Otherwise (mouse NOT over frame), apply tilt
+ applyTilt(e, true);
+ });
+
+ // Reset tilt when mouse leaves section
+ reelSection.addEventListener('mouseleave', () => {
+   applyTilt(null, false);
+ });
+
+ // Handle video click - disable tilt when video is activated
+ const reelIframe = reelFrame.querySelector('iframe');
+ if (reelIframe) {
+   // Create shield overlay
+   const shield = document.createElement('div');
+   shield.className = 'reel-iframe-shield';
+   shield.style.cssText = `
+     position: absolute;
+     inset: 0;
+     z-index: 2;
+     cursor: pointer;
+     border-radius: inherit;
+   `;
+   reelFrame.appendChild(shield);
+   
+ // Click on shield activates video
+ shield.addEventListener('click', () => {
+ isVideoPlaying = true;
+ shield.style.display = 'none';
+ applyTilt(null, false);
+ reelIframe.contentWindow?.focus();
+ });
+ } // End initTilt
+ 
+ }); // End setTimeout
+}); // End window.load
+
 // Section headers - tilt with parallax depth layers
 // Track mouse from the parent section (entire area), apply tilt to the header
 const sectionHeaders = document.querySelectorAll('.section-header');
@@ -1445,81 +1595,60 @@ if (proj.stills) {
 proj.stills.forEach(still => {
 	allGalleryImages.push({
 	src: still.src.startsWith('/') ? still.src : '/' + still.src,
-	project: projectKey,
-	projectName: projectName // Keep original name for debugging
+	project: projectKey
 	});
 });
 }
 });
 
 clientLogger.debug(`Populated ${allGalleryImages.length} gallery images from config`);
-clientLogger.debug('Gallery projects:', [...new Set(allGalleryImages.map(img => img.project))]);
 }
 
-// Gallery state
-let currentFilter = 'all';
-
-// Initialize gallery - OPTIMIZED version
+// Initialize gallery
 function initGallery(filter = 'all') {
- const galleryGrid = document.getElementById('galleryGrid');
- if (!galleryGrid) {
- clientLogger.warn('Gallery grid not found');
- return;
- }
- 
- clientLogger.debug('initGallery called with filter:', filter, 'total images:', allGalleryImages.length);
- 
- // Filter images
- let filteredImages = allGalleryImages;
- if (filter !== 'all') {
- filteredImages = allGalleryImages.filter(img => img.project === filter);
- clientLogger.debug('Filtered to', filteredImages.length, 'images for project:', filter);
- }
- 
- // If no images match, show all (fallback)
- if (filteredImages.length === 0) {
- clientLogger.warn('No images found for filter:', filter, '- showing all');
- filteredImages = allGalleryImages;
- }
- 
- // For "all" filter: shuffle and take first 12
- // For specific project: show ALL images in original order (no shuffle, no limit)
- let selected = filteredImages;
- if (filter === 'all') {
- // Shuffle for "all projects" view
- const shuffled = [...filteredImages];
- for (let i = shuffled.length - 1; i > 0; i--) {
- const j = Math.floor(Math.random() * (i + 1));
- [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
- }
- selected = shuffled.slice(0, 12);
- clientLogger.debug('All Projects: showing', selected.length, 'random images');
- } else {
- clientLogger.debug('Project filter: showing ALL', selected.length, 'images in order');
- }
- 
- // Clear and rebuild with fade animation
- const existingItems = galleryGrid.querySelectorAll('.gallery-item');
- 
- if (existingItems.length > 0) {
- // Fade out existing items quickly
- existingItems.forEach((item) => {
- item.style.opacity = '0';
- item.style.transform = 'scale(0.95)';
- });
- 
- // Wait for fade out, then rebuild
- setTimeout(() => {
- galleryGrid.innerHTML = '';
- addGalleryItems(selected);
- }, 150); // Quick 150ms fade
- } else {
+  const filteredImages = filter === 'all' 
+    ? allGalleryImages 
+    : allGalleryImages.filter(img => img.project === filter);
+  
+  // Shuffle and take first 12 (for 4x3 grid)
+    // Fisher-Yates shuffle (unbiased)
+    const shuffled = [...filteredImages];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    const selected = shuffled.slice(0, 12);
+  
+// Fade out existing items first, then replace
+const existingItems = galleryGrid.querySelectorAll('.gallery-item');
+
+if (existingItems.length > 0) {
+clientLogger.debug(`Fading out ${existingItems.length} items`);
+// Ensure items are at full opacity before fading out
+existingItems.forEach((item) => {
+item.style.opacity = '1';
+item.style.transform = 'scale(1)';
+item.classList.remove('fade-in');
+});
+
+// Force reflow to ensure the browser recognizes the initial state
+galleryGrid.offsetHeight;
+
+// Now add fade-out class to trigger animation
+existingItems.forEach((item) => {
+item.classList.add('fade-out');
+});
+
+// Wait for fade-out to complete, then rebuild
+setTimeout(() => {
+clientLogger.debug('Clearing grid and adding new items');
+galleryGrid.innerHTML = '';
+    addGalleryItems(selected);
+}, 600); // Wait 600ms for fade-out (slightly more than 500ms animation)
+} else {
  // No existing items, just add new ones
  addGalleryItems(selected);
  }
- 
- // Update current filter state
- currentFilter = filter;
 }
 
 function addGalleryItems(items) {
@@ -1577,53 +1706,49 @@ function addGalleryItems(items) {
 
 // View fullscreen image centered on gallery section
 function viewFullscreenImage(src, clickedItem) {
+ const gallerySection = document.querySelector('.gallery');
+ 
+ if (!gallerySection) return;
+ 
+ const galleryRect = gallerySection.getBoundingClientRect();
  const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
  
- // Get the clicked item's position for scaling animation
- const itemRect = clickedItem.getBoundingClientRect();
- const centerX = itemRect.left + itemRect.width / 2;
- const centerY = itemRect.top + itemRect.height / 2 + scrollTop;
- 
- // Create modal overlay (fullscreen)
+ // Create modal overlay
  const modal = document.createElement('div');
  modal.style.cssText = `
  position: fixed;
- top: 0;
- left: 0;
- width: 100%;
- height: 100%;
- background: rgba(0, 0, 0, 0.9);
+ top: ${galleryRect.top + scrollTop}px;
+ left: ${galleryRect.left}px;
+ width: ${galleryRect.width}px;
+ height: ${galleryRect.height}px;
+ background: rgba(0, 0, 0, 0.85);
  backdrop-filter: blur(10px);
  z-index: 100000;
  display: flex;
  align-items: center;
  justify-content: center;
  cursor: pointer;
- cursor: pointer;
  opacity: 0;
  transition: opacity 0.3s ease;
  `;
  
- // Create image container - starts at clicked position, animates to horizontal center
+ // Create image container centered on gallery
  const imgContainer = document.createElement('div');
  imgContainer.style.cssText = `
- position: fixed;
- top: ${centerY}px;
- left: ${centerX}px;
- width: 90%;
- max-width: 1200px;
+ position: relative;
+ max-width: 90%;
+ max-height: 90%;
  display: flex;
  align-items: center;
  justify-content: center;
- /* Start at clicked position */
- transform: translate(-50%, -50%) scale(0.1);
- transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+ transform: scale(0.8);
+ transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
  `;
  
  const img = document.createElement('img');
  img.src = src;
  img.style.cssText = `
- width: 115%; /* 15% bigger */
+ max-width: 100%;
  max-height: 90vh;
  object-fit: contain;
  border-radius: var(--radius-md);
@@ -1654,9 +1779,7 @@ function viewFullscreenImage(src, clickedItem) {
  
  const handleClose = () => {
  modal.style.opacity = '0';
- // Return to clicked position and scale down
- imgContainer.style.left = `${centerX}px`;
- imgContainer.style.transform = 'translate(-50%, -50%) scale(0.1)';
+ imgContainer.style.transform = 'scale(0.8)';
  setTimeout(() => {
  modal.remove();
  document.body.style.overflow = '';
@@ -1701,46 +1824,43 @@ function viewFullscreenImage(src, clickedItem) {
  };
  document.addEventListener('keydown', handleEscape);
  
- // Animate in - scale up and move to horizontal center (keep same vertical position)
+ // Animate in
  setTimeout(() => {
  modal.style.opacity = '1';
- // Move to horizontal center of viewport, keep same vertical position
- imgContainer.style.left = '50%';
- imgContainer.style.transform = 'translate(-50%, -50%) scale(1)';
+ imgContainer.style.transform = 'scale(1)';
  }, 10);
 }
 
-// Gallery filter handlers - immediate response on click
+// Initialize gallery on load
+initGallery();
+
+// Gallery filter handlers
 galleryFilters.forEach(btn => {
- btn.addEventListener('click', () => {
- galleryFilters.forEach(b => b.classList.remove('active'));
- btn.classList.add('active');
- 
- const filter = btn.dataset.filter;
- initGallery(filter);
- });
+    btn.addEventListener('click', () => {
+        galleryFilters.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        const filter = btn.dataset.filter;
+        initGallery(filter);
+    });
 });
 
 // Rotate gallery images every 15 seconds (paused when tab hidden)
-let galleryInterval = setInterval(() => {
- // Only rotate if on "all" filter, otherwise keep project order
- if (currentFilter === 'all') {
- initGallery('all');
- }
-}, 15000);
+let galleryInterval = setInterval(rotateGallery, 15000);
+
+function rotateGallery() {
+    const activeFilter = document.querySelector('.gallery-filters .filter-btn.active').dataset.filter;
+    initGallery(activeFilter);
+}
 
 // Pause rotation when tab is hidden to save resources
 document.addEventListener('visibilitychange', () => {
- if (document.hidden) {
- clearInterval(galleryInterval);
- galleryInterval = null;
- } else if (!galleryInterval) {
- galleryInterval = setInterval(() => {
- if (currentFilter === 'all') {
- initGallery('all');
- }
- }, 15000);
- }
+    if (document.hidden) {
+        clearInterval(galleryInterval);
+        galleryInterval = null;
+    } else if (!galleryInterval) {
+        galleryInterval = setInterval(rotateGallery, 15000);
+    }
 });
 
 // ============================================
@@ -1957,8 +2077,7 @@ document.addEventListener('dragstart', (e) => {
 });
 
 // ============================================
-// INFINITE CAROUSEL - FRESH START
-// Single row, 7 copies, working arrows, redesigned modal
+// INFINITE CAROUSEL WITH NAVIGATION ARROWS
 // ============================================
 let carouselAutoScrollInterval;
 let carouselCurrentPosition = 0;
@@ -1968,616 +2087,109 @@ function initInfiniteCarousel() {
  const carouselTrack = document.getElementById('carouselTrack');
  if (!carouselTrack) return;
  
+ // Get all work cards
+ const workCards = carouselTrack.querySelectorAll('.work-card');
+ if (workCards.length === 0) return;
+ 
+ // Create navigation arrows container
  const carouselContainer = document.querySelector('.work-carousel');
  if (!carouselContainer) return;
  
- // Get original cards
- const originalCards = Array.from(carouselTrack.querySelectorAll('.work-card'));
- if (originalCards.length === 0) return;
+ // Check if arrows already exist
+ let navArrows = carouselContainer.querySelector('.carousel-nav-arrows');
+ if (!navArrows) {
+  navArrows = document.createElement('div');
+  navArrows.className = 'carousel-nav-arrows';
+  navArrows.innerHTML = `
+   <button class="carousel-arrow carousel-arrow-left" aria-label="Scroll left">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+     <path d="M15 18l-6-6 6-6"/>
+    </svg>
+   </button>
+   <button class="carousel-arrow carousel-arrow-right" aria-label="Scroll right">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+     <path d="M9 18l6-6-6-6"/>
+    </svg>
+   </button>
+  `;
+  carouselContainer.appendChild(navArrows);
+  
+ // Add arrow click handlers
+ const leftArrow = navArrows.querySelector('.carousel-arrow-left');
+ const rightArrow = navArrows.querySelector('.carousel-arrow-right');
  
- // Create navigation arrows
- createNavArrows(carouselContainer);
- 
- // Create 7 copies
- for (let i = 0; i < 7; i++) {
- originalCards.forEach(card => {
- const clone = card.cloneNode(true);
- clone.dataset.copy = 'true';
- carouselTrack.appendChild(clone);
- });
+ leftArrow.addEventListener('click', () => scrollCarousel(-1));
+ rightArrow.addEventListener('click', () => scrollCarousel(1));
  }
  
- // Attach event listeners to ALL cards
- attachCardListeners();
+ // Duplicate cards for seamless infinite scroll
+ const originalCards = Array.from(workCards).map(card => card.cloneNode(true));
+ originalCards.forEach(card => carouselTrack.appendChild(card));
  
  // Start auto-scroll
  startAutoScroll();
  
  // Pause on hover
  carouselTrack.addEventListener('mouseenter', () => {
- carouselIsPaused = true;
- stopAutoScroll();
+  carouselIsPaused = true;
+  stopAutoScroll();
  });
  
  carouselTrack.addEventListener('mouseleave', () => {
- carouselIsPaused = false;
- startAutoScroll();
+  carouselIsPaused = false;
+  startAutoScroll();
  });
-}
-
-function createNavArrows(container) {
- if (container.querySelector('.carousel-nav-arrows')) return;
- 
- const arrows = document.createElement('div');
- arrows.className = 'carousel-nav-arrows';
- arrows.innerHTML = `
- <button class="carousel-arrow carousel-arrow-left" aria-label="Previous">
- <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
- <path d="M15 18l-6-6 6-6"/>
- </svg>
- </button>
- <button class="carousel-arrow carousel-arrow-right" aria-label="Next">
- <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
- <path d="M9 18l6-6-6-6"/>
- </svg>
- </button>
- `;
- container.appendChild(arrows);
- 
- arrows.querySelector('.carousel-arrow-left').addEventListener('click', () => scrollCarousel(-1));
- arrows.querySelector('.carousel-arrow-right').addEventListener('click', () => scrollCarousel(1));
-}
-
-function attachCardListeners() {
- const allCards = document.querySelectorAll('.work-card');
- allCards.forEach(card => {
- // Remove old listeners by cloning
- const newCard = card.cloneNode(true);
- card.parentNode.replaceChild(newCard, card);
- 
- // Add fresh listeners
- const viewBtn = newCard.querySelector('.btn-view-stills');
- if (viewBtn) {
- viewBtn.addEventListener('click', (e) => {
- e.preventDefault();
- e.stopPropagation();
- const projectId = newCard.dataset.projectId;
- const project = siteConfig.selectedWorks.find(p => p.id === projectId);
- if (project) {
- openProjectModal(project);
- }
- });
- }
- });
-}
-
-function scrollCarousel(direction) {
- const track = document.getElementById('carouselTrack');
- if (!track) return;
- 
- const cardWidth = 320; // Approx card width + gap
- const scrollAmount = cardWidth * direction;
- 
- carouselCurrentPosition += scrollAmount;
- track.style.transform = `translateX(${carouselCurrentPosition}px)`;
- 
- // Infinite loop detection
- const maxScroll = track.scrollWidth - track.parentElement.offsetWidth;
- if (Math.abs(carouselCurrentPosition) > maxScroll) {
- carouselCurrentPosition = 0;
- setTimeout(() => {
- track.style.transition = 'none';
- track.style.transform = 'translateX(0px)';
- }, 500);
- }
 }
 
 function startAutoScroll() {
  stopAutoScroll();
  carouselAutoScrollInterval = setInterval(() => {
- if (!carouselIsPaused) {
- scrollCarousel(-1);
- }
- }, 3000);
+  if (!carouselIsPaused) {
+   scrollCarousel(1);
+  }
+ }, 3000); // Scroll every 3 seconds
 }
 
 function stopAutoScroll() {
  if (carouselAutoScrollInterval) {
- clearInterval(carouselAutoScrollInterval);
- carouselAutoScrollInterval = null;
+  clearInterval(carouselAutoScrollInterval);
+  carouselAutoScrollInterval = null;
  }
 }
 
-// ============================================
-// PROJECT MODAL - REDESIGNED
-// Two-column layout with all project data
-// ============================================
-function openProjectModal(project) {
- // Get gallery project for stills
- const galleryProject = siteConfig.gallery?.projects?.find(p => p.name === project.title);
- const stills = galleryProject?.stills || [];
- const productionStills = stills.filter(s => s.type === 'still' || !s.type);
- const btsStills = stills.filter(s => s.type === 'bts');
+function scrollCarousel(direction) {
+ const carouselTrack = document.getElementById('carouselTrack');
+ if (!carouselTrack) return;
  
- const modal = document.createElement('div');
- modal.className = 'project-modal';
-
- // Calculate the vertical position of the work carousel content
- // Use the carousel's viewport position so the modal opens at the same
- // vertical level the user is currently looking at
- const carousel = document.querySelector('.work-carousel') || document.getElementById('work');
- const carouselRect = carousel ? carousel.getBoundingClientRect() : null;
- // Use the carousel top if it's in view, otherwise clamp to 0 (top)
- const modalTop = carouselRect ? Math.max(0, Math.round(carouselRect.top)) : 0;
-
- modal.style.cssText = `
- position: fixed;
- top: 0;
- left: 0;
- width: 100%;
- height: 100%;
- background: rgba(11, 20, 38, 0.95);
- backdrop-filter: blur(10px);
- z-index: 100000;
- display: flex;
- align-items: flex-start;
- justify-content: center;
- opacity: 0;
- transition: opacity 0.3s ease;
- overflow-y: auto;
- padding-top: ${modalTop}px;
- padding-bottom: 2rem;
- `;
+ const cardWidth = carouselTrack.querySelector('.work-card').offsetWidth;
+ const gap = 32; // Approximate gap from CSS
+ const cardTotalWidth = cardWidth + gap;
+ const visibleWidth = carouselTrack.parentElement.offsetWidth;
+ const maxScroll = carouselTrack.scrollWidth - visibleWidth;
  
- const modalContent = document.createElement('div');
- modalContent.style.cssText = `
- display: grid;
- grid-template-columns: 40% 60%;
- gap: 2rem;
- max-width: 1400px;
- width: 100%;
- max-height: 90vh;
- background: var(--color-bg-primary);
- border-radius: var(--radius-lg);
- padding: 2rem;
- position: relative;
- `;
+ // Get current transform value
+ const style = window.getComputedStyle(carouselTrack);
+ const matrix = new DOMMatrix(style.transform);
+ const currentX = matrix.m41;
  
- // LEFT COLUMN - Poster
- const posterColumn = document.createElement('div');
- posterColumn.style.cssText = `
- display: flex;
- flex-direction: column;
- `;
+ // Calculate new position
+ const scrollAmount = cardTotalWidth * direction;
+ let newX = currentX + scrollAmount;
  
- const posterImg = document.createElement('img');
- posterImg.src = project.image || '/assets/images/placeholder.png';
- posterImg.style.cssText = `
- width: 100%;
- height: auto;
- border-radius: var(--radius-md);
- box-shadow: 0 20px 60px rgba(0,0,0,0.5);
- cursor: pointer;
- transition: transform 0.3s ease;
- `;
- posterImg.addEventListener('mouseenter', () => posterImg.style.transform = 'scale(1.02)');
- posterImg.addEventListener('mouseleave', () => posterImg.style.transform = 'scale(1)');
- 
- posterColumn.appendChild(posterImg);
- 
- // RIGHT COLUMN - Info
- const infoColumn = document.createElement('div');
- infoColumn.style.cssText = `
- display: flex;
- flex-direction: column;
- overflow-y: auto;
- `;
- 
- // Close button
- const closeBtn = document.createElement('button');
- closeBtn.innerHTML = '×';
- closeBtn.style.cssText = `
- position: absolute;
- top: 1rem;
- right: 1rem;
- width: 40px;
- height: 40px;
- border-radius: 50%;
- background: var(--color-accent);
- color: var(--color-bg-primary);
- border: none;
- font-size: 1.5rem;
- cursor: pointer;
- z-index: 10;
- `;
- closeBtn.addEventListener('click', closeModal);
-
- infoColumn.appendChild(closeBtn);
- 
- // Title
- const title = document.createElement('h1');
- title.textContent = project.title || 'Untitled';
- title.style.cssText = `
- font-size: 2.5rem;
- margin: 0 0 0.5rem 0;
- color: var(--color-text-primary);
- `;
- infoColumn.appendChild(title);
- 
- // Tagline
- if (project.tagline) {
- const tagline = document.createElement('p');
- tagline.textContent = project.tagline;
- tagline.style.cssText = `
- font-size: 1.2rem;
- color: var(--color-accent);
- margin: 0 0 1rem 0;
- font-style: italic;
- `;
- infoColumn.appendChild(tagline);
+ // Infinite loop logic
+ if (newX > 0) {
+  newX = -maxScroll + (newX % maxScroll);
+ } else if (newX < -maxScroll) {
+  newX = (newX + maxScroll) % maxScroll;
  }
  
- // Metadata badges
- const metaRow = document.createElement('div');
- metaRow.style.cssText = `
- display: flex;
- gap: 1rem;
- margin-bottom: 1.5rem;
- flex-wrap: wrap;
- `;
+ carouselTrack.style.transition = 'transform 0.5s ease-in-out';
+ carouselTrack.style.transform = `translateX(${newX}px)`;
  
- if (project.year) {
- const yearBadge = document.createElement('div');
- yearBadge.textContent = `📅 ${project.year}`;
- yearBadge.style.cssText = `
- padding: 0.5rem 1rem;
- background: var(--color-bg-secondary);
- border-radius: var(--radius-md);
- color: var(--color-text-primary);
- font-size: 0.9rem;
- `;
- metaRow.appendChild(yearBadge);
- }
- 
- if (project.category) {
- const categoryBadge = document.createElement('div');
- categoryBadge.textContent = `🎭 ${project.category}`;
- categoryBadge.style.cssText = `
- padding: 0.5rem 1rem;
- background: var(--color-bg-secondary);
- border-radius: var(--radius-md);
- color: var(--color-text-primary);
- font-size: 0.9rem;
- `;
- metaRow.appendChild(categoryBadge);
- }
- 
- if (project.role) {
- const roleBadge = document.createElement('div');
- roleBadge.textContent = project.role;
- roleBadge.style.cssText = `
- padding: 0.5rem 1rem;
- background: var(--color-bg-secondary);
- border-radius: var(--radius-md);
- color: var(--color-text-primary);
- font-size: 0.9rem;
- `;
- metaRow.appendChild(roleBadge);
- }
- 
- infoColumn.appendChild(metaRow);
- 
- // Synopsis (if available)
- if (project.synopsis) {
- const synopsisSection = document.createElement('div');
- synopsisSection.style.cssText = `
- margin-bottom: 1.5rem;
- `;
- 
- const synopsisTitle = document.createElement('h3');
- synopsisTitle.textContent = 'Synopsis';
- synopsisTitle.style.cssText = `
- font-size: 1.1rem;
- margin: 0 0 0.5rem 0;
- color: var(--color-accent);
- `;
- synopsisSection.appendChild(synopsisTitle);
- 
- const synopsisText = document.createElement('p');
- synopsisText.textContent = project.synopsis;
- synopsisText.style.cssText = `
- color: var(--color-text-secondary);
- line-height: 1.6;
- margin: 0;
- `;
- synopsisSection.appendChild(synopsisText);
- infoColumn.appendChild(synopsisSection);
- }
- 
- // Crew
- if (project.credits) {
- const crewSection = document.createElement('div');
- crewSection.style.cssText = `
- margin-bottom: 1.5rem;
- `;
- 
- const crewTitle = document.createElement('h3');
- crewTitle.textContent = '🎥 Key Crew';
- crewTitle.style.cssText = `
- font-size: 1.1rem;
- margin: 0 0 0.5rem 0;
- color: var(--color-accent);
- `;
- crewSection.appendChild(crewTitle);
- 
- const crewList = document.createElement('div');
- crewList.style.cssText = `
- display: grid;
- gap: 0.5rem;
- `;
- 
- if (project.credits.director) {
- const director = document.createElement('div');
- director.textContent = `Director: ${project.credits.director}`;
- director.style.cssText = `color: var(--color-text-primary);`;
- crewList.appendChild(director);
- }
- if (project.credits.dop) {
- const dop = document.createElement('div');
- dop.textContent = `Cinematographer: ${project.credits.dop}`;
- dop.style.cssText = `color: var(--color-text-primary);`;
- crewList.appendChild(dop);
- }
- if (project.credits.producer) {
- const producer = document.createElement('div');
- producer.textContent = `Producer: ${project.credits.producer}`;
- producer.style.cssText = `color: var(--color-text-primary);`;
- crewList.appendChild(producer);
- }
- 
- crewSection.appendChild(crewList);
- infoColumn.appendChild(crewSection);
- }
- 
- // Camera specs
- if (project.camera) {
- const cameraSection = document.createElement('div');
- cameraSection.style.cssText = `
- margin-bottom: 1.5rem;
- `;
- 
- const cameraTitle = document.createElement('h3');
- cameraTitle.textContent = '📷 Camera & Lens';
- cameraTitle.style.cssText = `
- font-size: 1.1rem;
- margin: 0 0 0.5rem 0;
- color: var(--color-accent);
- `;
- cameraSection.appendChild(cameraTitle);
- 
- const cameraList = document.createElement('div');
- cameraList.style.cssText = `
- display: grid;
- gap: 0.5rem;
- `;
- 
- if (project.camera.body) {
- const body = document.createElement('div');
- body.textContent = `Body: ${project.camera.body}`;
- body.style.cssText = `color: var(--color-text-primary);`;
- cameraList.appendChild(body);
- }
- if (project.camera.lens) {
- const lens = document.createElement('div');
- lens.textContent = `Lens: ${project.camera.lens}`;
- lens.style.cssText = `color: var(--color-text-primary);`;
- cameraList.appendChild(lens);
- }
- if (project.camera.aspectRatio) {
- const ratio = document.createElement('div');
- ratio.textContent = `Aspect Ratio: ${project.camera.aspectRatio}`;
- ratio.style.cssText = `color: var(--color-text-primary);`;
- cameraList.appendChild(ratio);
- }
- 
- cameraSection.appendChild(cameraList);
- infoColumn.appendChild(cameraSection);
- }
- 
- // Action buttons
- const actionRow = document.createElement('div');
- actionRow.style.cssText = `
- display: flex;
- gap: 1rem;
- margin-top: auto;
- padding-top: 1rem;
- `;
- 
- if (project.trailerUrl) {
- const trailerBtn = document.createElement('a');
- trailerBtn.href = project.trailerUrl;
- trailerBtn.target = '_blank';
- trailerBtn.textContent = '▶️ Watch Trailer';
- trailerBtn.style.cssText = `
- padding: 0.75rem 1.5rem;
- background: var(--color-accent);
- color: var(--color-bg-primary);
- border-radius: var(--radius-md);
- text-decoration: none;
- font-weight: bold;
- transition: transform 0.2s;
- `;
- trailerBtn.addEventListener('mouseenter', () => trailerBtn.style.transform = 'scale(1.05)');
- trailerBtn.addEventListener('mouseleave', () => trailerBtn.style.transform = 'scale(1)');
- actionRow.appendChild(trailerBtn);
- }
- 
- if (project.imdbUrl) {
- const imdbBtn = document.createElement('a');
- imdbBtn.href = project.imdbUrl;
- imdbBtn.target = '_blank';
- imdbBtn.textContent = '📊 IMDb';
- imdbBtn.style.cssText = `
- padding: 0.75rem 1.5rem;
- background: var(--color-bg-secondary);
- color: var(--color-text-primary);
- border: 2px solid var(--color-border);
- border-radius: var(--radius-md);
- text-decoration: none;
- font-weight: bold;
- transition: transform 0.2s;
- `;
- imdbBtn.addEventListener('mouseenter', () => imdbBtn.style.transform = 'scale(1.05)');
- imdbBtn.addEventListener('mouseleave', () => imdbBtn.style.transform = 'scale(1)');
- actionRow.appendChild(imdbBtn);
- }
- 
- infoColumn.appendChild(actionRow);
- 
- // Stills Gallery
- const gallerySection = document.createElement('div');
- gallerySection.style.cssText = `
- grid-column: 1 / -1;
- margin-top: 2rem;
- `;
- 
- const galleryTitle = document.createElement('h3');
- galleryTitle.textContent = '🎞️ Stills Gallery';
- galleryTitle.style.cssText = `
- font-size: 1.5rem;
- margin: 0 0 1rem 0;
- color: var(--color-accent);
- `;
- gallerySection.appendChild(galleryTitle);
- 
- // Gallery tabs
- const tabsContainer = document.createElement('div');
- tabsContainer.style.cssText = `
- display: flex;
- gap: 0.5rem;
- margin-bottom: 1rem;
- `;
- 
- const allTab = document.createElement('button');
- allTab.textContent = `All (${stills.length})`;
- allTab.style.cssText = `
- padding: 0.5rem 1rem;
- background: var(--color-accent);
- color: var(--color-bg-primary);
- border: none;
- border-radius: var(--radius-md);
- cursor: pointer;
- `;
- 
- const stillsTab = document.createElement('button');
- stillsTab.textContent = `Stills (${productionStills.length})`;
- stillsTab.style.cssText = `
- padding: 0.5rem 1rem;
- background: var(--color-bg-secondary);
- color: var(--color-text-primary);
- border: none;
- border-radius: var(--radius-md);
- cursor: pointer;
- `;
- 
- const btsTab = document.createElement('button');
- btsTab.textContent = `BTS (${btsStills.length})`;
- btsTab.style.cssText = `
- padding: 0.5rem 1rem;
- background: var(--color-bg-secondary);
- color: var(--color-text-primary);
- border: none;
- border-radius: var(--radius-md);
- cursor: pointer;
- `;
- 
- tabsContainer.appendChild(allTab);
- if (productionStills.length > 0) tabsContainer.appendChild(stillsTab);
- if (btsStills.length > 0) tabsContainer.appendChild(btsTab);
- 
- // Gallery grid
- const galleryGrid = document.createElement('div');
- galleryGrid.style.cssText = `
- display: grid;
- grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
- gap: 1rem;
- `;
- 
- function renderGallery(images) {
- galleryGrid.innerHTML = '';
- images.forEach(still => {
- const img = document.createElement('img');
- img.src = still.src.startsWith('/') ? still.src : '/' + still.src;
- img.alt = still.alt || 'Still';
- img.style.cssText = `
- width: 100%;
- height: 150px;
- object-fit: cover;
- border-radius: var(--radius-md);
- cursor: pointer;
- transition: transform 0.2s;
- `;
- img.addEventListener('mouseenter', () => img.style.transform = 'scale(1.05)');
- img.addEventListener('mouseleave', () => img.style.transform = 'scale(1)');
- img.addEventListener('click', () => openFullscreen(still.src));
- galleryGrid.appendChild(img);
- });
- }
- 
- renderGallery(stills);
- 
- allTab.addEventListener('click', () => renderGallery(stills));
- stillsTab.addEventListener('click', () => renderGallery(productionStills));
- btsTab.addEventListener('click', () => renderGallery(btsStills));
- 
- gallerySection.appendChild(tabsContainer);
- gallerySection.appendChild(galleryGrid);
- 
- modalContent.appendChild(posterColumn);
- modalContent.appendChild(infoColumn);
- modalContent.appendChild(gallerySection);
- modal.appendChild(modalContent);
- document.body.appendChild(modal);
- 
- // Fade in
+ // Reset transition after animation
  setTimeout(() => {
- modal.style.opacity = '1';
- }, 10);
- 
- function closeModal() {
- modal.style.opacity = '0';
- setTimeout(() => modal.remove(), 300);
- }
- 
- function openFullscreen(src) {
- const fsModal = document.createElement('div');
- fsModal.style.cssText = `
- position: fixed;
- top: 0;
- left: 0;
- width: 100%;
- height: 100%;
- background: rgba(0,0,0,0.95);
- z-index: 100001;
- display: flex;
- align-items: center;
- justify-content: center;
- cursor: pointer;
- `;
- 
- const fsImg = document.createElement('img');
- fsImg.src = src;
- fsImg.style.cssText = `
- max-width: 90%;
- max-height: 90%;
- object-fit: contain;
- `;
- 
- fsModal.appendChild(fsImg);
- document.body.appendChild(fsModal);
- 
- fsModal.addEventListener('click', () => fsModal.remove());
- }
+  carouselTrack.style.transition = 'none';
+ }, 500);
 }
 
 // ============================================
@@ -2649,31 +2261,17 @@ window.addEventListener('load', () => {
 // ============================================
 // INITIALIZE ALL
 // ============================================
-function initializeApp() {
-clientLogger.info('Portfolio initialized successfully!');
-clientLogger.info('Joel Kundu - Cinematographer & Director');
-clientLogger.info(`Theme: ${savedTheme || themeToUse}`);
-clientLogger.info('3D effects enabled');
-clientLogger.info('Image protection enabled');
-clientLogger.info('Password protection enabled');
-clientLogger.info('Infinite carousel enabled');
-
-// Load dynamic config from dashboard
-// updateHeroFromConfig() is called inside loadSiteConfig() after config is loaded
-loadSiteConfig().then(() => {
-clientLogger.info('Dynamic config loaded and applied!');
-// Initialize gallery after config is loaded (default: 'all' filter)
-initGallery('all');
-}).catch(err => {
-clientLogger.error('Failed to load config:', err.message);
+document.addEventListener('DOMContentLoaded', () => {
+ clientLogger.info('Portfolio initialized successfully!');
+ clientLogger.info('Joel Kundu - Cinematographer & Director');
+ clientLogger.info(`Theme: ${savedTheme || themeToUse}`);
+ clientLogger.info('3D effects enabled');
+ clientLogger.info('Image protection enabled');
+ clientLogger.info('Password protection enabled');
+ clientLogger.info('Infinite carousel enabled');
+ 
+ // Load dynamic config from dashboard
+ loadSiteConfig().then(() => {
+ clientLogger.info('Dynamic config loaded and applied!');
+ });
 });
-}
-
-// Run when DOM is ready, or immediately if already loaded
-if (document.readyState === 'loading') {
- document.addEventListener('DOMContentLoaded', initializeApp);
-} else {
- // DOM already loaded, run immediately
- initializeApp();
-}
-// Cache buster: 1778895341
