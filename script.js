@@ -1709,12 +1709,20 @@ function viewFullscreenImage(src, clickedItem) {
  transition: transform 0.3s ease, background 0.3s ease;
  `;
  
+ // Save page scroll position and set up scroll-chain blocker
+ const galleryFsScrollY = window.scrollY;
+ const preventGalleryScrollChain = (e) => { e.preventDefault(); };
+ 
  const handleClose = () => {
  modal.style.opacity = '0';
  // Return to clicked position and scale down
  imgContainer.style.left = `${centerX}px`;
  imgContainer.style.transform = 'translate(-50%, -50%) scale(0.1)';
+ // Restore page scroll position
+ window.scrollTo({ top: galleryFsScrollY, behavior: 'instant' });
  setTimeout(() => {
+ modal.removeEventListener('wheel', preventGalleryScrollChain);
+ modal.removeEventListener('touchmove', preventGalleryScrollChain);
  modal.remove();
  document.body.style.overflow = '';
  }, 300);
@@ -1740,8 +1748,10 @@ function viewFullscreenImage(src, clickedItem) {
  modal.appendChild(imgContainer);
  document.body.appendChild(modal);
  
- // Don't disable body scroll - keep it unlocked
- 
+ // Block scroll chaining on the fullscreen viewer
+ modal.addEventListener('wheel', preventGalleryScrollChain, { passive: false });
+ modal.addEventListener('touchmove', preventGalleryScrollChain, { passive: false });
+
  // Click outside to close
  modal.addEventListener('click', (e) => {
  if (e.target === modal) {
@@ -2787,6 +2797,7 @@ function openProjectModal(project) {
  cursor: pointer;
  opacity: 0;
  transition: opacity 0.3s ease;
+ overscroll-behavior: contain;
  `;
  
  // Create image container — starts at clicked position, animates to horizontal center
@@ -2839,14 +2850,20 @@ function openProjectModal(project) {
  transition: transform 0.3s ease, background 0.3s ease;
  `;
  
+ // Save page scroll position and set up scroll-chain blocker
+ // (declared before handleClose so the closure can reference them)
+ const fsScrollY = window.scrollY;
+ const preventScrollChain = (e) => { e.preventDefault(); };
+ 
  const handleClose = () => {
  fsViewer.style.opacity = '0';
  // Return to clicked position and scale down
  imgContainer.style.left = `${centerX}px`;
  imgContainer.style.transform = 'translate(-50%, -50%) scale(0.1)';
+ // Restore page scroll position (in case it drifted while viewer was open)
+ window.scrollTo({ top: fsScrollY, behavior: 'instant' });
  setTimeout(() => {
- if (fsViewer) { fsViewer.remove(); fsViewer = null; }
- // No body overflow lock to restore
+ if (fsViewer) { fsViewer.removeEventListener('wheel', preventScrollChain); fsViewer.removeEventListener('touchmove', preventScrollChain); fsViewer.remove(); fsViewer = null; }
  }, 300);
  };
  
@@ -2865,7 +2882,9 @@ function openProjectModal(project) {
  fsViewer.appendChild(imgContainer);
  document.body.appendChild(fsViewer);
  
- // Don't disable body scroll — keep it unlocked (same as gallery)
+ // Block scroll chaining on the fullscreen viewer
+ fsViewer.addEventListener('wheel', preventScrollChain, { passive: false });
+ fsViewer.addEventListener('touchmove', preventScrollChain, { passive: false });
  
  // Click outside to close
  fsViewer.addEventListener('click', (e) => {
@@ -2894,8 +2913,14 @@ function openProjectModal(project) {
  if (fsViewer) {
  if (fsHandleEscape) { document.removeEventListener('keydown', fsHandleEscape); fsHandleEscape = null; }
  fsViewer.style.opacity = '0';
+ // Restore page scroll position (in case it drifted while viewer was open)
+ window.scrollTo({ top: fsScrollY, behavior: 'instant' });
  const viewer = fsViewer;
- setTimeout(() => viewer.remove(), 300);
+ setTimeout(() => {
+ viewer.removeEventListener('wheel', preventScrollChain);
+ viewer.removeEventListener('touchmove', preventScrollChain);
+ viewer.remove();
+ }, 300);
  fsViewer = null;
  }
  }
