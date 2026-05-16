@@ -11,16 +11,18 @@
  <link rel="stylesheet" href="style.css">
 </head>
 <body class="protected">
-    <!-- Password Protection -->
-    <div class="password-overlay" id="passwordOverlay">
-        <div class="password-container">
-            <h2>🎬 Portfolio Access</h2>
-            <p>Please enter the password to view Joel Kundu's portfolio</p>
-            <input type="password" class="password-input" id="passwordInput" placeholder="Enter password">
-            <button class="password-submit" id="passwordSubmit">Enter</button>
-            <div class="password-error" id="passwordError">Incorrect password. Please try again.</div>
-        </div>
-    </div>
+ <!-- Password Protection -->
+ <div class="password-overlay" id="passwordOverlay">
+ <div class="password-container">
+ <h2>🎬 Portfolio Access</h2>
+ <form id="passwordForm" onsubmit="return false;">
+ <p>Please enter the password to view Joel Kundu's portfolio</p>
+ <input type="password" class="password-input" id="passwordInput" placeholder="Enter password" autocomplete="current-password">
+ <button type="submit" class="password-submit" id="passwordSubmit">Enter</button>
+ </form>
+ <div class="password-error" id="passwordError">Incorrect password. Please try again.</div>
+ </div>
+ </div>
 
     <!-- Theme Toggle -->
     <div class="theme-toggle">
@@ -257,8 +259,7 @@
 src="https://player.vimeo.com/video/1132983429?h=2a3b4c5d6e&title=0&byline=0&portrait=0" 
 frameborder="0" 
 sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
-allow="autoplay; fullscreen; picture-in-picture" 
-allowfullscreen>
+allow="autoplay; fullscreen; picture-in-picture">
 </iframe>
  </div>
  </div>

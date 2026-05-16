@@ -5,6 +5,32 @@
 // Logger will be initialized after logger.js loads
 let clientLogger;
 
+// ============================================
+// BASE PATH - Handles GitHub Pages subdirectory
+// ============================================
+// Auto-detect: GitHub Pages project sites serve from /<repo-name>/
+// Local/Netlify serves from /
+const BASE_PATH = (function() {
+	const path = window.location.pathname;
+	// If path contains a subdirectory (e.g., /joelkundu.github.io/), extract it
+	const match = path.match(/^(\/[^/]+\/)/);
+	if (match && match[1] !== '/') {
+		return match[1].replace(/\/$/, ''); // Remove trailing slash
+	}
+	return ''; // Root deployment (local, Netlify, custom domain)
+})();
+
+// Resolve any absolute path through BASE_PATH
+function resolvePath(path) {
+	if (!path) return path;
+	// Already a full URL (http/https) — leave it
+	if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('//')) return path;
+	// Absolute path: prepend base
+	if (path.startsWith('/')) return BASE_PATH + path;
+	// Relative path: leave as-is
+	return path;
+}
+
 // Initialize logger when logger.js is available
 function initializeLogger() {
   if (typeof createLogger === 'function') {
@@ -33,7 +59,7 @@ let siteConfig = null;
 
 async function loadSiteConfig() {
 try {
-const configUrl = '/config/site-config.json?t=' + Date.now();
+const configUrl = resolvePath('/config/site-config.json') + '?t=' + Date.now();
 clientLogger.debug('Fetching config from:', configUrl);
 const response = await fetch(configUrl);
 clientLogger.debug('Config response status:', response.status, response.ok);
@@ -739,7 +765,7 @@ function populateHeroSlideshow() {
         slide.className = `hero-slide ${index === 0 ? 'active' : ''}`;
         
         const img = document.createElement('img');
-        img.src = imageSrc;
+        img.src = resolvePath(imageSrc);
         img.alt = 'Cinematic Background';
         img.className = 'parallax-image';
         
@@ -1348,7 +1374,7 @@ const galleryProject = galleryProjectId
  stills.forEach(still => {
  const img = document.createElement('img');
  // Ensure path starts with /
- img.src = still.src.startsWith('/') ? still.src : '/' + still.src;
+ img.src = resolvePath(still.src.startsWith('/') ? still.src : '/' + still.src);
  img.alt = still.alt || `${project.title} still`;
  stillsGrid.appendChild(img);
  });
@@ -1366,7 +1392,7 @@ const galleryProject = galleryProjectId
  if (bts.length > 0) {
  bts.forEach(still => {
  const img = document.createElement('img');
- img.src = still.src.startsWith('/') ? still.src : '/' + still.src;
+ img.src = resolvePath(still.src.startsWith('/') ? still.src : '/' + still.src);
  img.alt = still.alt || `${project.title} BTS`;
  btsGrid.appendChild(img);
  });
@@ -1444,7 +1470,7 @@ const projectKey = projectName.toLowerCase().replace(/[^a-z0-9]/g, '');
 if (proj.stills) {
 proj.stills.forEach(still => {
 	allGalleryImages.push({
-	src: still.src.startsWith('/') ? still.src : '/' + still.src,
+	src: resolvePath(still.src.startsWith('/') ? still.src : '/' + still.src),
 	project: projectKey,
 	projectName: projectName // Keep original name for debugging
 	});
@@ -2093,6 +2119,10 @@ function stopAutoScroll() {
 // Two-column layout with all project data
 // ============================================
 function openProjectModal(project) {
+ // GUARD: Prevent multiple modals stacking
+ const existingModal = document.querySelector('.project-modal');
+ if (existingModal) return;
+
  // Get gallery project for stills
  const galleryProject = siteConfig.gallery?.projects?.find(p => p.name === project.title);
  const stills = galleryProject?.stills || [];
@@ -2101,22 +2131,6 @@ function openProjectModal(project) {
  
  const modal = document.createElement('div');
  modal.className = 'project-modal';
-
- // Calculate the vertical position of the work carousel content
- // Capture scroll position and carousel position BEFORE any DOM changes
- const scrollY = window.scrollY;
- const carousel = document.querySelector('.work-carousel') || document.getElementById('work');
- const carouselRect = carousel ? carousel.getBoundingClientRect() : null;
- // The modal overlay is position:fixed covering the whole viewport.
- // We want the modal content to start at the same vertical viewport position
- // as the carousel. getBoundingClientRect().top is already viewport-relative.
- const modalTop = carouselRect ? Math.max(0, Math.round(carouselRect.top)) : 0;
-
- // Lock body scroll so the background doesn't jump when modal appears
- document.body.style.overflow = 'hidden';
- document.body.style.position = 'fixed';
- document.body.style.top = `-${scrollY}px`;
- document.body.style.width = '100%';
 
  modal.style.cssText = `
  position: fixed;
@@ -2132,8 +2146,8 @@ function openProjectModal(project) {
  justify-content: center;
  opacity: 0;
  transition: opacity 0.3s ease;
- overflow-y: auto;
  padding: 0 2rem 2rem 2rem;
+ overflow-y: auto;
  `;
  
  const modalContent = document.createElement('div');
@@ -2143,12 +2157,11 @@ function openProjectModal(project) {
  gap: 2rem;
  max-width: 1400px;
  width: 100%;
- max-height: 90vh;
  background: var(--color-bg-primary);
  border-radius: var(--radius-lg);
  padding: 2rem;
  position: relative;
- margin-top: ${modalTop}px;
+ margin-top: 2rem;
  `;
  
  // LEFT COLUMN - Poster
@@ -2159,7 +2172,7 @@ function openProjectModal(project) {
  `;
  
  const posterImg = document.createElement('img');
- posterImg.src = project.image || '/assets/images/placeholder.png';
+ posterImg.src = resolvePath(project.image || '/assets/images/placeholder.png');
  posterImg.style.cssText = `
  width: 100%;
  height: auto;
@@ -2342,6 +2355,48 @@ function openProjectModal(project) {
  producer.style.cssText = `color: var(--color-text-primary);`;
  crewList.appendChild(producer);
  }
+ if (project.credits.writer) {
+ const writer = document.createElement('div');
+ writer.textContent = `Writer: ${project.credits.writer}`;
+ writer.style.cssText = `color: var(--color-text-primary);`;
+ crewList.appendChild(writer);
+ }
+ if (project.credits.editor) {
+ const editor = document.createElement('div');
+ editor.textContent = `Editor: ${project.credits.editor}`;
+ editor.style.cssText = `color: var(--color-text-primary);`;
+ crewList.appendChild(editor);
+ }
+ if (project.credits.colorist) {
+ const colorist = document.createElement('div');
+ colorist.textContent = `Colorist: ${project.credits.colorist}`;
+ colorist.style.cssText = `color: var(--color-text-primary);`;
+ crewList.appendChild(colorist);
+ }
+ if (project.credits.productionDesigner) {
+ const pd = document.createElement('div');
+ pd.textContent = `Production Designer: ${project.credits.productionDesigner}`;
+ pd.style.cssText = `color: var(--color-text-primary);`;
+ crewList.appendChild(pd);
+ }
+ if (project.credits.assistantDirector) {
+ const ad = document.createElement('div');
+ ad.textContent = `1st Assistant Director: ${project.credits.assistantDirector}`;
+ ad.style.cssText = `color: var(--color-text-primary);`;
+ crewList.appendChild(ad);
+ }
+ if (project.credits.soundDesigner) {
+ const sd = document.createElement('div');
+ sd.textContent = `Sound Designer: ${project.credits.soundDesigner}`;
+ sd.style.cssText = `color: var(--color-text-primary);`;
+ crewList.appendChild(sd);
+ }
+ if (project.credits.composer) {
+ const composer = document.createElement('div');
+ composer.textContent = `Composer: ${project.credits.composer}`;
+ composer.style.cssText = `color: var(--color-text-primary);`;
+ crewList.appendChild(composer);
+ }
  
  crewSection.appendChild(crewList);
  infoColumn.appendChild(crewSection);
@@ -2392,8 +2447,13 @@ function openProjectModal(project) {
  infoColumn.appendChild(cameraSection);
  }
  
- // Action buttons
- const actionRow = document.createElement('div');
+ // Action buttons (only render if at least one exists)
+ let actionRow = null;
+ const hasTrailer = project.trailerUrl;
+ const hasImdb = project.imdbUrl;
+ 
+ if (hasTrailer || hasImdb) {
+ actionRow = document.createElement('div');
  actionRow.style.cssText = `
  display: flex;
  gap: 1rem;
@@ -2401,7 +2461,7 @@ function openProjectModal(project) {
  padding-top: 1rem;
  `;
  
- if (project.trailerUrl) {
+ if (hasTrailer) {
  const trailerBtn = document.createElement('a');
  trailerBtn.href = project.trailerUrl;
  trailerBtn.target = '_blank';
@@ -2420,7 +2480,7 @@ function openProjectModal(project) {
  actionRow.appendChild(trailerBtn);
  }
  
- if (project.imdbUrl) {
+ if (hasImdb) {
  const imdbBtn = document.createElement('a');
  imdbBtn.href = project.imdbUrl;
  imdbBtn.target = '_blank';
@@ -2441,6 +2501,7 @@ function openProjectModal(project) {
  }
  
  infoColumn.appendChild(actionRow);
+ }
  
  // Stills Gallery
  const gallerySection = document.createElement('div');
@@ -2468,6 +2529,7 @@ function openProjectModal(project) {
  
  const allTab = document.createElement('button');
  allTab.textContent = `All (${stills.length})`;
+ allTab.className = 'modal-gallery-tab active';
  allTab.style.cssText = `
  padding: 0.5rem 1rem;
  background: var(--color-accent);
@@ -2475,10 +2537,12 @@ function openProjectModal(project) {
  border: none;
  border-radius: var(--radius-md);
  cursor: pointer;
+ transition: background 0.2s, color 0.2s;
  `;
  
  const stillsTab = document.createElement('button');
  stillsTab.textContent = `Stills (${productionStills.length})`;
+ stillsTab.className = 'modal-gallery-tab';
  stillsTab.style.cssText = `
  padding: 0.5rem 1rem;
  background: var(--color-bg-secondary);
@@ -2486,10 +2550,12 @@ function openProjectModal(project) {
  border: none;
  border-radius: var(--radius-md);
  cursor: pointer;
+ transition: background 0.2s, color 0.2s;
  `;
  
  const btsTab = document.createElement('button');
  btsTab.textContent = `BTS (${btsStills.length})`;
+ btsTab.className = 'modal-gallery-tab';
  btsTab.style.cssText = `
  padding: 0.5rem 1rem;
  background: var(--color-bg-secondary);
@@ -2497,7 +2563,23 @@ function openProjectModal(project) {
  border: none;
  border-radius: var(--radius-md);
  cursor: pointer;
+ transition: background 0.2s, color 0.2s;
  `;
+
+ // Tab active state toggle helper
+ function setActiveTab(activeTab) {
+ [allTab, stillsTab, btsTab].forEach(tab => {
+ if (tab === activeTab) {
+ tab.style.background = 'var(--color-accent)';
+ tab.style.color = 'var(--color-bg-primary)';
+ tab.classList.add('active');
+ } else {
+ tab.style.background = 'var(--color-bg-secondary)';
+ tab.style.color = 'var(--color-text-primary)';
+ tab.classList.remove('active');
+ }
+ });
+ }
  
  tabsContainer.appendChild(allTab);
  if (productionStills.length > 0) tabsContainer.appendChild(stillsTab);
@@ -2515,7 +2597,7 @@ function openProjectModal(project) {
  galleryGrid.innerHTML = '';
  images.forEach(still => {
  const img = document.createElement('img');
- img.src = still.src.startsWith('/') ? still.src : '/' + still.src;
+ img.src = resolvePath(still.src.startsWith('/') ? still.src : '/' + still.src);
  img.alt = still.alt || 'Still';
  img.style.cssText = `
  width: 100%;
@@ -2534,9 +2616,9 @@ function openProjectModal(project) {
  
  renderGallery(stills);
  
- allTab.addEventListener('click', () => renderGallery(stills));
- stillsTab.addEventListener('click', () => renderGallery(productionStills));
- btsTab.addEventListener('click', () => renderGallery(btsStills));
+ allTab.addEventListener('click', () => { renderGallery(stills); setActiveTab(allTab); });
+ stillsTab.addEventListener('click', () => { renderGallery(productionStills); setActiveTab(stillsTab); });
+ btsTab.addEventListener('click', () => { renderGallery(btsStills); setActiveTab(btsTab); });
  
  gallerySection.appendChild(tabsContainer);
  gallerySection.appendChild(galleryGrid);
@@ -2547,21 +2629,33 @@ function openProjectModal(project) {
  modal.appendChild(modalContent);
  document.body.appendChild(modal);
  
- // Fade in
+ // Fade in + lock body scroll
+ document.body.style.overflow = 'hidden';
  setTimeout(() => {
  modal.style.opacity = '1';
  }, 10);
- 
+
  function closeModal() {
  modal.style.opacity = '0';
- // Restore body scroll
  document.body.style.overflow = '';
- document.body.style.position = '';
- document.body.style.top = '';
- document.body.style.width = '';
- window.scrollTo(0, scrollY);
+ document.removeEventListener('keydown', handleEscape);
  setTimeout(() => modal.remove(), 300);
  }
+
+ // ESC key handler
+ function handleEscape(e) {
+ if (e.key === 'Escape') {
+ closeModal();
+ }
+ }
+ document.addEventListener('keydown', handleEscape);
+
+ // Click outside modal content to close
+ modal.addEventListener('click', (e) => {
+ if (e.target === modal) {
+ closeModal();
+ }
+ });
  
  function openFullscreen(src) {
  const fsModal = document.createElement('div');
