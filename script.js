@@ -1376,6 +1376,8 @@ const galleryProject = galleryProjectId
  // Ensure path starts with /
  img.src = resolvePath(still.src.startsWith('/') ? still.src : '/' + still.src);
  img.alt = still.alt || `${project.title} still`;
+ img.style.cursor = 'pointer';
+ img.addEventListener('click', () => viewFullscreenImage(still.src, img));
  stillsGrid.appendChild(img);
  });
  } else {
@@ -1394,6 +1396,8 @@ const galleryProject = galleryProjectId
  const img = document.createElement('img');
  img.src = resolvePath(still.src.startsWith('/') ? still.src : '/' + still.src);
  img.alt = still.alt || `${project.title} BTS`;
+ img.style.cursor = 'pointer';
+ img.addEventListener('click', () => viewFullscreenImage(still.src, img));
  btsGrid.appendChild(img);
  });
  } else {
@@ -1647,7 +1651,7 @@ function viewFullscreenImage(src, clickedItem) {
  `;
  
  const img = document.createElement('img');
- img.src = resolvePath(src);
+ img.src = src;
  img.style.cssText = `
  width: 115%; /* 15% bigger */
  max-height: 90vh;
@@ -1983,75 +1987,74 @@ document.addEventListener('dragstart', (e) => {
 });
 
 // ============================================
-// INFINITE CAROUSEL - FRESH START
-// Single row, 7 copies, working arrows, redesigned modal
+// INFINITE CAROUSEL — Seamless CSS Animation
+// Right-to-left auto-scroll, smooth infinite loop
 // ============================================
 let carouselAutoScrollInterval;
 let carouselCurrentPosition = 0;
 let carouselIsPaused = false;
+let carouselSpeed = 0.5; // pixels per frame (right-to-left)
 
 function initInfiniteCarousel() {
- const carouselTrack = document.getElementById('carouselTrack');
- if (!carouselTrack) return;
- 
- const carouselContainer = document.querySelector('.work-carousel');
- if (!carouselContainer) return;
- 
- // Get original cards
- const originalCards = Array.from(carouselTrack.querySelectorAll('.work-card'));
- if (originalCards.length === 0) return;
- 
- // Create navigation arrows
- createNavArrows(carouselContainer);
- 
- // Create 7 copies
- for (let i = 0; i < 7; i++) {
- originalCards.forEach(card => {
- const clone = card.cloneNode(true);
- clone.dataset.copy = 'true';
- carouselTrack.appendChild(clone);
- });
- }
- 
- // Attach event listeners to ALL cards
- attachCardListeners();
- 
- // Start auto-scroll
- startAutoScroll();
- 
- // Pause on hover
- carouselTrack.addEventListener('mouseenter', () => {
- carouselIsPaused = true;
- stopAutoScroll();
- });
- 
- carouselTrack.addEventListener('mouseleave', () => {
- carouselIsPaused = false;
- startAutoScroll();
- });
+  const carouselTrack = document.getElementById('carouselTrack');
+  if (!carouselTrack) return;
+  
+  const carouselContainer = document.querySelector('.work-carousel');
+  if (!carouselContainer) return;
+  
+  // Get original cards
+  const originalCards = Array.from(carouselTrack.querySelectorAll('.work-card'));
+  if (originalCards.length === 0) return;
+  
+  // Create navigation arrows
+  createNavArrows(carouselContainer);
+  
+  // Create 7 copies for seamless loop
+  for (let i = 0; i < 7; i++) {
+    originalCards.forEach(card => {
+      const clone = card.cloneNode(true);
+      clone.dataset.copy = 'true';
+      carouselTrack.appendChild(clone);
+    });
+  }
+  
+  // Attach event listeners to ALL cards
+  attachCardListeners();
+  
+  // Start smooth auto-scroll (right-to-left)
+  startSmoothAutoScroll();
+  
+  // Pause on hover
+  carouselContainer.addEventListener('mouseenter', () => {
+    carouselIsPaused = true;
+  });
+  
+  carouselContainer.addEventListener('mouseleave', () => {
+    carouselIsPaused = false;
+  });
 }
 
 function createNavArrows(container) {
- if (container.querySelector('.carousel-nav-arrows')) return;
- 
- const arrows = document.createElement('div');
- arrows.className = 'carousel-nav-arrows';
- arrows.innerHTML = `
- <button class="carousel-arrow carousel-arrow-left" aria-label="Previous">
- <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
- <path d="M15 18l-6-6 6-6"/>
- </svg>
- </button>
- <button class="carousel-arrow carousel-arrow-right" aria-label="Next">
- <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
- <path d="M9 18l6-6-6-6"/>
- </svg>
- </button>
- `;
- container.appendChild(arrows);
- 
- arrows.querySelector('.carousel-arrow-left').addEventListener('click', () => scrollCarousel(-1));
- arrows.querySelector('.carousel-arrow-right').addEventListener('click', () => scrollCarousel(1));
+  if (container.querySelector('.carousel-nav-arrows')) return;
+  
+  const arrows = document.createElement('div');
+  arrows.className = 'carousel-nav-arrows';
+  arrows.innerHTML = `
+    <button class="carousel-arrow carousel-arrow-left" aria-label="Previous">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M15 18l-6-6 6-6"/>
+      </svg>
+    </button>
+    <button class="carousel-arrow carousel-arrow-right" aria-label="Next">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 18l6-6-6-6"/>
+      </svg>
+    </button>
+  `;
+  container.appendChild(arrows);
+  
+  arrows.querySelector('.carousel-arrow-left').addEventListener('click', () => nudgeCarousel(-1));
+  arrows.querySelector('.carousel-arrow-right').addEventListener('click', () => nudgeCarousel(1));
 }
 
 function attachCardListeners() {
@@ -2077,44 +2080,56 @@ function attachCardListeners() {
  });
 }
 
-function scrollCarousel(direction) {
+function nudgeCarousel(direction) {
+  // Arrow click: jump by one card width
+  const track = document.getElementById('carouselTrack');
+  if (!track) return;
+  const cardWidth = 320;
+  carouselCurrentPosition += cardWidth * direction;
+  track.style.transform = `translateX(${carouselCurrentPosition}px)`;
+}
+
+// Smooth requestAnimationFrame auto-scroll (right-to-left)
+let carouselRAF = null;
+
+function startSmoothAutoScroll() {
+  stopSmoothAutoScroll();
   const track = document.getElementById('carouselTrack');
   if (!track) return;
   
-  const cardWidth = 320; // Approx card width + gap
-  const scrollAmount = cardWidth * direction;
+  // Measure one set of original cards width for seamless reset
+  const originalSetWidth = track.scrollWidth / 8; // 1 original + 7 copies = 8 sets
   
-  carouselCurrentPosition += scrollAmount;
-  track.style.transform = `translateX(${carouselCurrentPosition}px)`;
-  
-  // Infinite loop detection — reset seamlessly when reaching the end
-  const maxScroll = track.scrollWidth - track.parentElement.offsetWidth;
-  if (carouselCurrentPosition < -maxScroll || carouselCurrentPosition > 0) {
-    // For right-to-left: reset when we've scrolled past all original cards
-    carouselCurrentPosition = 0;
-    setTimeout(() => {
-      track.style.transition = 'none';
-      track.style.transform = 'translateX(0px)';
-      // Force reflow then restore transition
-      track.offsetHeight;
-    }, 500);
-  }
-}
-
-function startAutoScroll() {
-  stopAutoScroll();
-  carouselAutoScrollInterval = setInterval(() => {
+  function animate() {
     if (!carouselIsPaused) {
-      scrollCarousel(-1); // Negative = translateX goes negative = track moves left = items scroll right-to-left
+      carouselCurrentPosition -= carouselSpeed; // Negative = right-to-left
+      
+      // Seamless reset: when we've scrolled past one full set of originals,
+      // jump back by one set width — invisible because the cloned cards are identical
+      if (Math.abs(carouselCurrentPosition) >= originalSetWidth) {
+        carouselCurrentPosition += originalSetWidth;
+        track.style.transition = 'none';
+        track.style.transform = `translateX(${carouselCurrentPosition}px)`;
+        // Force reflow to apply the no-transition state
+        track.offsetHeight;
+        // Restore transition on next frame
+        requestAnimationFrame(() => {
+          track.style.transition = '';
+        });
+      } else {
+        track.style.transform = `translateX(${carouselCurrentPosition}px)`;
+      }
     }
-  }, 3000);
+    carouselRAF = requestAnimationFrame(animate);
+  }
+  carouselRAF = requestAnimationFrame(animate);
 }
 
-function stopAutoScroll() {
- if (carouselAutoScrollInterval) {
- clearInterval(carouselAutoScrollInterval);
- carouselAutoScrollInterval = null;
- }
+function stopSmoothAutoScroll() {
+  if (carouselRAF) {
+    cancelAnimationFrame(carouselRAF);
+    carouselRAF = null;
+  }
 }
 
 // ============================================
@@ -2138,24 +2153,25 @@ function openProjectModal(project) {
   modal.className = 'project-modal';
 
   // Backdrop — deep cinematic dark, blur for depth
-  modal.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.92);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    z-index: 100000;
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-    padding: 2rem;
-    overflow-y: auto;
-  `;
+ modal.style.cssText = `
+ position: fixed;
+ top: 0;
+ left: 0;
+ width: 100vw;
+ height: 100vh;
+ background: rgba(0, 0, 0, 0.92);
+ backdrop-filter: blur(20px);
+ -webkit-backdrop-filter: blur(20px);
+ z-index: 100000;
+ display: flex;
+ align-items: flex-start;
+ justify-content: center;
+ opacity: 0;
+ transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+ padding: 2rem;
+ overflow-y: auto;
+ overscroll-behavior: contain;
+ `;
   
   // Content container — Apple's centered precision, RunwayML's dark surface
   const modalContent = document.createElement('div');
@@ -2649,7 +2665,7 @@ function openProjectModal(project) {
       img.addEventListener('load', () => { img.style.opacity = '1'; });
       img.addEventListener('mouseenter', () => { img.style.transform = 'scale(1.02)'; });
       img.addEventListener('mouseleave', () => { img.style.transform = 'scale(1)'; });
-      img.addEventListener('click', () => openFullscreen(index));
+      img.addEventListener('click', () => openFullscreen(index, img));
       galleryGrid.appendChild(img);
     });
   }
@@ -2710,212 +2726,148 @@ function openProjectModal(project) {
     }
   });
   
-  // ---- FULLSCREEN VIEWER — slideshow with arrows + keyboard ----
-  let fullscreenIndex = 0;
-  let fsViewer = null;
-  
-  function openFullscreen(startIndex) {
-    fullscreenIndex = startIndex;
-    
-    fsViewer = document.createElement('div');
-    fsViewer.className = 'project-fullscreen-viewer';
-    fsViewer.style.cssText = `
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.97);
-      z-index: 100001;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      transition: opacity 0.25s ease;
-    `;
-    
-    // Image container
-    const imgContainer = document.createElement('div');
-    imgContainer.style.cssText = `
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      height: 100%;
-      padding: 4rem;
-    `;
-    
-    // The image
-    const fsImg = document.createElement('img');
-    fsImg.className = 'fullscreen-image';
-    fsImg.src = resolvePath(currentGalleryImages[fullscreenIndex].src.startsWith('/') ? currentGalleryImages[fullscreenIndex].src : '/' + currentGalleryImages[fullscreenIndex].src);
-    fsImg.alt = currentGalleryImages[fullscreenIndex].alt || 'Still';
-    fsImg.style.cssText = `
-      max-width: 90%;
-      max-height: 85%;
-      object-fit: contain;
-      border-radius: 4px;
-      transition: opacity 0.2s;
-    `;
-    imgContainer.appendChild(fsImg);
-    
-    // Close button — top right
-    const fsCloseBtn = document.createElement('button');
-    fsCloseBtn.innerHTML = '×';
-    fsCloseBtn.setAttribute('aria-label', 'Close fullscreen');
-    fsCloseBtn.style.cssText = `
-      position: absolute;
-      top: 1rem;
-      right: 1.5rem;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.1);
-      color: rgba(255, 255, 255, 0.8);
-      border: none;
-      font-size: 1.5rem;
-      cursor: pointer;
-      transition: background 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 10;
-    `;
-    fsCloseBtn.addEventListener('mouseenter', () => fsCloseBtn.style.background = 'rgba(255,255,255,0.2)');
-    fsCloseBtn.addEventListener('mouseleave', () => fsCloseBtn.style.background = 'rgba(255,255,255,0.1)');
-    fsCloseBtn.addEventListener('click', closeFullscreen);
-    imgContainer.appendChild(fsCloseBtn);
-    
-    // Counter — top left
-    const counter = document.createElement('div');
-    counter.className = 'fullscreen-counter';
-    counter.textContent = `${fullscreenIndex + 1} / ${currentGalleryImages.length}`;
-    counter.style.cssText = `
-      position: absolute;
-      top: 1.25rem;
-      left: 1.5rem;
-      font-size: 0.78rem;
-      color: rgba(255, 255, 255, 0.5);
-      font-weight: 400;
-      letter-spacing: 0.5px;
-      z-index: 10;
-    `;
-    imgContainer.appendChild(counter);
-    
-    // Left arrow
-    const leftArrow = document.createElement('button');
-    leftArrow.innerHTML = '‹';
-    leftArrow.setAttribute('aria-label', 'Previous image');
-    leftArrow.style.cssText = `
-      position: absolute;
-      left: 1rem;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.08);
-      color: rgba(255, 255, 255, 0.7);
-      border: none;
-      font-size: 1.5rem;
-      cursor: pointer;
-      transition: background 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 10;
-    `;
-    leftArrow.addEventListener('mouseenter', () => leftArrow.style.background = 'rgba(255,255,255,0.15)');
-    leftArrow.addEventListener('mouseleave', () => leftArrow.style.background = 'rgba(255,255,255,0.08)');
-    leftArrow.addEventListener('click', (e) => { e.stopPropagation(); navigateFullscreen(-1); });
-    imgContainer.appendChild(leftArrow);
-    
-    // Right arrow
-    const rightArrow = document.createElement('button');
-    rightArrow.innerHTML = '›';
-    rightArrow.setAttribute('aria-label', 'Next image');
-    rightArrow.style.cssText = `
-      position: absolute;
-      right: 1rem;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.08);
-      color: rgba(255, 255, 255, 0.7);
-      border: none;
-      font-size: 1.5rem;
-      cursor: pointer;
-      transition: background 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 10;
-    `;
-    rightArrow.addEventListener('mouseenter', () => rightArrow.style.background = 'rgba(255,255,255,0.15)');
-    rightArrow.addEventListener('mouseleave', () => rightArrow.style.background = 'rgba(255,255,255,0.08)');
-    rightArrow.addEventListener('click', (e) => { e.stopPropagation(); navigateFullscreen(1); });
-    imgContainer.appendChild(rightArrow);
-    
-    // Keyboard navigation for fullscreen
-    function handleFullscreenKeys(e) {
-      if (e.key === 'ArrowLeft') navigateFullscreen(-1);
-      else if (e.key === 'ArrowRight') navigateFullscreen(1);
-      else if (e.key === 'Escape') closeFullscreen();
-    }
-    document.addEventListener('keydown', handleFullscreenKeys);
-    
-    // Store cleanup reference
-    fsViewer._cleanup = () => document.removeEventListener('keydown', handleFullscreenKeys);
-    fsViewer._updateImage = updateFullscreenImage;
-    fsViewer._counter = counter;
-    fsViewer._img = fsImg;
-    
-    fsViewer.appendChild(imgContainer);
-    document.body.appendChild(fsViewer);
-    
-    // Click outside image to close
-    imgContainer.addEventListener('click', (e) => {
-      if (e.target === imgContainer) closeFullscreen();
-    });
-    
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        fsViewer.style.opacity = '1';
-      });
-    });
-  }
-  
-  function updateFullscreenImage() {
-    const still = currentGalleryImages[fullscreenIndex];
-    fsViewer._img.style.opacity = '0.3';
-    setTimeout(() => {
-      fsViewer._img.src = resolvePath(still.src.startsWith('/') ? still.src : '/' + still.src);
-      fsViewer._img.alt = still.alt || 'Still';
-      fsViewer._img.style.opacity = '1';
-    }, 150);
-    fsViewer._counter.textContent = `${fullscreenIndex + 1} / ${currentGalleryImages.length}`;
-  }
-  
-  function navigateFullscreen(direction) {
-    const newIndex = fullscreenIndex + direction;
-    if (newIndex < 0) fullscreenIndex = currentGalleryImages.length - 1;
-    else if (newIndex >= currentGalleryImages.length) fullscreenIndex = 0;
-    else fullscreenIndex = newIndex;
-    updateFullscreenImage();
-  }
-  
-  function closeFullscreen() {
-    if (fsViewer) {
-      if (fsViewer._cleanup) fsViewer._cleanup();
-      fsViewer.style.opacity = '0';
-      const viewer = fsViewer;
-      setTimeout(() => viewer.remove(), 250);
-      fsViewer = null;
-    }
-  }
+ // ---- FULLSCREEN VIEWER — same spec as gallery section viewFullscreenImage ----
+ // Image opens horizontally centered, vertically at the same level as the clicked thumbnail
+ // No scroll lock, scale animation, click outside or ESC to close
+ let fsViewer = null;
+ let fsHandleEscape = null;
+ 
+ function openFullscreen(startIndex, clickedImgEl) {
+ // Get the clicked image's position for the scale-from-origin animation
+ const itemRect = clickedImgEl ? clickedImgEl.getBoundingClientRect() : null;
+ const centerX = itemRect ? itemRect.left + itemRect.width / 2 : window.innerWidth / 2;
+ const centerY = itemRect ? itemRect.top + itemRect.height / 2 + (window.pageYOffset || document.documentElement.scrollTop) : (window.pageYOffset || document.documentElement.scrollTop) + window.innerHeight / 2;
+ 
+ const src = resolvePath(currentGalleryImages[startIndex].src.startsWith('/') ? currentGalleryImages[startIndex].src : '/' + currentGalleryImages[startIndex].src);
+ 
+ // Create modal overlay (fullscreen) — same spec as gallery
+ fsViewer = document.createElement('div');
+ fsViewer.style.cssText = `
+ position: fixed;
+ top: 0;
+ left: 0;
+ width: 100%;
+ height: 100%;
+ background: rgba(0, 0, 0, 0.9);
+ backdrop-filter: blur(10px);
+ z-index: 100001;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ cursor: pointer;
+ opacity: 0;
+ transition: opacity 0.3s ease;
+ `;
+ 
+ // Create image container — starts at clicked position, animates to horizontal center
+ const imgContainer = document.createElement('div');
+ imgContainer.style.cssText = `
+ position: fixed;
+ top: ${centerY}px;
+ left: ${centerX}px;
+ width: 90%;
+ max-width: 1200px;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ transform: translate(-50%, -50%) scale(0.1);
+ transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+ `;
+ 
+ const img = document.createElement('img');
+ img.src = src;
+ img.alt = currentGalleryImages[startIndex].alt || 'Still';
+ img.style.cssText = `
+ width: 115%;
+ max-height: 90vh;
+ object-fit: contain;
+ border-radius: var(--radius-md);
+ box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+ `;
+ 
+ // Close button — same spec as gallery (accent color, rotation hover)
+ const fsCloseBtn = document.createElement('button');
+ fsCloseBtn.innerHTML = '×';
+ fsCloseBtn.setAttribute('aria-label', 'Close fullscreen');
+ fsCloseBtn.style.cssText = `
+ position: absolute;
+ top: -40px;
+ right: -40px;
+ width: 40px;
+ height: 40px;
+ background: var(--color-accent);
+ border: none;
+ border-radius: 50%;
+ color: white;
+ font-size: 1.5rem;
+ font-weight: bold;
+ cursor: pointer;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ transition: transform 0.3s ease, background 0.3s ease;
+ `;
+ 
+ const handleClose = () => {
+ fsViewer.style.opacity = '0';
+ // Return to clicked position and scale down
+ imgContainer.style.left = `${centerX}px`;
+ imgContainer.style.transform = 'translate(-50%, -50%) scale(0.1)';
+ setTimeout(() => {
+ if (fsViewer) { fsViewer.remove(); fsViewer = null; }
+ // No body overflow lock to restore
+ }, 300);
+ };
+ 
+ fsCloseBtn.addEventListener('mouseenter', () => {
+ fsCloseBtn.style.transform = 'rotate(90deg) scale(1.1)';
+ fsCloseBtn.style.background = '#ff4444';
+ });
+ fsCloseBtn.addEventListener('mouseleave', () => {
+ fsCloseBtn.style.transform = 'rotate(0deg) scale(1)';
+ fsCloseBtn.style.background = 'var(--color-accent)';
+ });
+ fsCloseBtn.addEventListener('click', (e) => { e.stopPropagation(); handleClose(); });
+ 
+ imgContainer.appendChild(img);
+ imgContainer.appendChild(fsCloseBtn);
+ fsViewer.appendChild(imgContainer);
+ document.body.appendChild(fsViewer);
+ 
+ // Don't disable body scroll — keep it unlocked (same as gallery)
+ 
+ // Click outside to close
+ fsViewer.addEventListener('click', (e) => {
+ if (e.target === fsViewer) handleClose();
+ });
+ 
+ // Close on escape key
+ fsHandleEscape = (e) => {
+ if (e.key === 'Escape') {
+ handleClose();
+ document.removeEventListener('keydown', fsHandleEscape);
+ fsHandleEscape = null;
+ }
+ };
+ document.addEventListener('keydown', fsHandleEscape);
+ 
+ // Animate in — scale up and move to horizontal center (keep same vertical position)
+ setTimeout(() => {
+ fsViewer.style.opacity = '1';
+ imgContainer.style.left = '50%';
+ imgContainer.style.transform = 'translate(-50%, -50%) scale(1)';
+ }, 10);
+ }
+ 
+ function closeFullscreen() {
+ if (fsViewer) {
+ if (fsHandleEscape) { document.removeEventListener('keydown', fsHandleEscape); fsHandleEscape = null; }
+ fsViewer.style.opacity = '0';
+ const viewer = fsViewer;
+ setTimeout(() => viewer.remove(), 300);
+ fsViewer = null;
+ }
+ }
 }
 
 // ============================================
@@ -3014,4 +2966,4 @@ if (document.readyState === 'loading') {
  // DOM already loaded, run immediately
  initializeApp();
 }
-// Cache buster: 1778953307
+// Cache buster: 1778954065
