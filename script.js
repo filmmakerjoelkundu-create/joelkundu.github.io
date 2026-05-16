@@ -2227,13 +2227,14 @@ function openProjectModal(project) {
   const posterImg = document.createElement('img');
   posterImg.src = resolvePath(project.image || '/assets/images/placeholder.png');
   posterImg.alt = project.title || 'Project poster';
-  posterImg.style.cssText = `
-    width: 100%;
-    height: auto;
-    border-radius: 6px;
-    display: block;
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  `;
+ posterImg.style.cssText = `
+ width: 100%;
+ height: auto;
+ border-radius: 6px;
+ display: block;
+ transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+ pointer-events: auto !important;
+ `;
   posterImg.addEventListener('mouseenter', () => posterImg.style.transform = 'scale(1.015)');
   posterImg.addEventListener('mouseleave', () => posterImg.style.transform = 'scale(1)');
   posterColumn.appendChild(posterImg);
@@ -2680,15 +2681,16 @@ function openProjectModal(project) {
       img.src = resolvePath(still.src.startsWith('/') ? still.src : '/' + still.src);
       img.alt = still.alt || 'Still';
       img.loading = 'lazy';
-      img.style.cssText = `
-        width: 100%;
-        height: 140px;
-        object-fit: cover;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: opacity 0.3s, transform 0.3s;
-        opacity: 0;
-      `;
+ img.style.cssText = `
+ width: 100%;
+ height: 140px;
+ object-fit: cover;
+ border-radius: 4px;
+ cursor: pointer;
+ transition: opacity 0.3s, transform 0.3s;
+ opacity: 0;
+ pointer-events: auto !important;
+ `;
       img.addEventListener('load', () => { img.style.opacity = '1'; });
       img.addEventListener('mouseenter', () => { img.style.transform = 'scale(1.02)'; });
       img.addEventListener('mouseleave', () => { img.style.transform = 'scale(1)'; });
@@ -2769,6 +2771,7 @@ function openProjectModal(project) {
  
  // Create modal overlay (fullscreen) — same spec as gallery
  fsViewer = document.createElement('div');
+ fsViewer.className = 'project-fullscreen-viewer';
  fsViewer.style.cssText = `
  position: fixed;
  top: 0;
@@ -2810,6 +2813,7 @@ function openProjectModal(project) {
  object-fit: contain;
  border-radius: var(--radius-md);
  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+ pointer-events: auto !important;
  `;
  
  // Close button — same spec as gallery (accent color, rotation hover)
