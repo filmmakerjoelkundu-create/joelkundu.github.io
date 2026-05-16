@@ -1557,7 +1557,7 @@ function addGalleryItems(items) {
     item.style.animationDelay = `${randomDelay}s`;
     
  const img = document.createElement('img');
- img.src = resolvePath(imgData.src);
+ img.src = imgData.src;
  img.alt = 'Gallery image';
     img.draggable = false;
     
@@ -2669,20 +2669,26 @@ function openProjectModal(project) {
   modal.appendChild(modalContent);
   document.body.appendChild(modal);
   
-  // Fade in + lock body scroll
-  document.body.style.overflow = 'hidden';
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      modal.style.opacity = '1';
-    });
-  });
+ // Save scroll position, then smooth-scroll to top
+ const savedScrollY = window.scrollY;
+ window.scrollTo({ top: 0, behavior: 'smooth' });
 
-  function closeModal() {
-    modal.style.opacity = '0';
-    document.body.style.overflow = '';
-    document.removeEventListener('keydown', handleModalEscape);
-    setTimeout(() => modal.remove(), 350);
-  }
+ // Fade in — NO body overflow lock (user needs to scroll the modal)
+ requestAnimationFrame(() => {
+ requestAnimationFrame(() => {
+ modal.style.opacity = '1';
+ });
+ });
+
+ function closeModal() {
+ modal.style.opacity = '0';
+ document.removeEventListener('keydown', handleModalEscape);
+ setTimeout(() => {
+ modal.remove();
+ // Restore scroll position after modal is gone
+ window.scrollTo({ top: savedScrollY, behavior: 'smooth' });
+ }, 350);
+ }
 
   // ESC key handler — checks for fullscreen viewer first
   function handleModalEscape(e) {
@@ -3008,4 +3014,4 @@ if (document.readyState === 'loading') {
  // DOM already loaded, run immediately
  initializeApp();
 }
-// Cache buster: 1778895341
+// Cache buster: 1778953307
